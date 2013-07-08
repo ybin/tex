@@ -1,5 +1,4 @@
 ﻿
-
 %********** beamer settings **********
 \usetheme{Madrid} %{default} %{Singapore} %{Warsaw} %{Copenhagen} %{Madrid}
 \setbeamertemplate{navigation symbols}{} % remove the navigation symbols
@@ -7,7 +6,6 @@
 \definecolor{mybackground}{RGB}{204,232,207} % note the uppercase RGB
 %\setbeamercolor{normal text}{bg=red!12} % set background color
 \setbeamercolor{normal text}{bg=mybackground} % set background color
-
 
 %********** fonts settings **********
 \usepackage{fontspec,xunicode,xltxtra}
@@ -26,18 +24,17 @@
 \XeTeXlinebreaklocale "zh"
 \XeTeXlinebreakskip=0pt plus 1pt minus 0.1pt
 
-
 %********** using packages **********
 \usepackage{metalogo} % for XeTeX, XeLaTeX logo
 \usepackage{listings} % for listing source code
 % listings settings
 \lstset{
+  language=C,
   numbers=left,
   numberstyle=\scriptsize,
   frame=leftline,
-  xleftmargin=1em, % set left margin
+  xleftmargin=1em,
   flexiblecolumns=false,
-  language=C,
   basicstyle=\ttfamily\small,
   breaklines=true,
   extendedchars=true,
@@ -55,6 +52,24 @@
 \usepackage{graphicx}
 \usepackage{tikz,ifthen}
 \usetikzlibrary{arrows,shapes}
+\tikzset{
+  % 定义一些新的样式，注意每个样式定义后面的逗号
+  box/.style={
+    rectangle,
+    rounded corners=3pt,
+    minimum height=1.5em,
+    minimum width=3em,
+    inner sep=3pt,
+    draw=gray,thick,
+    fill=lightgray
+  },
+  format/.style = {draw, thin, fill=blue!20},
+  medium/.style = {
+    ellipse, draw, thin,
+    fill=green!20,
+    minimum height=2.5em
+  }
+}
 
 %********** Misc **********
 \usepackage{verbatim}
@@ -72,12 +87,3 @@
   urlcolor=blue,
   citecolor=green
 }
-
-%********** title page settings **********
-\title{Using \TeX{} for presentation}
-%\subtitle{use beamer}
-\author{ybin.sun}
-\institute{\texttt{ybin.sun@gmail.com}}
-\date{\today}
-
-%********** preamble end **********

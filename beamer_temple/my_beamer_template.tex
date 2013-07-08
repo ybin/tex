@@ -1,6 +1,13 @@
 ﻿\documentclass{beamer}
+
 \input{preamble}
 
+%********** title page settings **********
+\title{Using \TeX{} for presentation}
+%\subtitle{use beamer}
+\author{ybin.sun}
+\institute{\texttt{ybin.sun@gmail.com}}
+\date{\today}
 
 \begin{document}
 
@@ -38,19 +45,30 @@ hello, beamer!
 %*************** frame 4 ****************************
 \begin{frame}{fourth frame}
 \begin{figure}
-  \begin{tikzpicture}
-    \tikzset{
-      box/.style={rectangle, rounded corners=3pt,
-      minimum width=25pt, minimum height=10pt, inner sep=3pt,
-      draw=gray,thick, fill=lightgray}
-    }
-    \node[box] (tex) at(0,0) {\textcolor{red}{.tex}}; %文本框
-    \node[box] (dvi) at(3,0) {.dvi}; %文本框
-    \node[box] (pdf) at(6,0) {.pdf}; %文本框
-    \draw[->] (tex)--(dvi); %箭头
-    \draw[->] (dvi)--(pdf); %箭头
-    \node at (1.5,0.4) {latex}; %标签
-    \node at (4.5,0.4) {\textcolor{blue}{dvipdfmx}}; %标签
+  \centering
+  \begin{tikzpicture}[node distance=3.5cm, auto, >=latex', thick]
+%    \tikzstyle{box} = [
+%      rectangle,
+%      rounded corners=3pt,
+%      minimum height=2.5em,
+%      inner sep=3pt,
+%      draw=gray, thick,
+%      fill=lightgray
+%    ]
+    % 所谓bounding box即为告知TeX当前box的尺寸，TeX据此排版布局。
+    % 所以，\centering告知TeX，当前box居中显示，而具体到实际的box
+    % 里面的内容，则从坐标(0,0)开始布局。
+    % 如果内容超出了bounding box的大小，没关系，TeX按照box的尺寸布局，
+    % 图片超过部分按照box的坐标进行计算。
+    \useasboundingbox (-1,-1) rectangle (8,1);
+    % draw current bounding box
+    \draw[thick](current bounding box.south west) rectangle
+                (current bounding box.north east);
+    \path[->]<1-> node[box] (tex) {.tex};
+    \path[->]<2-> node[box, right of=tex] (dvi) {.dvi}
+                  (tex) edge node{latex} (dvi);
+    \path[->]<3-> node[box, right of=dvi] (pdf) {.pdf}
+                  (dvi) edge node{dvipdfmx} (pdf);
   \end{tikzpicture}
 \end{figure}
 \end{frame}
@@ -58,14 +76,20 @@ hello, beamer!
 
 %*************** frame 5 ****************************
 \begin{frame}{The \TeX\ work flow}
-\tikzstyle{format} = [draw, thin, fill=blue!20]
-\tikzstyle{medium} = [ellipse, draw, thin, fill=green!20, minimum height=2.5em]
-
+% 定义新的样式，名字为"format"：
+%   draw: 外框
+%   fill: 填充色
+%   ellipse: 椭圆形状
+%\tikzstyle{format} = [draw, thin, fill=blue!20]
+%\tikzstyle{medium} = [ellipse, draw, thin, fill=green!20, minimum height=2.5em]
 \begin{figure}
-  \begin{tikzpicture}[node distance=3cm, auto,>=latex', thick]
+  \begin{tikzpicture}[node distance=3cm, auto, >=latex', thick]
     % We need to set at bounding box first. Otherwise the diagram
     % will change position for each frame.
     \path[use as bounding box] (-1,0) rectangle (10,-2);
+    % draw current bounding box
+    \draw[thick](current bounding box.south west) rectangle
+                (current bounding box.north east);
     \path[->]<1-> node[format] (tex) {.tex file};
     \path[->]<2-> node[format, right of=tex] (dvi) {.dvi file}
                   (tex) edge node {\TeX} (dvi);
@@ -106,6 +130,19 @@ hello, beamer!
 \end{frame}
 %*************** frame 7 ****************************
 
+\part[TikZ Drawing]{TikZ Drawing}
+\section[Basic]{Basic}
+
+\begin{frame}{Basics}
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \draw (0,0) ellipse (2cm and 1cm)
+                ellipse (0.5cm and 1cm)
+                ellipse (0.5cm and 0.25cm);
+  \end{tikzpicture}
+\end{figure}
+\end{frame}
 
 \part[Local Operations]{Local Operations}
 \begin{frame}
