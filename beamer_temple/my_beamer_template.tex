@@ -11,39 +11,46 @@
 
 \begin{document}
 
+%********** table of content **********
+%\begin{frame}[plain]
+%  \tableofcontents
+%\end{frame}
+%********** table of content **********
+
+
 %\maketitle % 效果等同于 frame 0的\titlepage
-\section[Title]{Title}
-%*************** frame 0 ****************************
+\part[Title]{Title}
+%*************** title page *****************
 \begin{frame}[plain]
   \titlepage
 \end{frame}
-%*************** frame 0 ****************************
+%*************** title page *****************
+
 
 \part[Instruction]{Instruction}
-\section[Sec. Greetings]{Sec. Greetings}
-%*************** frame 1 ****************************
-\begin{frame}{first frame}
+\section[Greetings]{Greetings}
+\begin{frame}{Greetings}
 hello, beamer!
 \end{frame}
-%*************** frame 1 end ************************
 
-\section[Sec. Source Code]{Sec. Source Code}
-%*************** frame 2 ****************************
-\begin{frame}{second frame}
+\section[Source Code]{Source Code}
+\begin{frame}{Source Code}
 \lstinputlisting{example.c}
 \end{frame}
-%*************** frame 2 end ************************
 
-\section[Sec. Chinese Fonts]{Sec. Chinese Fonts}
-%*************** frame 3 ****************************
-\begin{frame}{third frame}
+\begin{frame}{Source Code 2}
+  \verbatiminput{deletee.bat}
+\end{frame}
+
+
+\section[Chinese Fonts]{Chinese Fonts}
+\begin{frame}{Chinese Fonts}
 使用 \XeTeX{} 编译中文！
 \end{frame}
-%*************** frame 3 end ************************
 
-\section[Sec. Control Flow]{Sec. Control Flow}
-%*************** frame 4 ****************************
-\begin{frame}{fourth frame}
+
+\section[Control Flow]{Control Flow}
+\begin{frame}{Control Flow}
 \begin{figure}
   \centering
   \begin{tikzpicture}[node distance=3.5cm, auto, >=latex', thick]
@@ -62,8 +69,8 @@ hello, beamer!
     % 图片超过部分按照box的坐标进行计算。
     \useasboundingbox (-1,-1) rectangle (8,1);
     % draw current bounding box
-    \draw[thick](current bounding box.south west) rectangle
-                (current bounding box.north east);
+    %\draw[thick](current bounding box.south west) rectangle
+    %            (current bounding box.north east);
     \path[->]<1-> node[box] (tex) {.tex};
     \path[->]<2-> node[box, right of=tex] (dvi) {.dvi}
                   (tex) edge node{latex} (dvi);
@@ -72,9 +79,7 @@ hello, beamer!
   \end{tikzpicture}
 \end{figure}
 \end{frame}
-%*************** frame 4 ****************************
 
-%*************** frame 5 ****************************
 \begin{frame}{The \TeX\ work flow}
 % 定义新的样式，名字为"format"：
 %   draw: 外框
@@ -88,8 +93,8 @@ hello, beamer!
     % will change position for each frame.
     \path[use as bounding box] (-1,0) rectangle (10,-2);
     % draw current bounding box
-    \draw[thick](current bounding box.south west) rectangle
-                (current bounding box.north east);
+    %\draw[thick](current bounding box.south west) rectangle
+    %            (current bounding box.north east);
     \path[->]<1-> node[format] (tex) {.tex file};
     \path[->]<2-> node[format, right of=tex] (dvi) {.dvi file}
                   (tex) edge node {\TeX} (dvi);
@@ -108,10 +113,9 @@ hello, beamer!
   \end{tikzpicture}
 \end{figure}
 \end{frame}
-%*************** frame 5 ****************************
 
-\section[Sec. Picture Including]{Sec. Picture Including}
-%*************** frame 6 ****************************
+
+\section[Picture Including]{Picture Including}
 \begin{frame}{Insert Pictures}
 \begin{figure}[htbp]
   \centering
@@ -121,18 +125,10 @@ hello, beamer!
   \label{fig:sample}
 \end{figure}
 \end{frame}
-%*************** frame 6 ****************************
 
-\section[Sec. Source Code 2]{Sec. Source Code 2}
-%*************** frame 7 ****************************
-\begin{frame}
-  \verbatiminput{deletee.bat}
-\end{frame}
-%*************** frame 7 ****************************
 
 \part[TikZ Drawing]{TikZ Drawing}
 \section[Basic]{Basic}
-
 \begin{frame}{Basics}
 \begin{figure}
   \centering
@@ -144,21 +140,26 @@ hello, beamer!
 \end{figure}
 \end{frame}
 
+
 \part[Local Operations]{Local Operations}
 \begin{frame}
 \end{frame}
+
 
 \part[Remote Operations]{Remote Operations}
 \begin{frame}
 \end{frame}
 
+
 \part[Tips \& Tricks]{Tips \& Tricks}
 \begin{frame}
 \end{frame}
 
+
 \part[FAQ]{FAQ}
 \begin{frame}
 \end{frame}
+
 
 \part[Reference]{Reference}
 
