@@ -1,0 +1,19 @@
+﻿\documentclass{beamer}
+
+\input{preamble}
+
+\begin{document}
+
+\begin{frame}{TikZ}
+\begin{center}
+  \begin{tikzpicture}[>=latex', thick]
+    \def\bval{0.5}
+    %\draw [<->] (0,0) .. controls (0.5,\bval + 1) and (3.5,\bval + 1) .. (4,0);
+    \node[box](a){AAAA};
+    \node[box, right of=a, node distance=3cm](b){BBBB};
+    \path[<->, bend left=45] ([yshift=0.1cm, xshift=0.5cm]a.north) edge node[auto]{bridge} ([yshift=0.1cm, xshift=-0.5cm]b.north);
+  \end{tikzpicture}
+\end{center}
+\end{frame}
+
+\end{document}
