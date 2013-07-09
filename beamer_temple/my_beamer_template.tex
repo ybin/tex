@@ -143,22 +143,19 @@ hello, beamer!
 
 \part[Local Operations]{Local Operations}
 \section[Outline]{Outline}
-
 \begin{frame}{Git}
-
-%\begin{picture}[htb]
-  \begin{tikzpicture}[node distance=3cm, auto, >=latex', thick]
-%    \useasboundingbox (-1,-1) rectangle (8,1);
-    \path[->] node[git-commit] (history) {History};
-    \path[->] node[box, below of=history] (index) {Stage};
-%              (history) edge node[swap]{git reset files) (index);
-%    \path[->] node[box, below of=index] (workingtree) {Working Directory}
-%              (index) edge node{git checkout -- files} (workingtree);
-  \end{tikzpicture}
-%\end{picture}
-
+\begin{center}
+\begin{tikzpicture}[>=latex', thick]
+  \node[git-commit,minimum width=3cm] (history) {History};
+  \node[git-index,minimum width=3cm,below=1cm of history] (index) {Stage};
+  \node[git-workingtree,minimum width=3cm,below=1cm of index] (wt) {Working Tree};
+  \draw[->, bend right=45] (history.south west) to node[left]{\ttfamily git reset -- files} (index.north west);
+  \draw[->, bend right=45] (index.south west) to node[left]{\ttfamily git checkout -- files} (wt.north west);
+  \draw[->, bend right=45] (wt.north east) to node[right]{\ttfamily git add files} (index.south east);
+  \draw[->, bend right=45] (index.north east) to node[right]{\ttfamily git commit} (history.south east);
+\end{tikzpicture}
+\end{center}
 \end{frame}
-
 
 \part[Remote Operations]{Remote Operations}
 \begin{frame}

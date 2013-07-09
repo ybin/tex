@@ -16,4 +16,19 @@
 \end{center}
 \end{frame}
 
+
+\begin{frame}{Git}
+\begin{center}
+\begin{tikzpicture}[>=latex', thick]
+  \node[git-commit,minimum width=3cm] (history) {History};
+  \node[git-index,minimum width=3cm,below=1cm of history] (index) {Stage};
+  \node[git-workingtree,minimum width=3cm,below=1cm of index] (wt) {Working Tree};
+  \draw[->, bend right=45] (history.south west) to node[left]{\ttfamily git reset -- files} (index.north west);
+  \draw[->, bend right=45] (index.south west) to node[left]{\ttfamily git checkout -- files} (wt.north west);
+  \draw[->, bend right=45] (wt.north east) to node[right]{\ttfamily git add files} (index.south east);
+  \draw[->, bend right=45] (index.north east) to node[right]{\ttfamily git commit} (history.south east);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
 \end{document}
