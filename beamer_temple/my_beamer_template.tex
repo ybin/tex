@@ -3,7 +3,7 @@
 \input{preamble}
 
 %********** title page settings **********
-\title{Using \TeX{} for presentation}
+\title{Using \TeX\ for presentation}
 %\subtitle{use beamer}
 \author{ybin.sun}
 \institute{\texttt{ybin.sun@gmail.com}}
@@ -142,7 +142,21 @@ hello, beamer!
 
 
 \part[Local Operations]{Local Operations}
-\begin{frame}
+\section[Outline]{Outline}
+
+\begin{frame}{Git}
+
+%\begin{picture}[htb]
+  \begin{tikzpicture}[node distance=3cm, auto, >=latex', thick]
+%    \useasboundingbox (-1,-1) rectangle (8,1);
+    \path[->] node[git-commit] (history) {History};
+    \path[->] node[box, below of=history] (index) {Stage};
+%              (history) edge node[swap]{git reset files) (index);
+%    \path[->] node[box, below of=index] (workingtree) {Working Directory}
+%              (index) edge node{git checkout -- files} (workingtree);
+  \end{tikzpicture}
+%\end{picture}
+
 \end{frame}
 
 

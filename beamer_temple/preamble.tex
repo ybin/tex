@@ -5,7 +5,17 @@
 %\useoutertheme{infolines} % use outer theme for footer.
 \definecolor{mybackground}{RGB}{204,232,207} % note the uppercase RGB
 %\setbeamercolor{normal text}{bg=red!12} % set background color
-\setbeamercolor{normal text}{bg=mybackground} % set background color
+%\setbeamercolor{normal text}{bg=mybackground} % set background color
+\definecolor{commit-color}{RGB}{204,255,204}
+\definecolor{commit-border-color}{RGB}{160,254,160}
+\definecolor{index-color}{RGB}{204,204,255}
+\definecolor{index-border-color}{RGB}{178,178,254}
+\definecolor{wt-color}{RGB}{255,204,204}
+\definecolor{wt-border-color}{RGB}{255,153,153}
+\definecolor{head-color}{RGB}{224,224,224}
+\definecolor{head-border-color}{RGB}{192,192,192}
+\definecolor{branch-color}{RGB}{255,224,192}
+\definecolor{branch-border-color}{RGB}{255,192,128}
 
 %********** fonts settings **********
 \usepackage{fontspec,xunicode,xltxtra}
@@ -48,7 +58,7 @@
 }
 
 %********** colors and drawing pictures **********
-\usepackage{xcolor}
+%\usepackage{xcolor} % beamer 自动加载xcolor
 \usepackage{graphicx}
 \usepackage{tikz,ifthen}
 \usetikzlibrary{arrows,shapes,fit,calc,positioning,intersections}
@@ -70,19 +80,49 @@
     minimum height=2.5em
   },
   git-commit/.style = {
-    ellipse
+    rectangle,
+    rounded corners=3pt,
+    minimum height=1.5em,
+    minimum width=3em,
+    inner sep=3pt,
+    draw=commit-border-color,thick,
+    fill=commit-color
   },
   git-index/.style = {
-    ellipse
+    rectangle,
+    rounded corners=3pt,
+    minimum height=1.5em,
+    minimum width=3em,
+    inner sep=3pt,
+    draw=index-border-color,thick,
+    fill=index-color
   },
   git-workingtree/.style = {
-    ellipse
+    rectangle,
+    rounded corners=3pt,
+    minimum height=1.5em,
+    minimum width=3em,
+    inner sep=3pt,
+    draw=wt-border-color,thick,
+    fill=wt-color
   },
   git-head/.style = {
-    ellipse
+    rectangle,
+    rounded corners=3pt,
+    minimum height=1.5em,
+    minimum width=3em,
+    inner sep=3pt,
+    draw=head-border-color,thick,
+    fill=head-color
   },
   git-branch/.style = {
-    ellipse
+    rectangle,
+    rounded corners=3pt,
+    minimum height=1.5em,
+    minimum width=3em,
+    inner sep=3pt,
+    draw=branch-border-color,thick,
+    fill=branch-color
   }
 }
 
