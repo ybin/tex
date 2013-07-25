@@ -2,7 +2,7 @@
 \usepackage{tikz}
 \usepackage{verbatim}
 \usepackage[margin=15mm]{geometry}
-\usetikzlibrary{shapes,arrows,fit,calc,positioning,intersections}
+\usetikzlibrary{shapes,arrows,fit,calc,positioning,intersections,backgrounds}
 
 
 \begin{document}
@@ -151,6 +151,22 @@ $\alpha$}, which is the height of the red line, is
 \]
 By the Theorem of Pythagoras ...
 };
+\end{tikzpicture}
+
+Top align:
+\tikz[baseline=1.5ex]
+\draw (0,0) rectangle (1cm,4ex);
+
+\begin{tikzpicture}[execute at end picture=%
+  {
+    \begin{pgfonlayer}{background}
+      \path[draw=blue,fill=yellow,rounded corners]
+      (current bounding box.south west) rectangle
+      (current bounding box.north east);
+    \end{pgfonlayer}
+  }]
+  \node at (0,0) {X};
+  \node at (2,1) {Y};
 \end{tikzpicture}
 
 \end{document}
