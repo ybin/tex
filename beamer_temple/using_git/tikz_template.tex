@@ -7,7 +7,7 @@
 \colorlet{COMMITCOLOR}{green!50}
 
 \usepackage{tikz}
-\usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,matrix}
+\usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,matrix,fit}
 \tikzset{
   basic-style/.style = {
     rectangle, rounded corners=2pt, draw, thick,
@@ -47,6 +47,15 @@
           %  (current bounding box.north east);
         \end{pgfonlayer}
     }
+  },
+  file-style/.style = {
+    draw=red, fill=yellow!30, inner sep=2pt
+  },
+  dir-style/.style = {
+    fill=green!50,inner sep=2pt
+  },
+  dir-bg-style/.style = {
+    fill=cyan!30,rounded corners
   },
   every edge/.style = {draw, ->, >=latex', thick}
 }

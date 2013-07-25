@@ -21,6 +21,61 @@
 \part[Introduce]{Introduce}
 \section[What is git]{What is git}
 \begin{frame}{Introduce}
+\begin{center}
+  \begin{tikzpicture}
+    %%% directory - 1
+    \node[file-style] (a1) {\tiny a.h};
+    \node[file-style,right=0.2cm of a1] (b1) {\tiny b.h};
+    \node[file-style,right=0.2cm of b1] (c1) {\tiny c.h};
+    \node[file-style,below=0.1cm of b1] (d1) {\tiny\textcolor{blue}{$d_{v1}.h$}};
+    \node[dir-style,below=0.2cm of d1] (dir1) {\tiny directory-1};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(a1) (b1) (c1) (d1) (dir1)] {};
+    \end{pgfonlayer}
+    
+    %%% directory - 2
+    \node[file-style,right=1.5cm of c1] (a2) {\tiny a.h};
+    \node[file-style,right=0.2cm of a2] (b2) {\tiny b.h};
+    \node[file-style,right=0.2cm of b2] (c2) {\tiny c.h};
+    \node[file-style,below=0.1cm of b2] (d2) {\tiny\textcolor{blue}{$d_{v2}.h$}};
+    \node[dir-style,below=0.2cm of d2] (dir2) {\tiny directory-2};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(a2) (b2) (c2) (d2) (dir2)] {};
+    \end{pgfonlayer}
+    
+    %%% directory - 3
+    \node[file-style,right=1.5cm of c2] (a3) {\tiny a.h};
+    \node[file-style,right=0.2cm of a3] (b3) {\tiny b.h};
+    \node[file-style,right=0.2cm of b3] (c3) {\tiny c.h};
+    \node[file-style,below=0.1cm of b3] (d3) {\tiny\textcolor{blue}{$d_{v3}.h$}};
+    \node[dir-style,below=0.2cm of d3] (dir3) {\tiny directory-3};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(a3) (b3) (c3) (d3) (dir3)] {};
+    \end{pgfonlayer}
+    
+    %%% working directory
+    \node[file-style,below=3cm of dir2] (b4) {\tiny b.h};
+    \node[file-style,left=0.2cm of b4] (a4) {\tiny a.h};
+    \node[file-style,right=0.2cm of b4] (c4) {\tiny c.h};
+    \node[file-style,below=0.1cm of b4] (d4) {\tiny d.h};
+    \node[dir-style,below=0.2cm of d4] (dir4) {\tiny working dir};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(a4) (b4) (c4) (d4) (dir4)] {};
+    \end{pgfonlayer}
+    
+    %%% arrows
+    % dir-1 to dir2
+    \path[->] ([xshift=1cm]d1.east) edge ([xshift=-1cm]d2.west);
+    % dir-2 to dir3
+    \path[->] ([xshift=1cm]d2.east) edge ([xshift=-1cm]d3.west);
+    % working dir to dir1
+    \path[->] ([yshift=0.4cm]b4.north west) edge node[right]{\tiny copy as v1} ([yshift=-0.4cm]dir1.south);
+    % working dir to dir2
+    \path[->] ([yshift=0.4cm]b4.north) edge node[right]{\tiny copy as v2} ([yshift=-0.4cm]dir2.south);
+    % working dir to dir3
+    \path[->] ([yshift=0.4cm]b4.north east) edge node[right]{\tiny copy as v3} ([yshift=-0.4cm]dir3.south);
+  \end{tikzpicture}
+\end{center}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%% Local Operation %%%%%%%%%%%%%%%%%%%%%%%%
