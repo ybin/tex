@@ -20,9 +20,9 @@
 %%%%%%%%%%%%%%%%%%%%% Introduce %%%%%%%%%%%%%%%%%%%%%%%%%%
 \part[Introduce]{Introduce}
 \section[What is git]{What is git}
-\begin{frame}{Introduce}
+\begin{frame}{copy working directory as a version}
 \begin{center}
-  \begin{tikzpicture}
+  \begin{tikzpicture}%[main-style]
     %%% directory - 1
     \node[file-style] (a1) {\tiny a.h};
     \node[file-style,right=0.2cm of a1] (b1) {\tiny b.h};
@@ -54,10 +54,10 @@
     \end{pgfonlayer}
     
     %%% working directory
-    \node[file-style,below=3cm of dir2] (b4) {\tiny b.h};
+    \node[file-style,below=2cm of dir2] (b4) {\tiny b.h};
     \node[file-style,left=0.2cm of b4] (a4) {\tiny a.h};
     \node[file-style,right=0.2cm of b4] (c4) {\tiny c.h};
-    \node[file-style,below=0.1cm of b4] (d4) {\tiny d.h};
+    \node[file-style,below=0.1cm of b4] (d4) {\tiny $d_{v3}.h$};
     \node[dir-style,below=0.2cm of d4] (dir4) {\tiny working dir};
     \begin{pgfonlayer}{background}
       \node [dir-bg-style,fit=(a4) (b4) (c4) (d4) (dir4)] {};
@@ -69,11 +69,139 @@
     % dir-2 to dir3
     \path[->] ([xshift=1cm]d2.east) edge ([xshift=-1cm]d3.west);
     % working dir to dir1
-    \path[->] ([yshift=0.4cm]b4.north west) edge node[right]{\tiny copy as v1} ([yshift=-0.4cm]dir1.south);
+    \path[->] ([yshift=0.2cm]a4.north west) edge node[right]{\tiny copy as v1} ([yshift=-0.2cm]dir1.south);
     % working dir to dir2
-    \path[->] ([yshift=0.4cm]b4.north) edge node[right]{\tiny copy as v2} ([yshift=-0.4cm]dir2.south);
+    \path[->] ([yshift=0.2cm]b4.north) edge node[right]{\tiny copy as v2} ([yshift=-0.2cm]dir2.south);
     % working dir to dir3
-    \path[->] ([yshift=0.4cm]b4.north east) edge node[right]{\tiny copy as v3} ([yshift=-0.4cm]dir3.south);
+    \path[->] ([yshift=0.2cm]c4.north east) edge node[right]{\tiny copy as v3} ([yshift=-0.2cm]dir3.south);
+  \end{tikzpicture}
+\end{center}
+\end{frame}
+
+\begin{frame}{put all files in a repository directory}
+\begin{center}
+  \begin{tikzpicture}
+    %%% file lists
+    \createMatrix{1}{(0,0)}
+    \createMatrix{2}{([xshift=3cm]m1)}
+    \createMatrix{3}{([xshift=3cm]m2)}
+    
+    %%% repository
+    \node[file-style,above=2.5cm of m2] (bRepo) {\tiny b.h};
+    \node[file-style,left=0.2cm of bRepo] (aRepo) {\tiny a.h};
+    \node[file-style,right=0.2cm of bRepo] (cRepo) {\tiny c.h};
+    \node[file-style,below=0.1cm of bRepo] (dRepoV1) {\tiny $d_{v1}.h$};
+    \node[file-style,below=0.1cm of dRepoV1] (dRepoV2) {\tiny $d_{v2}.h$};
+    \node[file-style,below=0.1cm of dRepoV2] (dRepoV3) {\tiny $d_{v3}.h$};
+    \node[dir-style,below=0.2cm of dRepoV3] (dirRepo) {\tiny repository dir};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(aRepo) (bRepo) (cRepo) (dRepoV1) (dRepoV2) (dRepoV3) (dirRepo)] {};
+    \end{pgfonlayer}
+    
+    %%% working directory
+    \node[file-style,below=1cm of m2] (bWork) {\tiny b.h};
+    \node[file-style,left=0.2cm of bWork] (aWork) {\tiny a.h};
+    \node[file-style,right=0.2cm of bWork] (cWork) {\tiny c.h};
+    \node[file-style,below=0.1cm of bWork] (dWork) {\tiny $d_{v3}.h$};
+    \node[dir-style,below=0.2cm of dWork] (dirWork) {\tiny working dir};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(aWork) (bWork) (cWork) (dWork) (dirWork)] {};
+    \end{pgfonlayer}
+    
+    %%% arrows
+    \path[->] (m1.east) edge (m2.west);
+    \path[->] (m2.east) edge (m3.west);
+  \end{tikzpicture}
+\end{center}
+\end{frame}
+
+\begin{frame}{map file content to SHA-1 string}
+\begin{center}
+  \begin{tikzpicture}
+    %%% file lists
+    \createHashMatrix{1}{(0,0)}
+    \createHashMatrix{2}{([xshift=3cm]m1)}
+    \createHashMatrix{3}{([xshift=3cm]m2)}
+
+    %%% repository
+    \node[file-style,above=2.5cm of m2] (bRepo) {\tiny b325c};
+    \node[file-style,left=0.2cm of bRepo] (aRepo) {\tiny a47c3};
+    \node[file-style,right=0.2cm of bRepo] (cRepo) {\tiny c10b9};
+    \node[file-style,below=0.1cm of bRepo] (dRepoV1) {\tiny da981};
+    \node[file-style,below=0.1cm of dRepoV1] (dRepoV2) {\tiny da982};
+    \node[file-style,below=0.1cm of dRepoV2] (dRepoV3) {\tiny da983};
+    \node[dir-style,below=0.2cm of dRepoV3] (dirRepo) {\tiny repository dir};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(aRepo) (bRepo) (cRepo) (dRepoV1) (dRepoV2) (dRepoV3) (dirRepo)] {};
+    \end{pgfonlayer}
+
+    %%% working directory
+    \node[file-style,below=1cm of m2] (bWork) {\tiny b.h};
+    \node[file-style,left=0.2cm of bWork] (aWork) {\tiny a.h};
+    \node[file-style,right=0.2cm of bWork] (cWork) {\tiny c.h};
+    \node[file-style,below=0.1cm of bWork] (dWork) {\tiny d.h};
+    \node[dir-style,below=0.2cm of dWork] (dirWork) {\tiny working dir};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(aWork) (bWork) (cWork) (dWork) (dirWork)] {};
+    \end{pgfonlayer}
+
+    %%% arrows
+    \path[->] (m1.east) edge (m2.west);
+    \path[->] (m2.east) edge (m3.west);
+  \end{tikzpicture}
+\end{center}
+\end{frame}
+
+\begin{frame}{add an index file}
+\begin{center}
+  \begin{tikzpicture}
+    %%% file lists
+    \createHashMatrix{1}{(0,0)}
+    \createHashMatrix{2}{([xshift=3cm]m1)}
+    \createHashMatrix{3}{([xshift=3cm]m2)}
+
+    %%% repository
+    \node[file-style,above=2cm of m2] (bRepo) {\tiny b325c};
+    \node[file-style,left=0.2cm of bRepo] (aRepo) {\tiny a47c3};
+    \node[file-style,right=0.2cm of bRepo] (cRepo) {\tiny c10b9};
+    \node[file-style,below=0.1cm of bRepo] (dRepoV1) {\tiny da981};
+    \node[file-style,below=0.1cm of dRepoV1] (dRepoV2) {\tiny da982};
+    \node[file-style,below=0.1cm of dRepoV2] (dRepoV3) {\tiny da983};
+    \node[dir-style,below=0.2cm of dRepoV3] (dirRepo) {\tiny repository dir};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(aRepo) (bRepo) (cRepo) (dRepoV1) (dRepoV2) (dRepoV3) (dirRepo)] {};
+    \end{pgfonlayer}
+
+    \matrix [
+      matrix of nodes,
+      nodes={rectangle,draw=red,fill=yellow!30,minimum width=1.3cm,font=\ttfamily\tiny,inner sep=2pt},
+      row sep=-\pgflinewidth,
+      column sep=-\pgflinewidth,
+      below=-0.1cm of m2
+    ] (index){
+      \textcolor{blue}{index}\\
+      a47c3: a.h\\
+      b325c: b.h\\
+      c10b9: c.h\\
+      da983: d.h\\
+    };
+
+    %%% working directory
+    \node[file-style,below=0.1cm of index] (bWork) {\tiny b.h};
+    \node[file-style,left=0.2cm of bWork] (aWork) {\tiny a.h};
+    \node[file-style,right=0.2cm of bWork] (cWork) {\tiny c.h};
+    \node[file-style,below=0.1cm of bWork] (dWork) {\tiny d.h};
+    \node[dir-style,below=0.1cm of dWork] (dirWork) {\tiny working dir};
+    \begin{pgfonlayer}{background}
+      \node [dir-bg-style,fit=(aWork) (bWork) (cWork) (dWork) (dirWork)] {};
+    \end{pgfonlayer}
+
+    %%% arrows
+    \path[->] (m1.east) edge (m2.west);
+    \path[->] (m2.east) edge (m3.west);
+    \path[->,dashed] (cWork.east) edge[bend right=45] (index-4-1.east);
+    \path[->,dashed] ([yshift=0.05cm]index-4-1.east) edge[out=0,in=180] (m3-4-1);
+    \path[->,dashed] (m3-4-1.east) edge[out=30,in=-10] (cRepo.east);
   \end{tikzpicture}
 \end{center}
 \end{frame}
@@ -151,6 +279,11 @@
   \gitcmd{git reset}
 \end{frame}
 
+\subsection[git reset \texttt{-{}-} files]{git reset \texttt{-{}-} files}
+\begin{frame}{\ {}}
+  \gitcmd{git reset \texttt{-{}-} files}
+\end{frame}
+
 \begin{frame}{git reset \texttt{-{}-} files}
 \begin{center}
   \begin{tikzpicture}[main-style]
@@ -165,6 +298,11 @@
     \path (e.south) edge[out=270,in=0] node[cmd-style=above,auto,swap]{\commandName git reset -- files} (index.east);
   \end{tikzpicture}
 \end{center}
+\end{frame}
+
+\subsection[git reset \texttt{-{}-}soft commit]{git reset \texttt{-{}-}soft commit}
+\begin{frame}{\ {}}
+  \gitcmd{git reset \texttt{-{}-}soft commit}
 \end{frame}
 
 \begin{frame}{git reset \texttt{-{}-}soft commit}
@@ -186,6 +324,11 @@
     \createWork to:index;
   \end{tikzpicture}
 \end{center}
+\end{frame}
+
+\subsection[git reset \texttt{-{}-}mixed commit]{git reset \texttt{-{}-}mixed commit}
+\begin{frame}{\ {}}
+  \gitcmd{git reset \texttt{-{}-}mixed commit}
 \end{frame}
 
 \begin{frame}{git reset \texttt{-{}-}mixed commit}
@@ -210,6 +353,11 @@
     \path <3-> (e.south) edge[bend left=45] node[circle,fill=red,swap,auto,inner sep=1pt] {\tiny{2}}(index.east);
   \end{tikzpicture}
 \end{center}
+\end{frame}
+
+\subsection[git reset \texttt{-{}-}hard commit]{git reset \texttt{-{}-}hard commit}
+\begin{frame}{\ {}}
+  \gitcmd{git reset \texttt{-{}-}hard commit}
 \end{frame}
 
 \begin{frame}{git reset \texttt{-{}-}hard commit}

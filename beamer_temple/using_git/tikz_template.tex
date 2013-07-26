@@ -104,3 +104,33 @@
   \createIndex to:c;
   \createWork to:index;
 }
+
+\newcommand\createMatrix[2]{
+  \matrix [
+    matrix of nodes,
+    nodes={rectangle,draw=red,fill=yellow!30,minimum width=1.3cm,font=\ttfamily\small,inner sep=2pt},
+    row sep=-\pgflinewidth,
+    column sep=-\pgflinewidth,
+  ] (m#1) at #2 {
+    \textcolor{blue}{list-#1}\\
+    a.h\\
+    b.h\\
+    c.h\\
+    $d_{v#1}.h$\\
+  };
+}
+
+\newcommand\createHashMatrix[2]{
+  \matrix [
+    matrix of nodes,
+    nodes={rectangle,draw=red,fill=yellow!30,minimum width=1.3cm,font=\ttfamily\small,inner sep=2pt},
+    row sep=-\pgflinewidth,
+    column sep=-\pgflinewidth,
+  ] (m#1) at #2 {
+    \textcolor{blue}{hash-#1}\\
+    a47c3\\
+    b325c\\
+    c10b9\\
+    \textcolor{cyan}{da98#1}\\
+  };
+}
