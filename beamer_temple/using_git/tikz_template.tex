@@ -149,8 +149,9 @@
 \setlength {\boxroundness}{3pt}
 
 \newsavebox {\shadowblockbox}
-\newenvironment{shadowblock}[1]
-{\begin{lrbox}{\shadowblockbox}\begin{minipage}{#1}}
+\newenvironment{shadowblock}[3]
+{\def\fillcolor{#2}\def\drawcolor{#3}%
+  \begin{lrbox}{\shadowblockbox}\begin{minipage}{#1}}
 {\end{minipage}\end{lrbox}
   % draw the textbox
   \settowidth {\boxw}{\usebox{\shadowblockbox}}   % get box's width
@@ -169,7 +170,7 @@
           (\shadowiter,\shadowiter) rectangle +(\boxw-2\shadowiter,\boxh-2\shadowiter);
     }
     % draw the box border
-    \filldraw[fill=yellow!50,draw=black!50,rounded corners=\boxroundness]
+    \filldraw[fill=\fillcolor,draw=\drawcolor,rounded corners=\boxroundness]
         (0,0) rectangle (\boxw,\boxh);
     % draw the content
     \node[xshift=\boxroundness,yshift=\boxroundness,inner sep=0pt,outer sep=0pt,anchor=south west]
@@ -187,19 +188,22 @@
 %\end{center}
 
 \begin{center}
-  \begin{shadowblock}{0.7\textwidth}
+  \begin{shadowblock}{0.7\textwidth}{yellow!50}{black!50}
   \centering\Large
   \texttt{#1}
   \end{shadowblock}
 \end{center}
 }
 
-\newsavebox{\framedtextbox}
-\newenvironment{framedtext}[1] % minipage width
-{\begin{lrbox}{\framedtextbox}\begin{minipage}{#1}\centering}
-{\end{minipage}\end{lrbox}
-  % put box in a tikz node, and draw the node.
-  \begin{tikzpicture}
-    \node [fill=gray!20,rounded corners] at (0,0) {\usebox{\framedtextbox}};
-  \end{tikzpicture}
-}
+%\newsavebox{\framedtextbox}
+%\newenvironment{framedtext}[1] % minipage width
+%{\begin{lrbox}{\framedtextbox}\begin{minipage}{#1}\centering}
+%{\end{minipage}\end{lrbox}
+%  % put box in a tikz node, and draw the node.
+%  \begin{tikzpicture}
+%    \node [fill=gray!20,rounded corners] at (0,0) {\usebox{\framedtextbox}};
+%  \end{tikzpicture}
+%}
+\newenvironment{framedtext}
+{\begin{center}\begin{shadowblock}{0.7\textwidth}{gray!20}{red}}
+{\end{shadowblock}\end{center}}
