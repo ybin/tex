@@ -49,6 +49,7 @@
 %********** colors and drawing pictures **********
 %\usepackage{xcolor} % beamer 自动加载xcolor
 \usepackage{graphicx}
+\usepackage{fancybox}
 
 %********** Misc **********
 \usepackage{verbatim}
@@ -67,12 +68,4 @@
   citecolor=green
 }
 
-\newcommand\gitcmd[1]{%
-\begin{center}
-  \noindent\fcolorbox{white}{yellow!20}{%
-    \begin{minipage}{.7\textwidth}
-      \centering\Large
-      \texttt{#1}
-    \end{minipage}}
-\end{center}
-}
+

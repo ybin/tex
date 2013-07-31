@@ -134,3 +134,72 @@
     \textcolor{cyan}{da98#1}\\
   };
 }
+
+\usepackage{calc} % for \real control sequence
+%%%%%%%%%%%%%%%%%%%%%
+\newlength {\boxw}
+\newlength {\boxh}
+\newlength {\boxd}
+\newlength {\boxroundness}
+\newlength {\boxshadowsize}
+\newlength {\shadowiter}
+
+
+\setlength {\boxshadowsize}{6pt}
+\setlength {\boxroundness}{3pt}
+
+\newsavebox {\shadowblockbox}
+\newenvironment{shadowblock}[1]
+{\begin{lrbox}{\shadowblockbox}\begin{minipage}{#1}}
+{\end{minipage}\end{lrbox}
+  % draw the textbox
+  \settowidth {\boxw}{\usebox{\shadowblockbox}}   % get box's width
+  \settoheight {\boxh}{\usebox{\shadowblockbox}}  % get box's height
+  \settodepth {\boxd}{\usebox{\shadowblockbox}}   % get box's depth
+
+  \addtolength {\boxh}{\boxd}
+  \addtolength {\boxw}{2\boxroundness}
+  \addtolength {\boxh}{2\boxroundness}
+  \begin{tikzpicture}
+    % draw the shadow
+    \foreach \x in {0,0.05,...,1} {
+      \setlength{\shadowiter}{\boxshadowsize*\real{\x}}
+      \fill[xshift=\boxshadowsize-1pt,yshift=-\boxshadowsize+1pt,
+          black,opacity=0.04,rounded corners=\boxroundness]
+          (\shadowiter,\shadowiter) rectangle +(\boxw-2\shadowiter,\boxh-2\shadowiter);
+    }
+    % draw the box border
+    \filldraw[fill=yellow!50,draw=black!50,rounded corners=\boxroundness]
+        (0,0) rectangle (\boxw,\boxh);
+    % draw the content
+    \node[xshift=\boxroundness,yshift=\boxroundness,inner sep=0pt,outer sep=0pt,anchor=south west]
+        at (0,0) {\usebox{\shadowblockbox}};
+  \end{tikzpicture}
+}
+
+\newcommand\gitcmd[1]{%
+%\begin{center}
+%  \noindent\fcolorbox{white}{yellow!20}{%
+%    \begin{minipage}{.7\textwidth}
+%      \centering\Large
+%      \texttt{#1}
+%    \end{minipage}}
+%\end{center}
+
+\begin{center}
+  \begin{shadowblock}{0.7\textwidth}
+  \centering\Large
+  \texttt{#1}
+  \end{shadowblock}
+\end{center}
+}
+
+\newsavebox{\framedtextbox}
+\newenvironment{framedtext}[1] % minipage width
+{\begin{lrbox}{\framedtextbox}\begin{minipage}{#1}\centering}
+{\end{minipage}\end{lrbox}
+  % put box in a tikz node, and draw the node.
+  \begin{tikzpicture}
+    \node [fill=gray!20,rounded corners] at (0,0) {\usebox{\framedtextbox}};
+  \end{tikzpicture}
+}

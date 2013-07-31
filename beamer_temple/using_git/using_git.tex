@@ -20,6 +20,14 @@
 %%%%%%%%%%%%%%%%%%%%% Introduce %%%%%%%%%%%%%%%%%%%%%%%%%%
 \part[Introduce]{Introduce}
 \section[What is git]{What is git}
+\begin{frame}
+\begin{center}
+\begin{framedtext}{0.5\textwidth}
+  What is git~?
+\end{framedtext}
+\end{center}
+\end{frame}
+
 \begin{frame}{copy working directory as a version}
 \begin{center}
   \begin{tikzpicture}%[main-style]
@@ -32,7 +40,7 @@
     \begin{pgfonlayer}{background}
       \node [dir-bg-style,fit=(a1) (b1) (c1) (d1) (dir1)] {};
     \end{pgfonlayer}
-    
+
     %%% directory - 2
     \node[file-style,right=1.5cm of c1] (a2) {\tiny a.h};
     \node[file-style,right=0.2cm of a2] (b2) {\tiny b.h};
@@ -42,7 +50,7 @@
     \begin{pgfonlayer}{background}
       \node [dir-bg-style,fit=(a2) (b2) (c2) (d2) (dir2)] {};
     \end{pgfonlayer}
-    
+
     %%% directory - 3
     \node[file-style,right=1.5cm of c2] (a3) {\tiny a.h};
     \node[file-style,right=0.2cm of a3] (b3) {\tiny b.h};
@@ -52,7 +60,7 @@
     \begin{pgfonlayer}{background}
       \node [dir-bg-style,fit=(a3) (b3) (c3) (d3) (dir3)] {};
     \end{pgfonlayer}
-    
+
     %%% working directory
     \node[file-style,below=2cm of dir2] (b4) {\tiny b.h};
     \node[file-style,left=0.2cm of b4] (a4) {\tiny a.h};
@@ -62,7 +70,7 @@
     \begin{pgfonlayer}{background}
       \node [dir-bg-style,fit=(a4) (b4) (c4) (d4) (dir4)] {};
     \end{pgfonlayer}
-    
+
     %%% arrows
     % dir-1 to dir2
     \path[->] ([xshift=1cm]d1.east) edge ([xshift=-1cm]d2.west);
@@ -85,7 +93,7 @@
     \createMatrix{1}{(0,0)}
     \createMatrix{2}{([xshift=3cm]m1)}
     \createMatrix{3}{([xshift=3cm]m2)}
-    
+
     %%% repository
     \node[file-style,above=2.5cm of m2] (bRepo) {\tiny b.h};
     \node[file-style,left=0.2cm of bRepo] (aRepo) {\tiny a.h};
@@ -97,7 +105,7 @@
     \begin{pgfonlayer}{background}
       \node [dir-bg-style,fit=(aRepo) (bRepo) (cRepo) (dRepoV1) (dRepoV2) (dRepoV3) (dirRepo)] {};
     \end{pgfonlayer}
-    
+
     %%% working directory
     \node[file-style,below=1cm of m2] (bWork) {\tiny b.h};
     \node[file-style,left=0.2cm of bWork] (aWork) {\tiny a.h};
@@ -107,7 +115,7 @@
     \begin{pgfonlayer}{background}
       \node [dir-bg-style,fit=(aWork) (bWork) (cWork) (dWork) (dirWork)] {};
     \end{pgfonlayer}
-    
+
     %%% arrows
     \path[->] (m1.east) edge (m2.west);
     \path[->] (m2.east) edge (m3.west);
@@ -420,7 +428,7 @@
 \begin{frame}{git merge}
 \begin{center}
   \begin{tikzpicture}
-    
+
   \end{tikzpicture}
 \end{center}
 \end{frame}
