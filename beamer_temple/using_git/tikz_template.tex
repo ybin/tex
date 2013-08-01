@@ -143,14 +143,16 @@
 \newlength {\boxroundness}
 \newlength {\boxshadowsize}
 \newlength {\shadowiter}
+\newlength {\innersep}
 
 
 \setlength {\boxshadowsize}{6pt}
 \setlength {\boxroundness}{3pt}
 
 \newsavebox {\shadowblockbox}
-\newenvironment{shadowblock}[3]
+\newenvironment{shadowblock}[4] % {minipage width}{fill color}{draw color}{inner sep}
 {\def\fillcolor{#2}\def\drawcolor{#3}%
+  \setlength {\innersep}{#4}%
   \begin{lrbox}{\shadowblockbox}\begin{minipage}{#1}}
 {\end{minipage}\end{lrbox}
   % draw the textbox
@@ -161,6 +163,9 @@
   \addtolength {\boxh}{\boxd}
   \addtolength {\boxw}{2\boxroundness}
   \addtolength {\boxh}{2\boxroundness}
+  \addtolength {\boxw}{2\innersep}
+  \addtolength {\boxh}{2\innersep}
+  
   \begin{tikzpicture}
     % draw the shadow
     \foreach \x in {0,0.05,...,1} {
@@ -173,7 +178,7 @@
     \filldraw[fill=\fillcolor,draw=\drawcolor,rounded corners=\boxroundness]
         (0,0) rectangle (\boxw,\boxh);
     % draw the content
-    \node[xshift=\boxroundness,yshift=\boxroundness,inner sep=0pt,outer sep=0pt,anchor=south west]
+    \node[xshift=\boxroundness,yshift=\boxroundness,inner sep=\innersep,outer sep=0pt,anchor=south west]
         at (0,0) {\usebox{\shadowblockbox}};
   \end{tikzpicture}
 }
@@ -188,7 +193,7 @@
 %\end{center}
 
 \begin{center}
-  \begin{shadowblock}{0.7\textwidth}{yellow!50}{black!50}
+  \begin{shadowblock}{0.7\textwidth}{yellow!50}{black!50}{0pt}
   \centering\Large
   \texttt{#1}
   \end{shadowblock}
@@ -205,5 +210,5 @@
 %  \end{tikzpicture}
 %}
 \newenvironment{framedtext}
-{\begin{center}\begin{shadowblock}{0.7\textwidth}{gray!20}{red}}
+{\begin{center}\begin{shadowblock}{0.7\textwidth}{gray!20}{red}{10pt}}
 {\end{shadowblock}\end{center}}
