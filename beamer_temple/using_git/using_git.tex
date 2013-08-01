@@ -22,8 +22,8 @@
 \section[What is git]{What is git}
 \begin{frame}
 \begin{framedtext}
-  What is git~?\\[2em]
-  Git是一个分布式版本控制/软件配置管理软件，原来是linux内核开发者林纳斯$\cdot$托瓦兹(Linus Torvalds)为了更好地管理linux内核开发而创立的。
+  What is git~?\\[1em]
+  Git是一个分布式版本控制软件，原来是linux内核开发者林纳斯$\cdot$托瓦兹(Linus Torvalds)为了更好地管理linux内核开发而创立的。
 \end{framedtext}
 \end{frame}
 
@@ -446,16 +446,113 @@
 \end{frame}
 
 
+%%%%%%%%%%%%%%%%%% Remote Operations %%%%%%%%%%%%%%%%%%%%%%
 \part[Remote Operations]{Remote Operations}
 \section[git fetch]{git fetch}
 \begin{frame}{git fetch}
 \end{frame}
 
-
-\part[Tips \& Tricks]{Tips \& Tricks}
-\section[fetch a single branch]{fetch a single branch}
-\begin{frame}{fetch a single branch}
+\section[git pull]{git pull}
+\begin{frame}{}
 \end{frame}
 
+\section[git push]{git push}
+\begin{frame}{}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%% Tips and Tricks %%%%%%%%%%%%%%%%%%%%%%%%
+\part[Tips and Tricks]{Tips and Tricks}
+\section[fetch a single branch]{fetch a single branch}
+\begin{frame}{fetch a single branch}
+
+\gitcmd{\small\ttfamily
+  \begin{tabular}{rl}
+    git clone & --single-branch\\
+              & --branch\surrounded{rbranch} \ --depth 1\\
+              & \surrounded{repo-url} \optionalSurrounded{directory}
+  \end{tabular}
+}
+{\ttfamily
+  \begin{tabular}{rcl}
+    --single-branch&:&只复制一个分支\\
+    --branch\surrounded{rbranch}&:&分支名称，并将HEAD指向该分支\\
+    --depth 1&:&只复制最新的1个commit\\
+  \end{tabular}
+}
+\end{frame}
+
+\section[apply a patch]{apply a patch}
+\begin{frame}{create patch files 1}
+  \gitcmd{git diff > filename.[patch|diff]}
+{\ttfamily
+  该方法使用“标准”的diff格式创建patch文件，
+  该patch文件在Git, SVN, BitKeeper等工具上都可以使用。
+}
+\end{frame}
+\begin{frame}{create patch files 2}
+  \gitcmd{git format-patch \surrounded{commit-id}}
+{\ttfamily
+  从\surrounded{commit-id}(不包括该commit)到HEAD之间的每个commit生成一个patch文件。
+  注意，这样生成的patch文件只适用于Git。
+}
+\end{frame}
+\begin{frame}{apply patch file}
+  \gitcmd{\small\ttfamily
+    \begin{tabular}{rl}
+      git apply & [--stat | --summary |\\
+                & \ --check | --reverse]\\
+                & filename.[diff | patch]\\
+    \end{tabular}
+  }
+{\ttfamily
+  \begin{tabular}{rcl}
+    --stat&:&只输出统计信息而不应用补丁内容\\
+    --summary&:&显示补丁摘要\\
+    --check&:&检查是否能成功的应用该补丁的内容\\
+    --reverse&:&将应用过的补丁内容撤销\\
+  \end{tabular}
+}
+\end{frame}
+
+\section[show branch topology]{show branch topology}
+\begin{frame}{show branch topology}
+\end{frame}
+
+\section[use git branch]{use git branch}
+\begin{frame}{}
+\end{frame}
+
+\section[git GUI]{git GUI}
+\begin{frame}{}
+\end{frame}
+
+\section[online repository]{online repository}
+\begin{frame}{}
+\end{frame}
+
+\section[external diff and merge tools]{external diff and merge tools}
+\begin{frame}{}
+\end{frame}
+
+\section[git log]{git log}
+\begin{frame}{}
+\end{frame}
+
+\section[git push configuration]{git push configuration}
+\begin{frame}{}
+\end{frame}
+
+\section[show index file]{show index file}
+\begin{frame}{}
+\end{frame}
+
+\section[git add]{git add}
+\begin{frame}{}
+\end{frame}
+
+\section[git in ZTE]{git in ZTE}
+\begin{frame}{}
+\end{frame}
 
 \end{document}

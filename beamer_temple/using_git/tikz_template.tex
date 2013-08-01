@@ -212,3 +212,11 @@
 \newenvironment{framedtext}
 {\begin{center}\begin{shadowblock}{0.7\textwidth}{gray!20}{red}{10pt}}
 {\end{shadowblock}\end{center}}
+
+\newcommand\surrounded[1]{
+  \textless #1\textgreater
+}
+
+\newcommand\optionalSurrounded[1]{
+  [\textless #1\textgreater]
+}
