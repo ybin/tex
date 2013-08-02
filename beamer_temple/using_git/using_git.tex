@@ -515,9 +515,74 @@
 }
 \end{frame}
 
+\section[special signs]{special signs}
+\begin{frame}{special signs}
+\gitcmd{\small
+  \begin{tabular}{rcl}
+    \^ & : & 第一个parent commit \\
+       &   & e.g. HEAD\^{}2: second parent commit \\[10pt]
+    \~ & : & 第一个upstream commit \\
+       &   & e.g. HEAD\~{}2: parent's parent commit\\
+  \end{tabular}
+}
+\end{frame}
+
 \section[use branch]{use branch}
 \begin{frame}{use branch}
+\begin{framedtext}
+  \small
+  本质上来说，git没有“分支”的概念。所谓的分支，其实就是commit的别名，
+  一个分支(如master)对应到一个文件(如refs/head/master)，该文件中
+  保存着一个commit-id，分支类似于C语言中的指针。\\[10pt]
+  \textcolor{green}{分支是廉价的}。\\[10pt]
+  请使用研发分支，拒绝锁流。
+\end{framedtext}
 \end{frame}
+
+\begin{frame}{show branch names}
+\gitcmd{
+  git branch [-r] [-a]
+}
+{
+\ttfamily\small
+\begin{tabular}{rcl}
+    no option & : & 列出本地所有分支 \\
+    -r & : & 列出远程仓库中的所有分支 \\
+    -a & : & 列出本地、远程的所有分支 \\
+  \end{tabular}
+}
+\end{frame}
+
+\begin{frame}{create new branch}
+\gitcmd{\small
+  git branch \surrounded{new-branch} \optionalSurrounded{based-commit}
+}
+{\ttfamily\small
+  基于\optionalSurrounded{based-commit}创建新分支\surrounded{new-branch}。\\
+  如果\optionalSurrounded{based-commit}被省略，则基于HEAD创建新分支。
+}
+\end{frame}
+
+
+\section[show remote repo information]{show remote repo information}
+\begin{frame}{show remote repo information}
+\gitcmd{
+  git remote show \surrounded{repo-name}
+}
+\end{frame}
+\begin{frame}{show remote repo information cont.}
+\begin{framedtext}
+{
+  e.g.\\[5pt]
+  git remote show origin
+}
+\end{framedtext}
+\end{frame}
+\begin{frame}{show remote repo information cont.}
+  \textcolor{blue!50}{\ttfamily Output:}
+  \lstinputlisting{remoteshow.txt}
+\end{frame}
+
 
 \section[show branch topology]{show branch topology}
 \begin{frame}{show branch topology}
@@ -525,11 +590,8 @@
 \end{frame}
 
 \begin{frame}{show branch topology cont.}
-\begin{figure}
-  \centering
-  \includegraphics[width=0.8\textwidth]{showbranch.png}%\\
-  %\caption{show branch}\label{fig:showbranch}
-\end{figure}
+  \textcolor{blue!50}{\ttfamily Output:}
+  \lstinputlisting{showbranch.txt}
 \end{frame}
 
 \section[git GUI]{git GUI}
@@ -545,22 +607,23 @@
 \end{figure}
 \end{frame}
 
-\section[external diff and merge tools]{external diff and merge tools}
-\begin{frame}{external diff tool}
-\begin{figure}
-  \centering
-  \includegraphics[width=0.8\textwidth]{diff.png}%\\
-  %\caption{external diff tool}\label{fig:diff}
-\end{figure}
+\section[external diff tool]{external diff tool}
+\begin{frame}{external tools configuration}
+\gitcmd{\small
+  \begin{tabular}{rl}
+    git config & \texttt{--}global \\
+               & external.diff diff\_4\_git.bat \\[5pt]
+    %git config & \texttt{--}blobal \\
+    %           & external.merge merge\_4\_git.bat \\
+  \end{tabular}
+}
 \end{frame}
 
-\begin{frame}{external merge tool}
-\begin{figure}
-  \centering
-  \includegraphics[width=0.8\textwidth]{diff.png}%\\
-  %\caption{external diff tool}\label{fig:diff}
-\end{figure}
+\begin{frame}{external diff tool}
+  \textcolor{blue!50}{\ttfamily cat diff\_4\_git.bat}
+  \lstinputlisting{diff.bat}
 \end{frame}
+
 
 \section[git log]{git log}
 \begin{frame}{git log}
@@ -581,7 +644,13 @@
 
 \section[git push configuration]{git push configuration}
 \begin{frame}{git push configuration}
-\gitcmd{\small\ttfamily
+\gitcmd{\small
+  \begin{tabular}{rr}
+    \multicolumn{2}{l}{git config --global default.push}\\
+    \  & nothing|matching|upstream|simple|current \\
+  \end{tabular}
+}
+{\small\ttfamily
   \begin{tabular}{rcl}
     nothing & : & 顾名思义\\
     matching& : & push所有与远程分支同名(匹配)\\
@@ -674,8 +743,5 @@
 \end{framedtext}
 \end{frame}
 
-\section[git in ZTE]{git in ZTE}
-\begin{frame}{}
-\end{frame}
 
 \end{document}
