@@ -7,7 +7,7 @@
 \colorlet{COMMITCOLOR}{green!50}
 
 \usepackage{tikz}
-\usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,matrix,fit}
+\usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,matrix,fit,decorations.pathreplacing}
 \tikzset{
   basic-style/.style = {
     rectangle, rounded corners=2pt, draw, thick,
@@ -165,7 +165,7 @@
   \addtolength {\boxh}{2\boxroundness}
   \addtolength {\boxw}{2\innersep}
   \addtolength {\boxh}{2\innersep}
-  
+
   \begin{tikzpicture}
     % draw the shadow
     \foreach \x in {0,0.05,...,1} {
@@ -210,7 +210,7 @@
 %  \end{tikzpicture}
 %}
 \newenvironment{framedtext}
-{\begin{center}\begin{shadowblock}{0.7\textwidth}{gray!20}{red}{10pt}}
+{\begin{center}\begin{shadowblock}{0.7\textwidth}{gray!20}{red}{10pt}\ttfamily}
 {\end{shadowblock}\end{center}}
 
 \newcommand\surrounded[1]{

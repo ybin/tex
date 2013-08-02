@@ -1,6 +1,7 @@
 \documentclass{beamer}
 \usetheme{Madrid}
-\input{tikz_template}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,matrix,fit}
 
 \begin{document}
 
@@ -19,7 +20,7 @@
 
     \matrix (first) [
       space,
-      column 1/.style={font=\ttfamily},
+      column 1/.style={nodes=cell,font=\ttfamily},
       column 2/.style={nodes={cell,minimum width=2em}}]
     {
       0   & 6 \\
@@ -45,8 +46,8 @@
       column 3/.style={nodes={cell,minimum width=2em}}]
     {
       0   &a  & 6 \\
-      1   &b  & 3 \\
-      2   &c  & 9 \\
+%      1   &b  & 3 \\
+%      2   &c  & 9 \\
     };
   \end{tikzpicture}
 \end{center}
