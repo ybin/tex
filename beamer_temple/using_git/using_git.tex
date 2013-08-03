@@ -18,11 +18,10 @@
 %*************** title page *****************
 
 %%%%%%%%%%%%%%%%%%%%% Introduce %%%%%%%%%%%%%%%%%%%%%%%%%%
-\part[Introduce]{Introduce}
-\section[What is git]{What is git}
+\part[What is git]{What is git}
 \begin{frame}
 \begin{framedtext}
-  Git是什么？\\[1em]
+  什么是Git？\\[1em]
   Git是一个分布式版本控制软件，是Linux内核之父Linus Torvalds为了更好地管理Linux内核开发而创立的。
 \end{framedtext}
 \end{frame}
@@ -139,8 +138,8 @@
 \begin{frame}
 \begin{framedtext}
   文件名并不是一个好方法！\\[1em]
-  通过修改文件名来区分一个文件的不同版本，显然不是一个好方法，为此，将“文件内容”映射到SHA\-1字符串，
-  用这些SHA\-1字符串来区分文件的不同版本。同一个文件的不同版本，只跟文件内容相关。
+  通过修改文件名来区分一个文件的不同版本，显然不是一个好方法，为此，将“文件内容”映射到SHA1字符串，
+  用这些SHA1字符串来区分文件的不同版本。同一个文件的不同版本，只跟文件内容相关。
 \end{framedtext}
 \end{frame}
 
@@ -185,7 +184,7 @@
 \begin{framedtext}
   添加一个缓存文件列表！\\[1em]
   当文件数量很多时(如Linux kernel)，遍历所有文件是一件很耗时的事情。
-  我们只考虑被改动过的文件，为此考虑添加一个缓存文件，保存所有改动
+  为此添加一个缓存文件，保存所有改动
   过的文件列表，当创建新的版本时，上一个版本的文件列表与缓存文件列表比较，
   即可得到新版本的文件列表。
 \end{framedtext}
@@ -247,16 +246,45 @@
 
 \begin{frame}
 \begin{framedtext}
+%  这就是Git！\\[1em]
+%  保存文件的目录对应于Git的本地仓库；\\
+%  每个版本的文件列表对应于Git的commit；\\
+%  缓存文件列表对应于Git的index文件；\\
+%  工作目录对应于Git的工作目录。
+
   这就是Git！\\[1em]
-  保存文件的目录对应于Git的本地仓库；\\
-  每个版本的文件列表对应于Git的commit；\\
-  缓存文件列表对应于Git的index文件；\\
-  工作目录对应于Git的工作目录。
+  \begin{tabular}{rcl}
+    保存文件的目录 & : & git repository \\
+    版本文件列表 & : & git commit \\
+    缓存文件列表 & : & git index \\
+    工作目录 & : & git work dir
+  \end{tabular}
 \end{framedtext}
+\end{frame}
+
+\begin{frame}
+\begin{center}
+\begin{tikzpicture}[main-style]
+    \makeOutline
+    \createBranch name:release display:{\displayName release} direct:above to:b;
+    \createBranch name:master display:{\displayName master} direct:above to:e;
+    \createHead direct:above to:master;
+
+    \createIndex to:c;
+    \createWork to:index;
+\end{tikzpicture}
+\end{center}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%% Local Operation %%%%%%%%%%%%%%%%%%%%%%%%
 \part[Local Operations]{Local Operations}
+\begin{frame}
+\begin{center}
+  \ttfamily\huge
+  Git的本地操作
+\end{center}
+\end{frame}
+
 \section[git add]{git add}
 \begin{frame}{\ {}}
   \gitcmd{git add}
@@ -505,6 +533,13 @@
 
 %%%%%%%%%%%%%%%%%% Tips and Tricks %%%%%%%%%%%%%%%%%%%%%%%%
 \part[Tips and Tricks]{Tips and Tricks}
+\begin{frame}
+\begin{center}
+  \ttfamily\huge
+  Git常用技巧
+\end{center}
+\end{frame}
+
 \section[fetch a single branch]{fetch a single branch}
 \begin{frame}{fetch a single branch}
 
@@ -528,14 +563,16 @@
 \begin{frame}{create patch files 1}
   \gitcmd{git diff > filename.[patch|diff]}
 {\ttfamily
-  该方法使用“标准”的diff格式创建patch文件，
-  该patch文件在Git, SVN, BitKeeper等工具上都可以使用。
+  该方法使用“标准”的diff格式创建patch文件，\\
+  该patch文件在Git, SVN, BitKeeper等工具上\\
+  都可以使用。
 }
 \end{frame}
 \begin{frame}{create patch files 2}
   \gitcmd{git format-patch \surrounded{commit-id}}
 {\ttfamily
-  从\surrounded{commit-id}(不包括该commit)到HEAD之间的每个commit生成一个patch文件。
+  从\surrounded{commit-id}(不包括该commit)到HEAD之间的\\
+  每个commit生成一个patch文件。\\
   注意，这样生成的patch文件只适用于Git。
 }
 \end{frame}
@@ -577,7 +614,7 @@
   一个分支(如master)对应到一个文件(如refs/head/master)，该文件中
   保存着一个commit-id，分支类似于C语言中的指针。\\[10pt]
   \textcolor{green}{分支是廉价的}。\\[10pt]
-  请使用研发分支，拒绝锁流。
+  请使用develop、release分支，拒绝锁流。
 \end{framedtext}
 \end{frame}
 
@@ -783,6 +820,17 @@
   并非独立的工具，它以git作为其后端。
 }
 \end{framedtext}
+\end{frame}
+
+\part[\surrounded{/end}]{\surrounded{/end}}
+\begin{frame}{\surrounded{/end}}
+  \begin{framedtext}
+    \begin{tabular}{ll}
+      \textcolor{blue}{weibo} & @iGNU \\
+      \textcolor{blue}{email} & ybin.sun@gmail.com \\
+      \textcolor{blue}{github}& https://github.com/\textbf{ybin}/ \\
+    \end{tabular}
+  \end{framedtext}
 \end{frame}
 
 
