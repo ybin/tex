@@ -488,6 +488,50 @@
 \end{frame}
 
 
+\section[git branch]{git branch}
+\begin{frame}{\ {}}
+  \gitcmd{git branch}
+\end{frame}
+
+\begin{frame}{git branch}
+\begin{framedtext}
+  \small
+  本质上来说，git没有“分支”的概念。所谓的分支，其实就是commit的别名，
+  一个分支(如master)对应到一个文件(如refs/head/master)，该文件中
+  保存着一个commit-id，分支类似于C语言中的指针。\\[10pt]
+  \textcolor{blue}{分支是廉价的}。\\[10pt]
+  请使用develop、release分支，拒绝锁流。
+\end{framedtext}
+\end{frame}
+
+\begin{frame}{show branch names}
+\gitcmd{
+  git branch [-r] [-a]
+}
+\begin{center}
+{\ttfamily\small
+\begin{tabular}{rcl}
+    no option & : & 列出本地所有分支 \\
+    -r & : & 列出远程仓库中的所有分支 \\
+    -a & : & 列出本地、远程的所有分支 \\
+  \end{tabular}
+}
+\end{center}
+\end{frame}
+
+\begin{frame}{create new branch}
+\gitcmd{\small
+  git branch \surrounded{new-branch} \optionalSurrounded{based-commit}
+}
+\begin{center}
+{\ttfamily\small
+  基于\optionalSurrounded{based-commit}创建新分支\surrounded{new-branch}。\\
+  如果\optionalSurrounded{based-commit}被省略，则基于HEAD创建新分支。
+}
+\end{center}
+\end{frame}
+
+
 %%% branch operations
 \section[git merge]{git merge}
 \begin{frame}{\ {}}
@@ -501,6 +545,7 @@
   \end{tikzpicture}
 \end{center}
 \end{frame}
+
 
 \section[git rebase]{git rebase}
 \begin{frame}{\ {}}
@@ -518,16 +563,89 @@
 
 %%%%%%%%%%%%%%%%%% Remote Operations %%%%%%%%%%%%%%%%%%%%%%
 \part[Remote Operations]{Remote Operations}
-\section[git fetch]{git fetch}
-\begin{frame}{git fetch}
+\begin{frame}
+\begin{center}
+  \ttfamily\huge
+  Git的远程操作
+\end{center}
 \end{frame}
+
+\section[git remote]{git remote}
+\begin{frame}{\ {}}
+\gitcmd{
+  git remote show \surrounded{repo-name}
+}
+\end{frame}
+\begin{frame}{show information of remote repo \texttt{origin}}
+\begin{framedtext}
+{
+  e.g.\\[5pt]
+  git remote show \textbf{origin}
+}
+\end{framedtext}
+\end{frame}
+\begin{frame}{output of \texttt{git remote show origin}}
+  \textcolor{blue!50}{\ttfamily Output:}
+  \lstinputlisting{remoteshow.txt}
+\end{frame}
+
+
+\section[git fetch]{git fetch}
+\begin{frame}{\ {}}
+\gitcmd{\small
+  git fetch [\surrounded{repo-name} [\surrounded{rbranch:lbranch}]]
+}
+\begin{center}
+{\small\ttfamily
+  \begin{tabular}{rcl}
+    \multicolumn{3}{l}{将远程仓库代码拉取到本地。} \\[10pt]
+    repo-name & : & 远程仓库名称，如origin \\
+    rbranch   & : & 远程分支 \\
+    lbranch   & : & 本地分支 \\
+  \end{tabular}
+}
+\end{center}
+\end{frame}
+
 
 \section[git pull]{git pull}
-\begin{frame}{}
+\begin{frame}{\ {}}
+\gitcmd{git pull}
+\begin{center}
+  \begin{minipage}{0.7\textwidth}
+    \ttfamily
+    pull等价于fetch + merge，先拉取代码，然后合入当前分支。
+  \end{minipage}
+\end{center}
 \end{frame}
 
+
 \section[git push]{git push}
-\begin{frame}{}
+\begin{frame}{\ {}}
+\gitcmd{git push}
+\centerline{将代码从本地仓库推送到远程仓库，支持默认值设置。}
+\end{frame}
+
+\begin{frame}{git push configuration}
+\gitcmd{\small
+  \begin{tabular}{rr}
+    \multicolumn{2}{l}{git config --global push.default}\\
+    \  & nothing|matching|upstream|simple|current \\
+  \end{tabular}
+}
+\begin{center}
+{\small\ttfamily
+  \begin{tabular}{rcl}
+    nothing & : & 顾名思义\\
+    matching& : & push所有与远程分支同名(匹配)\\
+            &   & 的本地分支\\
+    upstream& : & push所有pull下来的分支\\
+    simple  & : & 类似于upstream，但是要求远程、\\
+            &   & 本地分支同名\\
+    current & : & push当前分支\\
+  \end{tabular}
+}
+\end{center}
 \end{frame}
 
 
@@ -550,6 +668,7 @@
               & \surrounded{repo-url} \optionalSurrounded{directory}
   \end{tabular}
 }
+\begin{center}
 {\ttfamily
   \begin{tabular}{rcl}
     --single-branch&:&只复制一个分支\\
@@ -557,25 +676,36 @@
     --depth 1&:&只复制最新的1个commit\\
   \end{tabular}
 }
+\end{center}
 \end{frame}
 
 \section[apply a patch]{apply a patch}
 \begin{frame}{create patch files 1}
-  \gitcmd{git diff > filename.[patch|diff]}
-{\ttfamily
-  该方法使用“标准”的diff格式创建patch文件，\\
-  该patch文件在Git, SVN, BitKeeper等工具上\\
+  \gitcmd{\normalsize git diff > filename.[patch|diff]}
+\vspace{1em}
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+  \ttfamily
+  该方法使用“标准”的diff格式创建patch文件，
+  该patch文件在Git, SVN, BitKeeper等工具上
   都可以使用。
-}
+\end{minipage}
+\end{center}
 \end{frame}
+
 \begin{frame}{create patch files 2}
-  \gitcmd{git format-patch \surrounded{commit-id}}
-{\ttfamily
-  从\surrounded{commit-id}(不包括该commit)到HEAD之间的\\
-  每个commit生成一个patch文件。\\
+  \gitcmd{\normalsize git format-patch \surrounded{commit-id}}
+\vspace{1em}
+\begin{center}
+\begin{minipage}{0.7\textwidth}
+  \ttfamily
+  从\surrounded{commit-id}(不包括该commit)到HEAD之间的
+  每个commit生成一个patch文件。
   注意，这样生成的patch文件只适用于Git。
-}
+\end{minipage}
+\end{center}
 \end{frame}
+
 \begin{frame}{apply patch file}
   \gitcmd{\small\ttfamily
     \begin{tabular}{rl}
@@ -584,6 +714,7 @@
                 & filename.[diff | patch]\\
     \end{tabular}
   }
+\begin{center}
 {\ttfamily
   \begin{tabular}{rcl}
     --stat&:&只输出统计信息而不应用补丁内容\\
@@ -592,6 +723,7 @@
     --reverse&:&将应用过的补丁内容撤销\\
   \end{tabular}
 }
+\end{center}
 \end{frame}
 
 \section[special signs]{special signs}
@@ -605,63 +737,6 @@
   \end{tabular}
 }
 \end{frame}
-
-\section[use branch]{use branch}
-\begin{frame}{use branch}
-\begin{framedtext}
-  \small
-  本质上来说，git没有“分支”的概念。所谓的分支，其实就是commit的别名，
-  一个分支(如master)对应到一个文件(如refs/head/master)，该文件中
-  保存着一个commit-id，分支类似于C语言中的指针。\\[10pt]
-  \textcolor{green}{分支是廉价的}。\\[10pt]
-  请使用develop、release分支，拒绝锁流。
-\end{framedtext}
-\end{frame}
-
-\begin{frame}{show branch names}
-\gitcmd{
-  git branch [-r] [-a]
-}
-{
-\ttfamily\small
-\begin{tabular}{rcl}
-    no option & : & 列出本地所有分支 \\
-    -r & : & 列出远程仓库中的所有分支 \\
-    -a & : & 列出本地、远程的所有分支 \\
-  \end{tabular}
-}
-\end{frame}
-
-\begin{frame}{create new branch}
-\gitcmd{\small
-  git branch \surrounded{new-branch} \optionalSurrounded{based-commit}
-}
-{\ttfamily\small
-  基于\optionalSurrounded{based-commit}创建新分支\surrounded{new-branch}。\\
-  如果\optionalSurrounded{based-commit}被省略，则基于HEAD创建新分支。
-}
-\end{frame}
-
-
-\section[show remote repo information]{show remote repo information}
-\begin{frame}{show remote repo information}
-\gitcmd{
-  git remote show \surrounded{repo-name}
-}
-\end{frame}
-\begin{frame}{show remote repo information cont.}
-\begin{framedtext}
-{
-  e.g.\\[5pt]
-  git remote show origin
-}
-\end{framedtext}
-\end{frame}
-\begin{frame}{show remote repo information cont.}
-  \textcolor{blue!50}{\ttfamily Output:}
-  \lstinputlisting{remoteshow.txt}
-\end{frame}
-
 
 \section[show branch topology]{show branch topology}
 \begin{frame}{show branch topology}
@@ -721,26 +796,6 @@
 }
 \end{frame}
 
-\section[git push configuration]{git push configuration}
-\begin{frame}{git push configuration}
-\gitcmd{\small
-  \begin{tabular}{rr}
-    \multicolumn{2}{l}{git config --global default.push}\\
-    \  & nothing|matching|upstream|simple|current \\
-  \end{tabular}
-}
-{\small\ttfamily
-  \begin{tabular}{rcl}
-    nothing & : & 顾名思义\\
-    matching& : & push所有与远程分支同名(匹配)\\
-            &   & 的本地分支\\
-    upstream& : & push所有pull下来的分支\\
-    simple  & : & 类似于upstream，但是要求远程、\\
-            &   & 本地分支同名\\
-    current & : & push当前分支\\
-  \end{tabular}
-}
-\end{frame}
 
 \section[show index file]{show index file}
 \begin{frame}{show index file}
