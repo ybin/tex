@@ -531,6 +531,19 @@
 \end{center}
 \end{frame}
 
+\begin{frame}{delete local branch}
+\gitcmd{\small
+  git branch [-d|-D] \surrounded{branch-name}
+}
+\begin{center}
+  \ttfamily\small
+  \begin{tabular}{rcl}
+    -d & : & 删除分支\surrounded{branch-name} \\
+    -D & : & 强制删除分支\surrounded{branch-name}
+  \end{tabular}
+\end{center}
+\end{frame}
+
 
 %%% branch operations
 \section[git merge]{git merge}
@@ -538,9 +551,47 @@
   \gitcmd{git merge}
 \end{frame}
 
-\begin{frame}{git merge}
+\begin{frame}{git merge - fast-forward}
 \begin{center}
-  \begin{tikzpicture}
+  \begin{tikzpicture}[main-style]
+    \makeOutline
+    \createBranch name:release display:{\displayName release} direct:above to:b;
+    \createBranch name:master display:{\displayName master} direct:below to:e;
+    \createHead direct:above to:release;
+
+    \createBranch name:releasenew display:{\displayName release} direct:above to:e;
+    \node [head-style, above=0cm of releasenew] (headnew) {\displayName HEAD};
+
+    \createIndex to:c;
+    \createWork to:index;
+    
+    \path (release.north east) edge[bend left=15] node[cmd-style=above]{\commandName git merge master} (releasenew.north west);
+  \end{tikzpicture}
+\end{center}
+\end{frame}
+
+\begin{frame}{git merge - non-fast-forward}
+\begin{center}
+  \begin{tikzpicture}[main-style]
+      \node[right] (dumy) at (0,0) {\dots};
+      \createCommit name:a display:{\displayName A} direct:right to:dumy;
+      \createCommit name:b display:{\displayName B} direct:right to:a;
+      \createCommit name:c display:{\displayName C} direct:right to:b;
+      \createCommit name:d display:{\displayName D} direct:right to:c;
+      \createCommit name:e display:{\displayName E} direct:right to:d;
+      \createCommit name:f display:{\displayName C'} direct:above to:b;
+      \createCommit name:g display:{\displayName D'} direct:right to:f;
+      
+      \path (e.north west) edge[COMMITCOLOR] (g.east);
+      
+      \createBranch name:master display:{\displayName master} direct:below to:d;
+      \node [head-style, below=0cm of master] (head) {\displayName HEAD};
+      \createBranch name:masternew display:{\displayName master} direct:below to:e;
+      \node [head-style, below=0cm of masternew] (headnew) {\displayName HEAD};
+      \path (master.south east) edge[bend right=30] (masternew.south west);
+      
+      \createBranch name:bugfix display:{\displayName bugfix} direct:above to:g;
+      \node at ([yshift=0.6cm]bugfix.north west) {\displayName git merge bugfix};
 
   \end{tikzpicture}
 \end{center}
@@ -554,8 +605,27 @@
 
 \begin{frame}{git rebase}
 \begin{center}
-  \begin{tikzpicture}
-
+  \begin{tikzpicture}[main-style]
+      \node[right] (dumy) at (0,0) {\dots};
+      \createCommit name:a display:{\displayName A} direct:right to:dumy;
+      \createCommit name:b display:{\displayName B} direct:right to:a;
+      \createCommit name:c display:{\displayName C} direct:right to:b;
+      \createCommit name:d display:{\displayName D} direct:right to:c;
+      \createCommit name:e display:{\displayName E} direct:right to:d;
+      \createCommit name:f display:{\displayName B'} direct:above to:a;
+      \createCommit name:g display:{\displayName C'} direct:right to:f;
+      \createBranch name:bugfix display:{\displayName bugfix} direct:above to:g;
+      \createBranch name:master display:{\displayName master} direct:below to:c;
+      \createHead direct:above to:bugfix;
+      
+      \createBranch name:bugfixnew display:{\displayName bugfix} direct:above to:e;
+      \node [head-style, above=0cm of bugfixnew] (headnew) {\displayName HEAD};
+      
+      \path (bugfix.east) edge[out=-20,in=170] node[circle,fill=red,auto,inner sep=1pt] {\tiny{3}} (bugfixnew.west);
+      \path (g.east) edge[out=-20,in=170] node[circle,fill=red,auto,inner sep=1pt] {\tiny{2}} (e.north west);
+      \path (f.south east) edge[out=-20,in=170] node[circle,fill=red,auto,inner sep=1pt] {\tiny{1}} (d.north west);
+      
+      \node at ([yshift=3.3cm]c.north) {\displayName git rebase master};
   \end{tikzpicture}
 \end{center}
 \end{frame}
@@ -646,6 +716,12 @@
   \end{tabular}
 }
 \end{center}
+\end{frame}
+
+\begin{frame}{delete remote branch}
+\gitcmd{\small
+  git push \surrounded{repo-name}\hspace{2em} :\surrounded{remote-branch}
+}
 \end{frame}
 
 

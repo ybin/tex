@@ -4,7 +4,7 @@
 \colorlet{BRANCHCOLOR}{blue!50}
 \colorlet{WORKCOLOR}{gray!50}
 \colorlet{INDEXCOLOR}{cyan!50}
-\colorlet{COMMITCOLOR}{green!50}
+\colorlet{COMMITCOLOR}{green}
 
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,positioning,calc,backgrounds,matrix,fit,decorations.pathreplacing}
@@ -13,7 +13,7 @@
     rectangle, rounded corners=2pt, draw, thick,
     fill=#1,
     minimum height=15pt,
-    minimum width=1.4cm,
+    minimum width=1.5cm,
     inner sep=1pt
   },
   commit-style/.style = {
@@ -83,13 +83,13 @@
         edge [#3, BRANCHCOLOR] (#4);
 }
 \def\createHead direct:#1 to:#2;{
-  \node [head-style, #1=0cm of #2] (head) {HEAD};
+  \node [head-style, #1=0cm of #2] (head) {\displayName HEAD};
 }
 \def\createIndex to:#1;{
-  \node [index-style, below=2\commitDistance of #1] (index) {Index};
+  \node [index-style, below=2\commitDistance of #1] (index) {\displayName Index};
 }
 \def\createWork to:#1;{
-  \node [work-style, below=2\commitDistance of #1] (work) {Work DIR};
+  \node [work-style, below=2\commitDistance of #1] (work) {\displayName Work DIR};
 }
 
 \newcommand\makeOutline{
