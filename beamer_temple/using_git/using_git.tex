@@ -4,7 +4,7 @@
 \input{tikz_template}
 
 %********** title page settings **********
-\title{Using GIT}
+\title{\ttfamily Using GIT}
 \author{孙延宾}
 \institute{西安$\cdot$业务软件开发一部$\cdot$~\texttt{ZTE}}
 \date{\today}
@@ -143,7 +143,7 @@
 \end{framedtext}
 \end{frame}
 
-\begin{frame}{map file content to SHA-1 string}
+\begin{frame}{map file content to SHA1 string}
 \begin{center}
   \begin{tikzpicture}
     %%% file lists
@@ -389,10 +389,10 @@
     \createBranch name:release display:{\displayName release} direct:above to:b;
 
     % create old master branch & HEAD
-    \path <1> node [branch-style, above=0.75\commitDistance of e] (master) {master}
+    \path <1> node [branch-style, above=0.75\commitDistance of e] (master) {\displayName master}
         edge [cmd-style, BRANCHCOLOR] (e);
     % create new master branch & HEAD
-    \path <2> node [branch-style, above=0.75\commitDistance of d] (master) {master}
+    \path <2> node [branch-style, above=0.75\commitDistance of d] (master) {\displayName master}
         edge [cmd-style, BRANCHCOLOR] (d);
     \path <2-> (e.north west) edge[bend right=30,<->] (d.north east);
     \createHead direct:above to:master;
@@ -415,10 +415,10 @@
     \createBranch name:release display:{\displayName release} direct:above to:b;
 
     % create old master branch & HEAD
-    \path <1> node [branch-style, above=0.75\commitDistance of e] (master) {master}
+    \path <1> node [branch-style, above=0.75\commitDistance of e] (master) {\displayName master}
         edge [cmd-style, BRANCHCOLOR] (e);
     % create new master branch & HEAD
-    \path <2-> node [branch-style, above=0.75\commitDistance of d] (master) {master}
+    \path <2-> node [branch-style, above=0.75\commitDistance of d] (master) {\displayName master}
         edge [cmd-style, BRANCHCOLOR] (d);
     \path <2-> (e.north west) edge[bend right=30,<->] node[circle,above,auto,swap,fill=red,inner sep=1pt]{\tiny{1}}
                 (d.north east);
@@ -497,7 +497,7 @@
 \begin{framedtext}
   \small
   本质上来说，git没有“分支”的概念。所谓的分支，其实就是commit的别名，
-  一个分支(如master)对应到一个文件(如refs/head/master)，该文件中
+  一个分支(如master)对应到一个文件(如refs/heads/master)，该文件中
   保存着一个commit-id，分支类似于C语言中的指针。\\[10pt]
   \textcolor{blue}{分支是廉价的}。\\[10pt]
   请使用develop、release分支，拒绝锁流。
@@ -553,7 +553,7 @@
   \gitcmd{git merge}
 \end{frame}
 
-\begin{frame}{git merge - fast-forward}
+\begin{frame}{git merge, fast-forward}
 \begin{center}
   \begin{tikzpicture}[main-style]
     \makeOutline
@@ -572,7 +572,7 @@
 \end{center}
 \end{frame}
 
-\begin{frame}{git merge - non-fast-forward}
+\begin{frame}{git merge, non-fast-forward}
 \begin{center}
   \begin{tikzpicture}[main-style]
       \node[right] (dumy) at (0,0) {\dots};
@@ -736,6 +736,19 @@
 \end{center}
 \end{frame}
 
+\section[special signs]{special signs}
+\begin{frame}{special signs}
+\gitcmd{\small
+  \begin{tabular}{rcl}
+    \^ & : & 第一个parent commit \\
+       &   & e.g. HEAD\^{}2: second parent commit \\[10pt]
+    \~ & : & 第一个upstream commit \\
+       &   & e.g. HEAD\~{}2: parent's parent commit\\
+  \end{tabular}
+}
+\end{frame}
+
+
 \section[fetch a single branch]{fetch a single branch}
 \begin{frame}{fetch a single branch}
 
@@ -804,17 +817,6 @@
 \end{center}
 \end{frame}
 
-\section[special signs]{special signs}
-\begin{frame}{special signs}
-\gitcmd{\small
-  \begin{tabular}{rcl}
-    \^ & : & 第一个parent commit \\
-       &   & e.g. HEAD\^{}2: second parent commit \\[10pt]
-    \~ & : & 第一个upstream commit \\
-       &   & e.g. HEAD\~{}2: parent's parent commit\\
-  \end{tabular}
-}
-\end{frame}
 
 \section[show branch topology]{show branch topology}
 \begin{frame}{show branch topology}
@@ -840,7 +842,7 @@
 \end{frame}
 
 \section[external diff tool]{external diff tool}
-\begin{frame}{external tools configuration}
+\begin{frame}{external diff tool}
 \gitcmd{\small
   \begin{tabular}{rl}
     git config & \texttt{--}global \\
@@ -851,7 +853,7 @@
 }
 \end{frame}
 
-\begin{frame}{external diff tool}
+\begin{frame}{external diff tool cont.}
   \textcolor{blue!50}{\ttfamily cat diff\_4\_git.bat}
   \lstinputlisting{diff.bat}
 \end{frame}
@@ -889,8 +891,8 @@
 \end{figure}
 \end{frame}
 
-\section[git add]{git add}
-\begin{frame}{git add}
+\section[git add again]{git add again}
+\begin{frame}{git add again}
 \gitcmd{\normalsize
   git add [--update] [--all] filename/dir
 }
