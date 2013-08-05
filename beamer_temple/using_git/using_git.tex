@@ -272,6 +272,17 @@
 
     \createIndex to:c;
     \createWork to:index;
+    
+    \node [above=1cm of a] (branchname) {\ttfamily 这表示branch};
+    \path (branchname.south) edge (release.west);
+    \node [below=1cm of a] (commitname) {\ttfamily 这表示commit};
+    \path (commitname.north) edge (a.south);
+    \node [right=0.5cm of index] (indexname) {\ttfamily 这表示index区域};
+    \path (indexname.west) edge (index.east);
+    \node [right=0.5cm of work] (workname) {这表示工作区域};
+    \path (workname.west) edge (work.east);
+    \node [above=1cm of d,xshift=-1cm] (headname) {\ttfamily HEAD表示当前分支};
+    \path (headname.east) edge (head.west);
 \end{tikzpicture}
 \end{center}
 \end{frame}
