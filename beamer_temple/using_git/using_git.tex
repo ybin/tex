@@ -524,10 +524,12 @@
   git branch \surrounded{new-branch} \optionalSurrounded{based-commit}
 }
 \begin{center}
+\begin{minipage}{0.7\textwidth}
 {\ttfamily\small
   基于\optionalSurrounded{based-commit}创建新分支\surrounded{new-branch}。\\
   如果\optionalSurrounded{based-commit}被省略，则基于HEAD创建新分支。
 }
+\end{minipage}
 \end{center}
 \end{frame}
 
@@ -564,7 +566,7 @@
 
     \createIndex to:c;
     \createWork to:index;
-    
+
     \path (release.north east) edge[bend left=15] node[cmd-style=above]{\commandName git merge master} (releasenew.north west);
   \end{tikzpicture}
 \end{center}
@@ -581,15 +583,15 @@
       \createCommit name:e display:{\displayName E} direct:right to:d;
       \createCommit name:f display:{\displayName C'} direct:above to:b;
       \createCommit name:g display:{\displayName D'} direct:right to:f;
-      
+
       \path (e.north west) edge[COMMITCOLOR] (g.east);
-      
+
       \createBranch name:master display:{\displayName master} direct:below to:d;
       \node [head-style, below=0cm of master] (head) {\displayName HEAD};
       \createBranch name:masternew display:{\displayName master} direct:below to:e;
       \node [head-style, below=0cm of masternew] (headnew) {\displayName HEAD};
       \path (master.south east) edge[bend right=30] (masternew.south west);
-      
+
       \createBranch name:bugfix display:{\displayName bugfix} direct:above to:g;
       \node at ([yshift=0.6cm]bugfix.north west) {\displayName git merge bugfix};
 
@@ -617,14 +619,14 @@
       \createBranch name:bugfix display:{\displayName bugfix} direct:above to:g;
       \createBranch name:master display:{\displayName master} direct:below to:c;
       \createHead direct:above to:bugfix;
-      
+
       \createBranch name:bugfixnew display:{\displayName bugfix} direct:above to:e;
       \node [head-style, above=0cm of bugfixnew] (headnew) {\displayName HEAD};
-      
+
       \path (bugfix.east) edge[out=-20,in=170] node[circle,fill=red,auto,inner sep=1pt] {\tiny{3}} (bugfixnew.west);
       \path (g.east) edge[out=-20,in=170] node[circle,fill=red,auto,inner sep=1pt] {\tiny{2}} (e.north west);
       \path (f.south east) edge[out=-20,in=170] node[circle,fill=red,auto,inner sep=1pt] {\tiny{1}} (d.north west);
-      
+
       \node at ([yshift=3.3cm]c.north) {\displayName git rebase master};
   \end{tikzpicture}
 \end{center}
