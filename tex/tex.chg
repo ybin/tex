@@ -1,0 +1,4600 @@
+TEX.CHG - WEB change file for TEX 3.14159 for MS-DOS and Turbo Pascal.
+This is PubliC TeX/Dos-TP, as of September 8, 1998.
+PubliC TeX Copyright (C) 1988,98 by the Toad and the Earthworm
+
+Requires Turbo Pascal Version 5.0 or later
+  and TANGLE-TP Version 4.4/Dos-TP 2.0 or later
+
+External references: DUMPPTR, FONTPTR, HYPHPTR, INITPTR, MEMPTR,
+  TEXGLUE, TEXARITH, EXECSWAP, and DOSFILES.
+  Assembled .OBJ files of these routines are linked into the .EXE file.
+
+Compiler conditionals:
+  TeX      -- required, for DosTP unit
+  Debug    -- optional, generate code for debugging (and range checking)
+  Stat     -- optional, generate statistics
+  Init     -- optional, generate INITEX
+  Test     -- optional, generate INITEX for TRIP test (implies Stat and Init)
+
+This change file is free software; you can redistribute and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 1, or (at your option)
+any later version.
+
+Copying is expressly allowed for implementing, studying, improving,
+and entertainment purposes.
+Copying is expressly forbidden if the result is to be hidden away into
+some merchandise; the source is to accompany the merchandise openly.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+DOS-TP 0.9: Change file VIRTEX.V31 as of December 11, 1990
+     adapted for TANGLE-TP        Peter Breitenlohner        March 1991.
+Fixed a few bugs which prevented compilation with range checking.
+Don't change module numbers.
+Removed a few unused parts (including NRU paging and mem logging).
+Use TP's Get_Env.
+Faster dump/undump.
+Redesigned assembler code for address translation.
+TeX_arith assembler routines for various arithmetic subroutines.
+Replace "div" and "mod" by "shift", "and", and inline code.
+Put lig_kern array into virtual memory.
+More optimization of memory access.
+Increase string arrays, undo increase of hash table
+  (there is no point in having hash_size>max_strings-900).
+
+DOS-TP 1.0:                              Peter Breitenlohner   12 May 91
+Fixed a bug in file name handling.                             10 Jun 91
+
+DOS-TP 1.1:                              Peter Breitenlohner   05 Dec 91
+Fixed a bug in code page handling.
+
+DOS-TP 1.2:                              Peter Breitenlohner   04 Apr 92
+Fixed a bug in hyphenation with more than 256 ops/language.
+
+DOS-TP 1.3: Modified file search paths.        P.Breitenlohner 16 Jul 92
+Include code for mixed direction text (TeX--XeT)
+OS command interface (TeXMFedt and \write99)
+New default TFM search path ('~\fonts\tfm')                    10 Aug 92
+
+DOS-TP 1.4: Fixed bug in OS command interface (TeXMFedt)
+Adapted to TeX--XeT version 1.1                P.Breitenlohner 30 Nov 92
+Adapted to TP7, close input files                              12 Aug 93
+Adapted to TeX--XeT version 1.2                                27 Sep 93
+
+DOS-TP 1.5: Adapted to e-TeX version 0.9       P.Breitenlohner 29 Jan 94
+Intercept DOS error 4 (no more file handles)                   09 Feb 94
+Enlarged hash table                                            15 Oct 94
+Use extension from TeXformats for dumped format                23 Mar 95
+Enlarged string pool                                           26 Apr 95
+
+Dos-TP 2.0 and later use the DosTP unit and TeX directory structure.
+                                              P. Breitenlohner 15 Dec 95
+
+Revised handling of unprintable chars         P. Breitenlohner 17 Jan 98
+
+% All line numbers refer to TEX.WEB 3.14159 as of March 21, 1995.
+
+@x limbo l.63
+\def\ph{\hbox{Pascal-H}}
+@y
+\def\ph{\hbox{Pascal-H}}
+\def\TP{Turbo Pascal} % Version 5.0 or later
+@z
+%---------------------------------------
+@x limbo l.66
+\def\MF{{\logo META}\-{\logo FONT}}
+@y
+\def\MF{{\logo META}\-{\logo FONT}}
+\def\TheBible{{\sl The \TeX\/book}}
+\def\TheProgram{{\sl \TeX: The Program}}
+@z
+%---------------------------------------
+@x limbo l.81 - print only changed modules
+\def\topofcontents{\hsize 5.5in
+@y
+\let\maybe=\iffalse
+\toks0=\expandafter{\title}
+\edef\title{Changes for PubliC \the\toks0/Dos-TP}
+\def\topofcontents{\hsize 5.5in
+@z
+%---------------------------------------
+@x [1] m.2 l.187 - banner, copyright, Dos_TP_version
+@d banner=='This is TeX, Version 3.14159' {printed when \TeX\ starts}
+@y
+@d banner=='This is PubliC TeX, Version 3.14159'+Dos_TP_version
+  {printed when \TeX\ starts}
+@d copyright==
+  'PubliC TeX  Copyright (C) 1988,98 by the Toad and the Earthworm'
+@z
+%---------------------------------------
+@x [1] m.3 l.218 - general comment
+@!@^dirty \PASCAL@>
+@y
+@!@^dirty \PASCAL@>
+
+This is a free, public domain (source included) implementation of \TeX\
+for \.{DOS} and \TP, distributed under the terms of the Free Software
+Foundation's GNU general public license.
+Copying is expressly allowed for implementing, studying, improving,
+and entertainment purposes.
+Of course, D.~Knuth's two conditions must be met.
+Copying is expressly forbidden if the result is to be hidden away into
+some merchandise; the source is to accompany the merchandise openly.
+
+At the 6th german TUG meeting in M\"unster, October 1987, a fierce
+undercurrent was to be felt --- dissatisfaction about all the
+commercialism going on around \TeX\ on PC. Whoever had ears could hear
+the war cry ``We need a public domain PC-\TeX!''
+Same situation about the right-to-left matter: public domain \TeX,
+public right-to-left modification but NOT on PC, please and thank you.
+
+All this motivated Klaus Thull to write PubliC \TeX; his public domain
+@^Thull, Klaus@>
+implementation from 1988 is the ancestor of the present one and was made
+possible by the advent of Borland's \TP\ Version~4, supporting the large
+memory model. Klaus Thull's 1988 version included virtual memory and was
+a fully developed specimen; it was, however, rather slow since there was
+little optimization and no assembler code (neither inline nor external).
+Needless to say that it passed the \.{TRIP} test, otherwise it would not
+have deserved the name \TeX.
+Later first optimizations were applied by Rainer Rupprecht.
+@^Rupprecht, Rainer@>
+Finally Wolfgang~R. M\"uller and Friedhelm Sowa applied a lot of
+@^M\"uller, Wolfgang R.@>
+@^Sowa, Friedhelm@>
+optimizations, including assembler code and faster I/O, which greatly
+reduced the execution time.
+
+Simultaneously with Klaus Thull, Wayne~G. Sullivan began with an
+@^Sullivan, Wayne G.@>
+independent \TP\ implementation and his efforts were joined by
+Peter Breitenlohner for some time. Wayne~G. Sullivan's \.{sbtex} is free
+@^Breitenlohner, Peter@>
+but not public domain (in the sense that the source is availble).
+One result from that cooperation was that Peter Breitenlohner developed
+\.{TANGLE-TP}, a special version of \.{TANGLE} which greatly simplifies
+@.TANGLE-TP@>
+the implementation of very large \PASCAL\ programs for \TP\ running
+under \.{DOS}. In addition he then wrote another highly optimized public
+domain \TP\ implementation \TeX/Dos-TP which, however, lacked
+virtual memory and, therefore, didn't survive the transition to \TeX\
+version~3. Finally there is still another free, but not public domain,
+\TP\ implementation by Peter Sawatzki.
+@^Sawatzki, Peter@>
+
+The present PubliC \TeX/Dos-TP is a combination of these two lines of
+development. Klaus Thull's PubliC \TeX with the improvements by
+Rainer Rupprecht, Wolfgang~R. M\"uller, and Friedhelm Sowa, as of
+October 1990, was adapted to \.{TANGLE-TP} by Peter Breitenlohner.
+Then further optimizations were applied: modification of the assembler
+subroutines for address translation, assembler code for the |real| to
+|glue_ratio| conversion and several arithmetic subroutines (including
+those for division by powers of two). Much of this assembler code is
+inspired by Wayne~G. Sullivan or Peter Sawatzki. The modifications to
+allow more than 255~trie op codes per language are based on those by
+Klaus Guntermann.
+@^Guntermann, Klaus@>
+
+Note that some of the optimizations, in particular those in parts of the
+program used unfrequently, have no direct effect on the execution time.
+They do, however, make the code for the program shorter; consequently
+there are more available pages of real memory which may have a rather
+drastic effect.
+@z
+%---------------------------------------
+@x [1] m.4 l.238 - general comment
+@d mtype==t@&y@&p@&e {this is a \.{WEB} coding trick:}
+@y
+When implementing a very large \PASCAL\ program for \TP\ running under
+\.{DOS}, there are basically four problems caused by the architecture of
+the \.{INTEL} 8086 microprocessor: (1)~One or several \TP\ units have to
+be split off the program such that the code segment of each part doesn't
+exceed the 64~kB limit for code segments; (2)~several large arrays must
+be acquired dynamically from the heap, such that all remaining global
+variables fit into the 64~kB limit for the data segment; (3)~one or
+several huge arrays may exceed the 64~kB limit for each single
+structured variable; and (4)~the program, together with its data, may
+not fit into the 640~kB of memory directly addressable by \.{DOS}.
+
+To solve problem~(1) we use a feature of \.{TANGLE-TP}, a version of
+@.TANGLE-TP@>
+\.{TANGLE} specifically designed for the use with \TP: The \.{TANGLE-TP}
+directive |TP_unit name| indicates the start of a \TP\ unit `|name|' and
+|TP_main| indicates the start of the main module; \.{TANGLE-TP} takes
+care of creating the interface and implementation parts for the units,
+as well as of procedure or function declarations forwarded across units.
+Similarly the |TP_split name| directive indicates the start of a section
+of code to be written to a separate (`split') file |name|, such that all
+\PASCAL\ files generated by \.{TANGLE-TP} respect the 64~kB limit
+imposed by the \.{IDE} version of the \TP\ compiler.
+
+Problem (2) is easily solved with the help of \.{WEB} macros: if the
+original program contains the array declaration
+$$\vbox{\halign{\hskip.25\hsize\ignorespaces#\hfil\cr
+|var this: array [any] of some;|\cr
+\noalign{\leftline{\strut}}
+\noalign{\leftline{\strut then we simply replace this by}}
+\noalign{\leftline{\strut}}
+\&{define} |this==p_this^|\cr
+\noalign{\leftline{\strut}}
+|mtype a_this=array [any] of some;|\cr
+|var p_this: ^a_this;|\cr}}$$
+and initialize the pointer variable |p_this| via |new(p_this)|.
+
+As a pleasant surprise, \TP\ offers an elegant solution to problem~(3)
+through a documented extension of the \PASCAL\ standard: given once
+again an array declaration for |this| as above, one can replace each
+reference to an array element |this[i]| (either in an expression or on
+the left hand side of an assignment) by the dereferenced result
+|f_this(i)^| of a suitable pointer valued function. Once again
+\.{TANGLE-TP} helps in doing these replacements implicitely through
+an `array-type' \.{WEB} macro:
+$$\vbox{\halign{\hskip.25\hsize\ignorespaces#\hfil\cr
+\&{define} |this[#]==f_this(#)^|\cr
+\noalign{\leftline{\strut}}
+|mtype p_some=^some;|\cr
+|function f_this(i:any):p_some;| \C{returns pointer to |this[i]|}\cr}}$$
+For reasons of efficiency the function |f_this| should be written in
+assembler or as inline code.
+
+Finally, problem~(4) can be solved very much like problem~(3) with the
+help of \.{WEB} and \.{TANGLE-TP}. `All' there remains to do, is to
+define a suitable function |f_this| for the necessary address
+translation and virtual memory management. For reasons of efficiency
+at least part of this should be done in assembler.
+
+Unfortunatly, there is an unpleasant surprise with \TP as well: If |j|
+and |k| are declared as unsigned integers (i.e., as |Byte| or |Word|)
+then the difference |j-k| is computed as unsigned number (i.e., is taken
+modulo $2^{16}$) even in an assignment |i:=j-k| where |i| is declared as
+signed integer (|Short_Int|, |Integer|, or |integer==Long_Int|).
+
+We will use five \TP\ units:
+Unit |tex1| starts in part~1, module~4 with the global constants
+and uses a split file |tex1a| starting in part~9, module~119 with the
+section `Declare the procedure called |show_token_list|'.
+Unit |tex2| starts in part~18, module~259 with the function |id_lookup|
+and uses a split file |tex2a| starting in part~26, module~409 after the
+section `Declare procedures that scan font-related stuff'.
+Unit |tex3| starts in part~32, module~597 with the procedure |write_dvi|
+and uses a split file |tex3a| starting in part~36, module~736 with the
+procedure |make_vcenter|.
+Unit |tex4| starts in part~38, module~815 with the section `Declare
+subprocedures for |line_break|' and uses a split file |tex4a| starting
+in part~42, module~934 with the procedure |new_hyph_exceptions|.
+Unit |tex5| starts in part~48, module~1136 with the procedure
+|push_math| and uses a split file |tex5a| starting in part~50,
+module~1302 with the procedure |store_fmt_file|.
+Finally the `main program' |tex| starts in part~51, module~1332 and
+contains just the main program.
+
+All split files mentioned above are optional; they are created only when
+the definition of the |split_or_unit| \.{WEB} macro below is changed
+from |do_none| to |do_split|.  Alternatively, additional units are
+created when the definition is changed to |do_unit|; this is necessary
+when the debug code should include range and stack checking.
+
+In addition we redefine a few identifiers which otherwise would conflict
+with standard identifiers of \TP. In order to avoid identifier conflicts
+we will use |Pointer|, |String|, |Close|, and similar for \TP's
+predefined identifiers.
+@^system dependencies@>
+
+@d split_or_unit==do_none {change this to |split_or_unit==do_split| for
+  split files or to |split_or_unit==do_unit| for additional units}
+@#
+@d integer==Long_Int {we will use |Integer| for two-byte integers}
+@d interrupt==intrrupt {we will use |Interrupt| for the \TP\ directive}
+@d param_stack==parm_stack {identifier conflict with |Param_Str|}
+@#
+@f TP_unit==program
+@f TP_body==begin
+@f TP_main==begin
+@#
+@d mtype==Type {this is quite a different \.{WEB} coding trick:}
+@z
+%---------------------------------------
+@x [1] m.4 l.244 - TP units
+label @<Labels in the outer block@>@/
+@y
+uses Dos, DosTP; {for file and path names}
+TP_unit tex1@; {start of TP unit |tex1|}
+TP_int@; @<Include compiler directives for main program and units@>@/
+@z
+%---------------------------------------
+@x [1] m.4 l.247 - typed constants
+var @<Global variables@>@/
+@y
+const @<Typed constants in the outer block@>@/
+var @<Global variables@>@/
+@z
+%---------------------------------------
+@x [1] m.4 l.249 - TP units
+procedure initialize; {this procedure gets things started properly}
+@y
+TP_imp@; @<Declare the function called |f_mem|@>@/
+TP_imp@; @<Declare the function called |f_font|@>@/
+TP_imp@; @<Declare the function called |f_hyph|@>@/
+TP_imp@; @<Declare the functions called |f_trie1| and |f_trie2|@>@/
+@<Include system and memory management@>@/
+@#
+procedure initialize; {this procedure gets things started properly}
+@z
+%---------------------------------------
+@x [1] m.6 l.274 - TP units
+@<Labels in the out...@>=
+@y
+@<Labels in the outer block@>=
+@z
+%---------------------------------------
+@x [1] m.7 l.292 - debug ... gubed
+@d debug==@{ {change this to `$\\{debug}\equiv\null$' when debugging}
+@d gubed==@t@>@} {change this to `$\\{gubed}\equiv\null$' when debugging}
+@y
+@d debug==TP_ifdef Debug
+@d gubed==TP_endif
+@d no_debug==TP_ifdef NoDebug {will be defined iff |Debug| is undefined}
+@d no_gubed==TP_endif
+@f no_debug==begin
+@f no_gubed==end
+@z
+%---------------------------------------
+@x [1] m.7 l.297 - stat ... tats
+@d stat==@{ {change this to `$\\{stat}\equiv\null$' when gathering
+  usage statistics}
+@d tats==@t@>@} {change this to `$\\{tats}\equiv\null$' when gathering
+  usage statistics}
+@y
+@d stat==TP_ifdef Stat
+@d tats==TP_endif
+@z
+%---------------------------------------
+@x [1] m.8 l.312 - init ... tini
+@d init== {change this to `$\\{init}\equiv\.{@@\{}$' in the production version}
+@d tini== {change this to `$\\{tini}\equiv\.{@@\}}$' in the production version}
+@y
+@d init==TP_ifdef Init
+@d tini==TP_endif
+@z
+%---------------------------------------
+@x [1] m.9 l.331 - compiler directives
+@<Compiler directives@>=
+@{@&$C-,A+,D-@} {no range check, catch arithmetic overflow, no debug overhead}
+@!debug @{@&$C+,D+@}@+ gubed {but turn everything on when debugging}
+@y
+@d TP_dir(#)==@\@={$@>#@=}@>
+
+@<Compiler directives@>=
+TP_dir(M 10000,0,655360)@;@/
+TP_dir(N-,D+)@; {without coprocessor, with debug information}
+@<Include compiler directives for main program and units@>@/
+@z
+%---------------------------------------
+@x [1] m.10 l.364 - othercases
+@d othercases == others: {default for cases not listed explicitly}
+@y
+@d othercases == @+else {default for cases not listed explicitly}
+@z
+%---------------------------------------
+@x [1] m.11 l.376 constants for TEX and INITEX - enlarge mem array
+@!mem_max=30000; {greatest index in \TeX's internal |mem| array;
+@y
+@!mem_top=TP_ifdef Test 2999 TP_else
+  TP_ifdef Debug 30000 TP_else 65534 TP_endif TP_endif;
+  {largest index in the |mem| array dumped by \.{INITEX};
+  must be substantially larger than |mem_bot|
+  and not greater than |mem_max|}
+@!mem_max=mem_top; {greatest index in \TeX's internal |mem| array;
+@z
+%---------------------------------------
+@x [1] m.11 l.382 constants for TEX or INITEX - enlarge buf_size
+@!buf_size=500; {maximum number of characters simultaneously present in
+@y
+@!buf_size=TP_ifdef Test 500 TP_else 4096 TP_endif;
+  {maximum number of characters simultaneously present in
+@z
+%---------------------------------------
+@x [1] m.11 l.385 constants for TEX or INITEX - enlarge line size
+@!error_line=72; {width of context lines on terminal error messages}
+@!half_error_line=42; {width of first lines of contexts in terminal
+  error messages; should be between 30 and |error_line-15|}
+@!max_print_line=79; {width of longest text lines output; should be at least 60}
+@y
+@!error_line=TP_ifdef Test 64 TP_else 79 TP_endif;
+  {width of context lines on terminal error messages}
+@!half_error_line=TP_ifdef Test 32 TP_else 50 TP_endif;
+  {width of first lines of contexts in terminal
+  error messages; should be between 30 and |error_line-15|}
+@!max_print_line=TP_ifdef Test 72 TP_else 79 TP_endif;
+  {width of longest text lines output; should be at least 60}
+@z
+%---------------------------------------
+@x [1] m.11 l.390 constants for TEX or INITEX - enlarge max_in_open
+@!max_in_open=6; {maximum number of input files and error insertions that
+@y
+@!max_in_open=20; {maximum number of input files and error insertions that
+@z
+%---------------------------------------
+@x [1] m.11 l.392 constants for TEX or INITEX - enlarge font_max
+@!font_max=75; {maximum internal font number; must not exceed |max_quarterword|
+@y
+@!font_max=TP_ifdef Test 75 TP_else TP_ifdef Init 150 TP_else 200 TP_endif
+  TP_endif; {maximum internal font number; must not exceed |max_quarterword|
+@z
+%---------------------------------------
+@x [1] m.11 l.394 constants for TEX or INITEX - enlarge font_mem_size
+@!font_mem_size=20000; {number of words of |font_info| for all fonts}
+@y
+@!font_mem_size=TP_ifdef Test 20000 TP_else 32767 TP_endif;
+  {number of words of |font_info| for all fonts}
+@z
+%---------------------------------------
+@x [1] m.11 l.397 constants for TEX or INITEX - enlarge string arrays
+@!max_strings=3000; {maximum number of strings; must not exceed |max_halfword|}
+@!string_vacancies=8000; {the minimum number of characters that should be
+  available for the user's control sequences and font names,
+  after \TeX's own error messages are stored}
+@!pool_size=32000; {maximum number of characters in strings, including all
+@y
+@!max_strings=6000; {maximum number of strings; must not exceed |max_halfword|}
+@!string_vacancies=21000; {the minimum number of characters that should be
+  available for the user's control sequences and font names,
+  after \TeX's own error messages are stored}
+@!pool_size=TP_ifdef Init 60000 TP_else 65519 TP_endif;
+  {maximum number of characters in strings, including all
+@z
+%---------------------------------------
+@x [1] m.11 l.405 constants for TEX or INITEX - enlarge save_size
+@!save_size=600; {space for saving values outside of current group; must be
+@y
+@!save_size=TP_ifdef Init 600 TP_else 1000 TP_endif;
+  {space for saving values outside of current group; must be
+@z
+%---------------------------------------
+@x [1] m.11 l.407 constants for TEX or INITEX - enlarge trie_size
+@!trie_size=8000; {space for hyphenation patterns; should be larger for
+@y
+@!trie_size=TP_ifdef Test 8000 TP_else TP_ifdef Init 20000 TP_else 16000
+  TP_endif TP_endif; {space for hyphenation patterns; should be larger for
+@z
+%---------------------------------------
+@x [1] m.11 l.409 constants for TEX or INITEX - allow >255 trie_ops
+@!trie_op_size=500; {space for ``opcodes'' in the hyphenation patterns}
+@y
+@!trie_op_size=TP_ifdef Test 500 TP_else 750 TP_endif;
+  {space for ``opcodes'' in the hyphenation patterns}
+@!max_trie_op=500; {largest possible trie op code for any language}
+@z
+%---------------------------------------
+@x [1] m.11 l.410 constants for TEX or INITEX - enlarge dvi_buf_size
+@!dvi_buf_size=800; {size of the output buffer; must be a multiple of 8}
+@y
+@!dvi_buf_size=1024; {size of the output buffer; must be a multiple of 8}
+@z
+%---------------------------------------
+@x [1] m.11 l.411 constants for TEX or INITEX - file names
+@!file_name_size=40; {file names shouldn't be longer than this}
+@!pool_name='TeXformats:TEX.POOL                     ';
+  {string of length |file_name_size|; tells where the string pool appears}
+@y
+@!pool_name='tex.pool'; {name of \TeX\ string pool file}
+@z
+%---------------------------------------
+@x [1] m.12 l.429 constants for TEX and INITEX -
+@d mem_top==30000 {largest index in the |mem| array dumped by \.{INITEX};
+  must be substantially larger than |mem_bot|
+  and not greater than |mem_max|}
+@y
+@z
+%---------------------------------------
+@x [1] m.12 l.434 constants for TEX and INITEX - enlarge hash_size
+@d hash_size=2100 {maximum number of control sequences; it should be at most
+  about |(mem_max-mem_min)/10|}
+@d hash_prime=1777 {a prime number equal to about 85\pct! of |hash_size|}
+@y
+@d hash_size=4000 {maximum number of control sequences; it should be at most
+  about |(mem_max-mem_min)/10|}
+@d hash_prime=3407 {a prime number equal to about 85\pct! of |hash_size|}
+@z
+%---------------------------------------
+@x [1] m.14 l.456 - optimization
+if dvi_buf_size mod 8<>0 then bad:=3;
+@y
+if dvi_buf_size and 7<>0 then bad:=3;
+@z
+%---------------------------------------
+@x [1] m.16 l.498 - optimization
+@d incr(#) == #:=#+1 {increase a variable by unity}
+@d decr(#) == #:=#-1 {decrease a variable by unity}
+@y
+@d incr(#) == Inc(#) {using \TP's generalized |Inc|}
+@d decr(#) == Dec(#) {dito}
+@z
+%---------------------------------------
+@x [2] m.18 l.537 - typed constants
+@!ASCII_code=0..255; {eight-bit numbers}
+@y
+@!ASCII_code=0..255; {eight-bit numbers}
+@!Xchr= array [ASCII_code] of text_char;
+  {specifies conversion of output characters}
+@!ASCII_array=array [0..7] of array [1..32] of char;
+@z
+%---------------------------------------
+@x [2] m.20 l.579 - typed constants
+@!xchr: array [ASCII_code] of text_char;
+  {specifies conversion of output characters}
+@y
+@z
+%---------------------------------------
+@x [2] m.21 l.591 - typed constants
+@<Set init...@>=
+xchr[@'40]:=' ';
+xchr[@'41]:='!';
+xchr[@'42]:='"';
+xchr[@'43]:='#';
+xchr[@'44]:='$';
+xchr[@'45]:='%';
+xchr[@'46]:='&';
+xchr[@'47]:='''';@/
+xchr[@'50]:='(';
+xchr[@'51]:=')';
+xchr[@'52]:='*';
+xchr[@'53]:='+';
+xchr[@'54]:=',';
+xchr[@'55]:='-';
+xchr[@'56]:='.';
+xchr[@'57]:='/';@/
+xchr[@'60]:='0';
+xchr[@'61]:='1';
+xchr[@'62]:='2';
+xchr[@'63]:='3';
+xchr[@'64]:='4';
+xchr[@'65]:='5';
+xchr[@'66]:='6';
+xchr[@'67]:='7';@/
+xchr[@'70]:='8';
+xchr[@'71]:='9';
+xchr[@'72]:=':';
+xchr[@'73]:=';';
+xchr[@'74]:='<';
+xchr[@'75]:='=';
+xchr[@'76]:='>';
+xchr[@'77]:='?';@/
+xchr[@'100]:='@@';
+xchr[@'101]:='A';
+xchr[@'102]:='B';
+xchr[@'103]:='C';
+xchr[@'104]:='D';
+xchr[@'105]:='E';
+xchr[@'106]:='F';
+xchr[@'107]:='G';@/
+xchr[@'110]:='H';
+xchr[@'111]:='I';
+xchr[@'112]:='J';
+xchr[@'113]:='K';
+xchr[@'114]:='L';
+xchr[@'115]:='M';
+xchr[@'116]:='N';
+xchr[@'117]:='O';@/
+xchr[@'120]:='P';
+xchr[@'121]:='Q';
+xchr[@'122]:='R';
+xchr[@'123]:='S';
+xchr[@'124]:='T';
+xchr[@'125]:='U';
+xchr[@'126]:='V';
+xchr[@'127]:='W';@/
+xchr[@'130]:='X';
+xchr[@'131]:='Y';
+xchr[@'132]:='Z';
+xchr[@'133]:='[';
+xchr[@'134]:='\';
+xchr[@'135]:=']';
+xchr[@'136]:='^';
+xchr[@'137]:='_';@/
+xchr[@'140]:='`';
+xchr[@'141]:='a';
+xchr[@'142]:='b';
+xchr[@'143]:='c';
+xchr[@'144]:='d';
+xchr[@'145]:='e';
+xchr[@'146]:='f';
+xchr[@'147]:='g';@/
+xchr[@'150]:='h';
+xchr[@'151]:='i';
+xchr[@'152]:='j';
+xchr[@'153]:='k';
+xchr[@'154]:='l';
+xchr[@'155]:='m';
+xchr[@'156]:='n';
+xchr[@'157]:='o';@/
+xchr[@'160]:='p';
+xchr[@'161]:='q';
+xchr[@'162]:='r';
+xchr[@'163]:='s';
+xchr[@'164]:='t';
+xchr[@'165]:='u';
+xchr[@'166]:='v';
+xchr[@'167]:='w';@/
+xchr[@'170]:='x';
+xchr[@'171]:='y';
+xchr[@'172]:='z';
+xchr[@'173]:='{';
+xchr[@'174]:='|';
+xchr[@'175]:='}';
+xchr[@'176]:='~';@/
+@y
+@d xchr==Xchr(ASCII)
+
+@<Typed constants...@>=
+@!ASCII: ASCII_array=
+  ('         '#9'  '#12'                   ',@/
+   ' !"#$%&''()*+,-./0123456789:;<=>?',@/
+   '@@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_',@/
+   '`abcdefghijklmnopqrstuvwxyz{|}~ ',@/
+   '                                ',@/
+   '                                ',@/
+   '                                ',@/
+   '                                ');
+@z
+%---------------------------------------
+@x [2] m.23 l.723 - typed constants
+for i:=0 to @'37 do xchr[i]:=' ';
+for i:=@'177 to @'377 do xchr[i]:=' ';
+@y
+@z
+%---------------------------------------
+@x [3] m.25 l.772 - file handling
+@!eight_bits=0..255; {unsigned one-byte quantity}
+@!alpha_file=packed file of text_char; {files that contain textual data}
+@!byte_file=packed file of eight_bits; {files that contain binary data}
+@y
+@!eight_bits=Byte; {unsigned one-byte quantity}
+@!alpha_file=Text; {files that contain textual data}
+@!byte_file=file; {files that contain binary data}
+@!word_file=file;
+@z
+%---------------------------------------
+@x [3] m.26 l.788 - file names
+@<Glob...@>=
+@!name_of_file:packed array[1..file_name_size] of char;@;@/
+  {on some systems this may be a \&{record} variable}
+@!name_length:0..file_name_size;@/{this many characters are actually
+  relevant in |name_of_file| (the rest are blank)}
+@y
+@d name_length==l_name_of_file
+  {this many characters are actually relevant in |name_of_file|}
+@z
+%---------------------------------------
+@x [3] m.27 l.795 - file handling
+extended the rules of \PASCAL\ in a very convenient way. To open file~|f|,
+we can write
+$$\vbox{\halign{#\hfil\qquad&#\hfil\cr
+|reset(f,@t\\{name}@>,'/O')|&for input;\cr
+|rewrite(f,@t\\{name}@>,'/O')|&for output.\cr}}$$
+The `\\{name}' parameter, which is of type `{\bf packed array
+$[\langle\\{any}\rangle]$ of \\{char}}', stands for the name of
+the external file that is being opened for input or output.
+Blank spaces that might appear in \\{name} are ignored.
+
+The `\.{/O}' parameter tells the operating system not to issue its own
+error messages if something goes wrong. If a file of the specified name
+cannot be found, or if such a file cannot be opened for some other reason
+(e.g., someone may already be trying to write the same file), we will have
+|@!erstat(f)<>0| after an unsuccessful |reset| or |rewrite|.  This allows
+\TeX\ to undertake appropriate corrective action.
+@:PASCAL H}{\ph@>
+@^system dependencies@>
+
+\TeX's file-opening procedures return |false| if no file identified by
+|name_of_file| could be opened.
+
+@d reset_OK(#)==erstat(#)=0
+@d rewrite_OK(#)==erstat(#)=0
+@y
+extended the rules of \PASCAL\ in a very convenient way for file opening.
+
+Here also, \TP\ gives pleasant surprises: behaviour on not finding
+a file is sensible, and there is no need to resort to performing animals.
+
+\TeX's file-opening procedures return |false| if no file identified by
+|name_of_file| could be opened.  They use the |check_IO| function that
+test for occurence of IO errors and terminates the program in case the
+DOS file handles are exhausted.
+
+@d clear_IO==if IO_Result<>0 then do_nothing
+@z
+%---------------------------------------
+@x [3] m.27 l.820 a_open_in, x_open_in - file handling
+@p function a_open_in(var f:alpha_file):boolean;
+  {open a text file for input}
+begin reset(f,name_of_file,'/O'); a_open_in:=reset_OK(f);
+@y
+@p function check_IO: boolean;
+var i:Integer; {the |IO_Result|}
+begin i:=IO_Result;
+if i=4 then overflow("DOS files",Mem_W[Prefix_Seg:@"32]);
+  {no more file handles}
+check_IO:=(i=0);
+end;
+@#
+@!init function a_open_in(var f:alpha_file):boolean;
+  {open pool file for input}
+begin Assign(f,find_file(i_TeX_formats));
+TP_dir(I-)@; reset(f); TP_dir(I+)@; a_open_in:=check_IO;
+end;
+tini
+@#
+function x_open_in(var f:x_file):boolean; {open a text file for input}
+begin x_reset(f,i_TeX_inputs); x_open_in:=check_IO;
+@z
+%---------------------------------------
+@x [3] m.27 l.827 a_open_out - file handling
+begin rewrite(f,name_of_file,'/O'); a_open_out:=rewrite_OK(f);
+@y
+begin Assign(f,find_file(0));
+TP_dir(I-)@; rewrite(f); TP_dir(I+)@; a_open_out:=check_IO;
+@z
+%---------------------------------------
+@x [3] m.27 l.832 b_open_in - file handling
+begin reset(f,name_of_file,'/O'); b_open_in:=reset_OK(f);
+@y
+begin Assign(f,find_file(i_TFM_fonts));
+TP_dir(I-)@; reset(f,4); TP_dir(I+)@; b_open_in:=check_IO;
+@z
+%---------------------------------------
+@x [3] m.27 l.837 b_open_out - file handling
+begin rewrite(f,name_of_file,'/O'); b_open_out:=rewrite_OK(f);
+@y
+begin Assign(f,find_file(0));
+TP_dir(I-)@; rewrite(f,1); TP_dir(I+)@; b_open_out:=check_IO;
+@z
+%---------------------------------------
+@x [3] m.27 l.842 w_open_in - file handling
+begin reset(f,name_of_file,'/O'); w_open_in:=reset_OK(f);
+@y
+begin Assign(f,find_file(i_TeX_formats));
+TP_dir(I-)@; reset(f,4); TP_dir(I+)@; w_open_in:=check_IO;
+@z
+%---------------------------------------
+@x [3] m.27 l.847 w_open_out - file handling
+begin rewrite(f,name_of_file,'/O'); w_open_out:=rewrite_OK(f);
+@y
+begin Assign(f,find_file(0));
+TP_dir(I-)@; rewrite(f,4); TP_dir(I+)@; w_open_out:=check_IO;
+@z
+%---------------------------------------
+@x [3] m.28 l.860 a_close - file handling
+@p procedure a_close(var f:alpha_file); {close a text file}
+begin close(f);
+end;
+@y
+@d a_close(#)== {close a text file}
+begin TP_dir(I-)@; close(#); TP_dir(I+)@; clear_IO;@+end
+@z
+%---------------------------------------
+@x [3] m.28 l.864 b_close - file handling
+procedure b_close(var f:byte_file); {close a binary file}
+begin close(f);
+end;
+@y
+@d b_close(#)==a_close(#) {close a binary file}
+@z
+%---------------------------------------
+@x [3] m.28 l.868 w_close - file handling
+procedure w_close(var f:word_file); {close a word file}
+begin close(f);
+end;
+@y
+@d w_close(#)==a_close(#) {close a word file}
+@z
+%---------------------------------------
+@x [3] m.31 l.936 input_ln - file handling
+begin if bypass_eoln then if not eof(f) then get(f);
+  {input the first character of the line into |f^|}
+@y
+@!in_char: char;
+begin
+@z
+%---------------------------------------
+@x [3] m.31 l.947 input_ln - file handling
+    buffer[last]:=xord[f^]; get(f); incr(last);
+    if buffer[last-1]<>" " then last_nonblank:=last;
+    end;
+@y
+    read(f,in_char);
+    buffer[last]:=xord[in_char]; incr(last);
+    if buffer[last-1]<>" " then last_nonblank:=last;
+    end;
+  read_ln(f);
+@z
+%---------------------------------------
+@x [3] m.31 l.952 x_input_ln - file handling
+end;
+@y
+end;
+@#
+function x_input_ln(var f:x_file):boolean;
+  {inputs the next line or returns |false|}
+var last_nonblank:0..buf_size; {|last| with trailing blanks removed}
+begin last:=first; {cf.\ Matthew 19\thinspace:\thinspace30}
+if x_eof(f) then x_input_ln:=false
+else  begin last_nonblank:=first;
+  while x_get(f) do
+    begin if x_last-x_first>max_buf_stack-last then
+      begin if x_last-x_first>=buf_size-last then
+        @<Report overflow of the input buffer, and abort@>;
+      max_buf_stack:=last+x_last-x_first;
+      end;
+    repeat buffer[last]:=xord[x_buf[x_first]];
+    incr(x_first); incr(last);
+    if buffer[last-1]<>" " then last_nonblank:=last;
+    until x_first>=x_last;
+    end;
+  last:=last_nonblank; x_input_ln:=true;
+  end;
+end;
+@z
+%---------------------------------------
+@x [3] m.32 l.960 - terminal io
+@<Glob...@>=
+@!term_in:alpha_file; {the terminal as an input file}
+@!term_out:alpha_file; {the terminal as an output file}
+@y
+@d term_in == @!Input {standard input, may be directed by \.{'<'}}
+@d term_out == @!Output {standard output, may be directed by \.{'>'}}
+@z
+%---------------------------------------
+@x [3] m.33 l.968 - terminal io
+@d t_open_in==reset(term_in,'TTY:','/O/I') {open the terminal for text input}
+@d t_open_out==rewrite(term_out,'TTY:','/O') {open the terminal for text output}
+@y
+@d t_open_in == do_nothing {silenced now. |Input| is open}
+@d t_open_out == do_nothing {silenced now. |Output| is open}
+@z
+%---------------------------------------
+@x [3] m.34 l.982 - terminal io
+these operations can be specified in \ph:
+@^system dependencies@>
+
+@d update_terminal == break(term_out) {empty the terminal output buffer}
+@d clear_terminal == break_in(term_in,true) {clear the terminal input buffer}
+@d wake_up_terminal == do_nothing {cancel the user's cancellation of output}
+@y
+these operations can be specified in \TP:
+@^system dependencies@>
+
+@d update_terminal == do_nothing
+@d clear_terminal ==
+Inline($EB/<+4        {|jmp @@b|}
+      /$B4/$00   {|@@a: mov ah,0|}
+      /$CD/$16        {|int 16h| ROM BIOS kbd service 0 (read char)}
+      /$B4/$01   {|@@b: mov ah,1|}
+      /$CD/$16        {|int 16h| ROM BIOS kbd service 1 (test char)}
+      /$75/<-10)      {|jnz @@a| loop if char present}
+@d wake_up_terminal == do_nothing
+@z
+%---------------------------------------
+@x [3] m.35 l.1019 - non_local goto
+  begin write_ln(term_out,'Buffer size exceeded!'); goto final_end;
+@y
+  begin write_ln(term_out,'Buffer size exceeded!'); Halt(4);
+@z
+%---------------------------------------
+@x [3] m.37 l.1056 - command line
+without retrieving a possible command line.
+It should be clear how to modify this routine to deal with command lines,
+if the system permits them.
+@^system dependencies@>
+@y
+and retrieves a command line if present.
+You may say `\.{tex} firstline' where `firstline' probably is the file
+name, as suggested in \TheBible.
+@^system dependencies@>
+@:TeXbook}{\TheBible@>
+@z
+%---------------------------------------
+@x [3] m.37 l.1063 init_terminal - command line
+begin t_open_in;
+@y
+var i,@!j,@!k:Integer; {needed for the command line transfer}
+@!arg_word: String;
+begin if Param_Count > n_opt then
+  begin last:=first;
+  for i:=n_opt+1 to Param_Count do
+    begin arg_word:=Param_Str(i);
+    for j:=1 to Length(arg_word) do
+      begin if last>=max_buf_stack then
+        begin max_buf_stack:=last+1;
+        if max_buf_stack=buf_size then
+          @<Report overflow of the input buffer, and abort@>;
+        end;
+      buffer[last]:=xord[arg_word[j]]; incr(last);
+      end;
+    if i<Param_Count then
+      begin buffer[last]:=" "; incr(last);
+      end;
+    end;
+  loc:=first; init_terminal:=true; return;
+  end;
+@z
+%---------------------------------------
+@x [4] m.38 l.1123 - large arrays
+@d so(#) == # {convert from |packed_ASCII_code| to |ASCII_code|}
+@y
+@d so(#) == # {convert from |packed_ASCII_code| to |ASCII_code|}
+@#
+@d str_pool == p_str_pool^
+@d str_start == p_str_start^
+@z
+%---------------------------------------
+@x [4] m.38 l.1128 - large arrays
+@!packed_ASCII_code = 0..255; {elements of |str_pool| array}
+@y
+@!packed_ASCII_code = 0..255; {elements of |str_pool| array}
+@!a_str_pool=packed array[pool_pointer] of packed_ASCII_code; {the characters}
+@!a_str_start = array[str_number] of pool_pointer; {the starting pointers}
+@z
+%---------------------------------------
+@x [4] m.39 l.1131 - large arrays, unprintable chars
+@!str_pool:packed array[pool_pointer] of packed_ASCII_code; {the characters}
+@!str_start : array[str_number] of pool_pointer; {the starting pointers}
+@y
+@!p_str_pool:^a_str_pool; {the characters}
+@!p_str_start : ^a_str_start; {the starting pointers}
+@!is_unprintable: array [ASCII_code] of boolean;
+  {specifies unprintable characters}
+@z
+%---------------------------------------
+@x [4] m.47 l.1235 - programmable xord/xchr translation, unprintable chars
+@^string pool@>
+@y
+@^string pool@>
+Immediately before initializing the first 256 strings we initialize the
+|is_unprintable| array.  We then try to read a file with code page data
+and update the |xord|, |xchr|, and |is_unprintable| arrays accordingly.
+
+@d code_page_id=='TeX code page' {a code page file must start with this}
+@#
+@d get_hex_dig(#)== {convert |ASCII_code| to hex digit}
+  if (#>="0")and(#<="9") then Dec(#,"0")
+  else if (#>="a")and(#<="f") then Dec(#,"a"-10)
+  else goto not_found
+@d get_hex_num(#)== {convert |code_str[#..#+1]| to hex number}
+  l:=xord[code_str[#]]; get_hex_dig(l);
+  j:=xord[code_str[#+1]]; get_hex_dig(j);
+  Inc(j,l shl 4)
+@z
+%---------------------------------------
+@x [4] m.47 l.1239 get_strings_started - programmable xord/xchr translation
+label done,exit;
+var k,@!l:0..255; {small indices or counters}
+@y
+label found,not_found,done,exit;
+var j,@!k,@!l:0..255; {small indices or counters}
+@!code_str:String[Length(code_page_id)+1]; {a temporary string}
+@z
+%---------------------------------------
+@x [4] m.48 l.1252 - unprintable chars
+@ @d app_lc_hex(#)==l:=#;
+  if l<10 then append_char(l+"0")@+else append_char(l-10+"a")
+@y
+@ The first 256 strings will consist of a single character only.
+@z
+%---------------------------------------
+@x [4] m.48 l.1256 - programmable xord/xchr translation, unprintable chars
+for k:=0 to 255 do
+  begin if (@<Character |k| cannot be printed@>) then
+    begin append_char("^"); append_char("^");
+    if k<@'100 then append_char(k+@'100)
+    else if k<@'200 then append_char(k-@'100)
+    else begin app_lc_hex(k div 16); app_lc_hex(k mod 16);
+      end;
+    end
+  else append_char(k);
+@y
+for k:=0 to 255 do
+  is_unprintable[k]:=(@<Character |k| cannot be printed@>);
+if code_page<>'' then
+  begin name_of_file:=code_page+'.tcp';
+  if not a_open_in(pool_file) then
+    bad_pool('! I can''t read TeX code page.');
+@.I can't read TeX code page@>
+  if eof(pool_file) then
+    bad_pool('! Missing TeX code page header.');
+@.Missing TeX code page header@>
+  read_ln(pool_file,code_str);
+  if code_str<>code_page_id then
+    bad_pool('! Bad TeX code page header: ''',code_str,'''.');
+@.Bad TeX code page header@>
+  while not eof(pool_file) do
+    begin read_ln(pool_file,code_str);
+    if (Length(code_str)=0)or(code_str[1]='%') then goto found;
+    if Length(code_str)<5 then goto not_found;
+    get_hex_num(1); k:=j;
+    if (k=" ")or(xchr[k]<>' ') then goto not_found; {can't change this}
+    m:=code_str[3]; {should be |'='| or |'<'|}
+    if m='=' then is_unprintable[k]:=false
+    else if m<>'<' then goto not_found;
+    m:=code_str[4]; {should be |'C'| or |'H'|}
+    if m='C' then m:=code_str[5]
+    else if (m<>'H')or(Length(code_str)<6) then goto not_found
+    else  begin get_hex_num(5); m:=chr(j);
+      end;
+    if xord[m]=invalid_code then
+      begin xord[m]:=k; xchr[k]:=m; goto found;
+      end;
+    not_found: bad_pool('! Bad TeX code page data: ''',code_str,'''.');
+@.Bad TeX code page data@>
+    found: end;
+  a_close(pool_file);
+  end;
+for k:=0 to 255 do
+  begin append_char(k);
+@z
+%---------------------------------------
+@x [5] m.54 l.1390 - OS command interface
+\hang 0 to 15, prints on one of the sixteen files for \.{\\write} output.
+@y
+\hang |cmd_print|, used to send commands to the operating system.
+In order to prevent malicious misuse of \.{\\write99}, the very first use
+of this feature must come from the terminal or from the first lines of
+the first \.{\\input} file; the global variable |cmd_status| will
+be 0~if OS commands are allowed, 2~if they are temporarily disallowed
+(while processing an everyjob token list), 3~if they are permanently
+disallowed, and 1~if this question has not yet been decided.
+
+\hang 0 to 15, prints on one of the sixteen files for \.{\\write} output.
+@z
+%---------------------------------------
+@x [5] m.54 l.1411 - OS command interface
+@d max_selector=21 {highest selector setting}
+
+@<Glob...@>=
+@y
+@d cmd_print=22 {printing is deflected to the OS command interface}
+@d max_selector=22 {highest selector setting}
+@#
+@d cmd_write=99 {\.{\\write} stream for the OS command interface}
+@d cmd_append(#)==if l_cmd_parm<Size_Of(cmd_parm)-1 then
+  begin incr(l_cmd_parm); cmd_parm[l_cmd_parm]:=#;
+  end
+
+@<Glob...@>=
+@!cmd_status:Integer; {OS commands status}
+@z
+%---------------------------------------
+@x [5] m.55 l.1428 - OS command interface
+selector:=term_only; tally:=0; term_offset:=0; file_offset:=0;
+@y
+cmd_parm:='/c'; cmd_name:=Get_Env('comspec'); {just in case}
+cmd_status:=1; {OS commands not yet decided}
+selector:=term_only; tally:=0; term_offset:=0; file_offset:=0;
+@z
+%---------------------------------------
+@x [5] m.57 l.1445 print_ln - OS command interface
+@<Basic print...@>=
+@y
+In this \TeX\ version we also use |print_ln| to send a message
+to the operating system using the \.{\\write99} stream.
+
+@<Basic print...@>=
+procedure@?Do_Dos; forward;@t\2@>
+@z
+%---------------------------------------
+@x [5] m.57 l.1456 print_ln - OS command interface
+othercases write_ln(write_file[selector])
+@y
+cmd_print: if l_cmd_parm>2 then {send \.{\\write99} to OS}
+  begin Do_Dos; l_cmd_parm:=2;
+  end;
+othercases write_ln(write_file[selector])
+@z
+%---------------------------------------
+@x [5] m.58 l.1460 - unprintable chars
+@ The |print_char| procedure sends one character to the desired destination,
+using the |xchr| array to map it into an external character compatible with
+|input_ln|. All printing comes through |print_ln| or |print_char|.
+@y
+@ The |print_visible_char| procedure sends one character to the desired
+destination, using the |xchr| array to map it into an external character
+compatible with |input_ln|.  It assumes that it is always called with a
+visible ASCII character and that the special handling for the new-line
+character is done in |print_char|.  All printing comes through |print_ln|
+or |print_char|, which ultimately calls |print_visible_char|.
+@z
+%---------------------------------------
+@x [5] m.58 l.1465 print_visible_char - unprintable chars (rename)
+procedure print_char(@!s:ASCII_code); {prints a single character}
+label exit;
+begin if @<Character |s| is the current new-line character@> then
+ if selector<pseudo then
+  begin print_ln; return;
+  end;
+@y
+procedure print_visible_char(@!s:ASCII_code); {prints a single character}
+begin
+@z
+%---------------------------------------
+@x [5] m.58 l.1491 print_visible_char - OS command interface
+othercases write(write_file[selector],xchr[s])
+@y
+cmd_print: cmd_append(xchr[s]);
+othercases write(write_file[selector],xchr[s])
+@z
+%---------------------------------------
+@x [5] m.58 l.1494 print_char - unprintable chars (insert)
+exit:end;
+@y
+end;
+
+@ The |print_char| procedure sends one character to the desired destination.
+Control sequence names, file names and string constructed with
+\.{\\string} might contain |ASCII_code| values that can't
+be printed using |print_visible_char|.  These characters will be printed
+in three- or four-symbol form like `\.{\^\^A}' or `\.{\^\^e4}'.
+
+@d print_lc_hex(#)==l:=#;
+  if l<10 then print_visible_char(l+"0")@+else print_visible_char(l-10+"a")
+
+@<Basic printing...@>=
+procedure print_char(@!s:ASCII_code); {prints a single character}
+label exit;
+var l:0..255; {small index or counter}
+begin if selector>pseudo then
+  begin print_visible_char(s); return;
+  end;
+if @<Character |s| is the current new-line character@> then
+ if selector<pseudo then
+  begin print_ln; return;
+  end;
+if is_unprintable[s] then
+  begin print_visible_char("^"); print_visible_char("^");
+  if s<@'100 then print_visible_char(s+@'100)
+  else if s<@'200 then print_visible_char(s-@'100)
+  else begin print_lc_hex(s div 16);  print_lc_hex(s mod 16);
+    end;
+  end
+else print_visible_char(s);
+exit:end;
+@z
+%---------------------------------------
+@x [5] m.59 l.1501 - unprintable chars
+assumes that it is always safe to print a visible ASCII character.)
+@^system dependencies@>
+@y
+assumes that it is always safe to print a visible ASCII character.)
+@^system dependencies@>
+
+Old versions of \TeX\ needed a procedure called |slow_print| whose
+function is now subsumed by |print| and the new functionality of
+|print_char| and |print_visible_char|.
+
+@d slow_print == print
+@z
+%---------------------------------------
+@x [5] m.59 l.1508 print - unprintable chars
+@!nl:integer; {new-line character to restore}
+@y
+@z
+%---------------------------------------
+@x [5] m.59 l.1513 print - unprintable chars
+  else begin if selector>pseudo then
+      begin print_char(s); return; {internal strings are not expanded}
+      end;
+    if (@<Character |s| is the current new-line character@>) then
+      if selector<pseudo then
+        begin print_ln; return;
+        end;
+    nl:=new_line_char; new_line_char:=-1;
+      {temporarily disable new-line character}
+    j:=str_start[s];
+    while j<str_start[s+1] do
+      begin print_char(so(str_pool[j])); incr(j);
+      end;
+    new_line_char:=nl; return;
+    end;
+@y
+  else begin print_char(s); return;
+    end;
+@z
+%---------------------------------------
+@x [5] m.60 l.1534 - unprintable chars (remove)
+@ Control sequence names, file names, and strings constructed with
+\.{\\string} might contain |ASCII_code| values that can't
+be printed using |print_char|. Therefore we use |slow_print| for them:
+
+@<Basic print...@>=
+procedure slow_print(@!s:integer); {prints string |s|}
+var j:pool_pointer; {current character code position}
+begin if (s>=str_ptr) or (s<256) then print(s)
+else begin j:=str_start[s];
+  while j<str_start[s+1] do
+    begin print(so(str_pool[j])); incr(j);
+    end;
+  end;
+end;
+
+@y
+@z
+%---------------------------------------
+@x [5] m.61 l.1560 - copyright
+update_terminal;
+@y
+wterm_ln(copyright);
+wterm_ln('Distributed under terms of GNU General Public License');@/
+update_terminal;
+@z
+%---------------------------------------
+@x [5] m.67 l.1634 print_hex - optimization
+repeat dig[k]:=n mod 16; n:=n div 16; incr(k);
+@y
+repeat dig[k]:=n and 15; n:=div_shift(n,4); incr(k);
+@z
+%---------------------------------------
+@x [6] m.81 l.1854 jump_out - non-local goto
+begin goto end_of_TEX;
+@y
+begin close_files_and_terminate;
+@z
+%---------------------------------------
+@x [6] m.84 l.1889 - OS command interface
+wizardry, so the present implementation simply types out the name of the
+file that should be
+edited and the relevant line number.
+@y
+wizardry, so the standard implementation simply types out the name of the
+file that should be edited and the relevant line number.  The Dos-TP
+implementation invokes the editor immediately after the program
+terminates --- via a small executable (a copy of \.{TeXorMF} configured
+by the \.{TeXMFcnf} utility program) that invokes \.{VIRTEX} with a
+suitable |'-f<format>'| parameter prepended to the command line.
+@z
+%---------------------------------------
+@x [6] m.84 l.1907 - OS command interface
+  print(" at line "); print_int(line);
+@y
+  print(" at line "); print_int(line);
+  Do_Editor(input_file[input_stack[base_ptr].index_field],line);
+@z
+%---------------------------------------
+@x [6] m.94 l.2047 - check stack
+@ Here is the most dreaded error message.
+@y
+@ Here is the most dreaded error message.
+
+@d check_stack==if S_Ptr<1024 then stack_overflow
+@z
+%---------------------------------------
+@x [6] m.94 l.2058 stack_overflow - check stack
+end;
+@y
+end;
+@#
+procedure stack_overflow;
+begin overflow("processor stack",orig_sp);
+end;
+@z
+%---------------------------------------
+@x [6] m.95 l.2073 confusion - print cause in all cases
+  begin print_err("This can't happen ("); print(s); print_char(")");
+@y
+  begin print_err("This can't happen (");
+@z
+%---------------------------------------
+@x [6] m.95 l.2077 confusion - print cause in all cases
+else  begin print_err("I can't go on meeting you like this");
+@y
+else  begin print_err("I can't go on meeting you like this (");
+@z
+%---------------------------------------
+@x [6] m.95 l.2082 confusion - print cause in all cases
+succumb;
+@y
+print(s); print_char(")"); succumb;
+@z
+%---------------------------------------
+@x [6] m.96 l.2097 - optimization
+@!interrupt:integer; {should \TeX\ pause for instructions?}
+@y
+@!interrupt:Integer; {should \TeX\ pause for instructions?}
+@z
+%---------------------------------------
+@x [7] m.99 l.2142 - inline
+apply for |mod| as well as for |div|.)
+@y
+apply for |mod| as well as for |div|.)
+
+Since \TP's |div| operation for 32-bit integers is extremely slow we
+implement division by powers of two through inline code using arithmetic
+shift operations.  In addition we use value typecasts and variable
+typecasts with the |aux_word| record type defined in the |DosTP| unit,
+in order to access one or several bytes of 32-bit integers.
+
+@d mod_256(#)==Byte(#) {computes \#~|mod 256| in the range |0..255|}
+@d mod_unity(#)==Word(#) {computes \#~|mod unity| in the range |0..unity-1|}
+
+@p function div_shift(@!i:integer;@!n:Word):integer;
+  {``translation-preserving'' |i div|~$2^n$}
+Inline($59             {|pop cx| now |n=cx|}
+      /$58/$5A         {|pop ax; pop dx| now |i=dx:ax|}
+      /$E3/+6          {|jcxz @@2|}
+      /$D1/$FA    {|@@1: sar dx,1|}
+      /$D1/$D8         {|rcr ax,1|}
+      /$E2/<-6         {|loop @@1|}
+      );          {|@@2:|}
+@#
+function div_unity(@!i:integer):integer;
+  {``translation-preserving'' |i div|~$2^{16}$}
+Inline($59        {|pop cx| discard}
+      /$58/$99);  {|pop ax; cwd|}
+@z
+%---------------------------------------
+@x [7] m.100 l.2148 half - inline
+begin if odd(x) then half:=(x+1) div 2
+else half:=x @!div 2;
+end;
+@y
+  {|if odd(x) then half:=(x+1) div 2 else half:=x @!div 2|}
+Inline($58/$5A      {|pop ax; pop dx| now |x=dx:ax|}
+      /$D1/$FA      {|sar dx,1|}
+      /$D1/$D8      {|rcr ax,1|}
+      /$15/>0       {|adc ax,0|}
+      /$83/$D2/0);  {|adc dx,0|}
+@z
+%---------------------------------------
+@x [7] m.102 l.2175 round_decimals - optimization
+round_decimals:=(a+1) div 2;
+@y
+round_decimals:=div_shift((a+1),1);
+@z
+%---------------------------------------
+@x [7] m.103 l.2196 print_scaled - optimization
+print_int(s div unity); {print the integer part}
+print_char(".");
+s:=10*(s mod unity)+5; delta:=10;
+repeat if delta>unity then s:=s+@'100000-50000; {round the last digit}
+print_char("0"+(s div unity)); s:=10*(s mod unity); delta:=delta*10;
+@y
+print_int(div_unity(s)); {print the integer part}
+print_char(".");
+s:=10*integer(mod_unity(s))+5; delta:=10;
+repeat if delta>unity then Dec(s,50000-@'100000); {round the last digit}
+print_char("0"+div_unity(s)); s:=10*integer(mod_unity(s)); delta:=delta*10;
+@z
+%---------------------------------------
+@x [7] m.105 l.2237 mult_and_add - external
+@d nx_plus_y(#)==mult_and_add(#,@'7777777777)
+@d mult_integers(#)==mult_and_add(#,0,@'17777777777)
+
+@p function mult_and_add(@!n:integer;@!x,@!y,@!max_answer:scaled):scaled;
+begin if n<0 then
+  begin negate(x); negate(n);
+  end;
+if n=0 then mult_and_add:=y
+else if ((x<=(max_answer-y) div n)and(-x<=(max_answer+y) div n)) then
+  mult_and_add:=n*x+y
+else  begin arith_error:=true; mult_and_add:=0;
+  end;
+end;
+@y
+@d nx_plus_y(#)==mult_and_add(#,false)
+@d mult_integers(#)==mult_and_add(#,0,true)
+
+@p TP_imp TP_dir(L TeX_arith)@;@/
+function mult_and_add(@!n:integer;@!x,@!y:scaled;@!big:boolean):scaled;
+External;
+@z
+%---------------------------------------
+@x [7] m.107 l.2279 xn_over_d - external
+var positive:boolean; {was |x>=0|?}
+@!t,@!u,@!v:nonnegative_integer; {intermediate quantities}
+begin if x>=0 then positive:=true
+else  begin negate(x); positive:=false;
+  end;
+t:=(x mod @'100000)*n;
+u:=(x div @'100000)*n+(t div @'100000);
+v:=(u mod d)*@'100000 + (t mod @'100000);
+if u div d>=@'100000 then arith_error:=true
+else u:=@'100000*(u div d) + (v div d);
+if positive then
+  begin xn_over_d:=u; remainder:=v mod d;
+  end
+else  begin xn_over_d:=-u; remainder:=-(v mod d);
+  end;
+end;
+@y
+External;
+@z
+%---------------------------------------
+@x [7] m.108 l.2319 badness - inline
+begin if t=0 then badness:=0
+@y
+function t_297:integer; {computes |t*297|}
+Inline($BB/ 297     {|mov bx,297|}
+      /$C4/$46/ <t  {|les ax,[bp+t]|}
+      /$8C/$C1      {|mov cx,es|}
+      /$91          {|xchg cx,ax|}
+      /$F7/$E3      {|mul bx|}
+      /$93          {|xchg bx,ax|}
+      /$F7/$E1      {|mul cx|}
+      /$03/$D3);    {|add dx,bx|}
+function s_297:integer; {computes |s div 297|}
+Inline($BB/ 297     {|mov bx,297|}
+      /$C4/$7E/ <s  {|les di,[bp+s]|}
+      /$33/$D2      {|xor dx,dx|}
+      /$8C/$C0      {|mov ax,es|}
+      /$F7/$F3      {|div bx|}
+      /$97          {|xchg di,ax|}
+      /$F7/$F3      {|div bx|}
+      /$8B/$D7);    {|mov dx,di|}
+function b_ness:Word; {computes |(r*r*r+@'400000) div @'1000000|}
+Inline($8B/$5E/ <r  {|mov bx,[bp+r|}
+      /$8B/$C3      {|mov ax,bx|}
+      /$F7/$E3      {|mul bx|}
+      /$91          {|xchg cx,ax|}
+      /$92          {|xchg dx,ax|}
+      /$F7/$E3      {|mul bx|}
+      /$91          {|xchg cx,ax|}
+      /$F7/$E3      {|mul bx|}
+      /$03/$D1      {|add dx,cx|}
+      /$92          {|xchg dx,ax|}
+      /$05/ >2      {|add ax,0002|}
+      /$D1/$E8      {|shr ax,1|}
+      /$D1/$E8);    {|shr ax,1|}
+begin if t=0 then badness:=0
+@z
+%---------------------------------------
+@x [7] m.108 l.2321 badness - inline
+else  begin if t<=7230584 then  r:=(t*297) div s {$297^3=99.94\times2^{18}$}
+  else if s>=1663497 then r:=t div (s div 297)
+@y
+else  begin if t<=7230584 then  r:=(t_297) div s {$297^3=99.94\times2^{18}$}
+  else if s>=1663497 then r:=t div (s_297)
+@z
+%---------------------------------------
+@x [7] m.108 l.2325 badness - inline
+  else badness:=(r*r*r+@'400000) div @'1000000;
+@y
+  else badness:=b_ness;
+@z
+%---------------------------------------
+@x [7] m.108 l.2327 float, unfloat - glue ratio
+end;
+@y
+end;
+@#
+TP_imp TP_dir(L TeX_glue)@;@/
+function float(a:glue_ratio):real; External;
+  {convert from |glue_ratio| to type |real|}
+function unfloat(r:real):glue_ratio; External;
+  {convert from |real| to type |glue_ratio|}
+@z
+%---------------------------------------
+@x [7] m.109 l.2345 - glue ratio
+@d set_glue_ratio_zero(#) == #:=0.0 {store the representation of zero ratio}
+@d set_glue_ratio_one(#) == #:=1.0 {store the representation of unit ratio}
+@d float(#) == # {convert from |glue_ratio| to type |real|}
+@d unfloat(#) == # {convert from |real| to type |glue_ratio|}
+@y
+@d set_glue_ratio_zero(#) == #:=0 {store the representation of zero ratio}
+@d set_glue_ratio_one(#) == #:=32 {store the representation of unit ratio}
+@z
+%---------------------------------------
+@x [7] m.109 l.2352 - glue ratio
+@!glue_ratio=real; {one-word representation of a glue expansion factor}
+@y
+@!glue_ratio=integer; {one-word representation of a glue expansion factor}
+@z
+%---------------------------------------
+@x [8] m.112 l.2438 - optimization
+@d qi(#)==#+min_quarterword
+  {to put an |eight_bits| item into a quarterword}
+@d qo(#)==#-min_quarterword
+  {to take an |eight_bits| item out of a quarterword}
+@d hi(#)==#+min_halfword
+  {to put a sixteen-bit item into a halfword}
+@d ho(#)==#-min_halfword
+  {to take a sixteen-bit item from a halfword}
+@y
+@d qi(#)==# {to put an |eight_bits| item into a quarterword}
+@d qo(#)==# {to take an |eight_bits| item out of a quarterword}
+@d hi(#)==# {to put a sixteen-bit item into a halfword}
+@d ho(#)==# {to take a sixteen-bit item from a halfword}
+@z
+%---------------------------------------
+@x [8] m.113 l.2453 - optimization
+@!quarterword = min_quarterword..max_quarterword; {1/4 of a word}
+@!halfword=min_halfword..max_halfword; {1/2 of a word}
+@y
+@!quarterword = Byte; {1/4 of a |memory_word|}
+@!halfword = Word; {1/2 of a |memory_word|}
+@z
+%---------------------------------------
+@x [8] m.113 l.2461 two_halves - optimization
+  2: (@!b0:quarterword; @!b1:quarterword);
+@y
+  2: (@!b1:quarterword; @!b0:quarterword);
+@z
+%---------------------------------------
+@x [8] m.113 l.2464 four_quarters - optimization
+  @!b0:quarterword;
+  @!b1:quarterword;
+  @!b2:quarterword;
+  @!b3:quarterword;
+@y
+  @!b3:quarterword;
+  @!b2:quarterword;
+  @!b1:quarterword;
+  @!b0:quarterword;
+@z
+%---------------------------------------
+@x [8] m.113 l.2476 - optimization
+@!word_file = file of memory_word;
+@y
+@!p_two_halves=^two_halves;
+@!p_memory_word=^memory_word;
+@z
+%---------------------------------------
+@x [9] m.116 l.2535 - mem_top=mem_max
+The key pointers that govern |mem| allocation have a prescribed order:
+$$\advance\thickmuskip-2mu
+\hbox{|null<=mem_min<=mem_bot<lo_mem_max<
+  hi_mem_min<mem_top<=mem_end<=mem_max|.}$$
+@y
+The key pointers that govern |mem| allocation have, for this \TP\
+implementation, a prescribed order:
+$$\advance\thickmuskip-2mu
+\hbox{|null<=mem_min<=mem_bot<lo_mem_max<hi_mem_min<mem_top=mem_max|.}$$
+@z
+%---------------------------------------
+@x [9] m.116 l.2544 - mem array
+@<Glob...@>=
+@!mem : array[mem_min..mem_max] of memory_word; {the big dynamic storage area}
+@y
+@d mem[#] == f_mem(#)^
+
+@<Glob...@>=
+@z
+%---------------------------------------
+@x [9] m.118 l.2559 - mem_top=mem_max
+simplest. The pointer variable |mem_end| holds the highest-numbered location
+of |mem| that has ever been used. The free locations of |mem| that
+occur between |hi_mem_min| and |mem_end|, inclusive, are of type
+@y
+simplest. The free locations of |mem| that
+occur between |hi_mem_min| and |mem_max|, inclusive, are of type
+@z
+%---------------------------------------
+@x [9] m.118 l.2568 - optimization, mem_top=mem_max
+@d link(#) == mem[#].hh.rh {the |link| field of a memory word}
+@d info(#) == mem[#].hh.lh {the |info| field of a memory word}
+@y
+In order to reduce the number of accesses to |mem[#]| we sometimes copy
+its the contents into |cur_cell| and use |fixed_link| and |fixed_info|
+instead of |link(#)| and |info(#)|; and we use |find_last(#)(null)|
+instead of |while link(#)<>null do #:=link(#)|.
+
+@d link_field == hh.rh {the |link| field of a memory word}
+@d info_field == hh.lh {the |info| field of a memory word}
+@#
+@d link(#) == mem[#].link_field {the same}
+@d info(#) == mem[#].info_field
+@#
+@d fixed_link == cur_cell.link_field {the same when |cur_cell=mem[#]|}
+@d fixed_info == cur_cell.info_field
+@#
+@d find_last_end(#) == until link_var=#
+@d find_last_cont(#) == repeat #:=link_var; link_var:=link(#); find_last_end
+@d find_last(#) == {find last node in a chain}
+  link_var:=#; find_last_cont(#)
+@d set_and_find_last(#) == {set pointer, then find last node in chain}
+  link_var:=#; find_last_cont
+@#
+@d mem_end==mem_max
+@z
+%---------------------------------------
+@x [9] m.118 l.2573 - optimization, mem_top=mem_max
+@!mem_end : pointer; {the last one-word node used in |mem|}
+@y
+@!link_var : pointer; {a temporary |link| field}
+@z
+%---------------------------------------
+@x [9] m.119 l.2579 - TP units
+@p @<Declare the procedure called |show_token_list|@>@/
+@y
+@p split_or_unit()(TP_split tex1a)
+  (TP_unit tex1a@; TP_int@;
+   @<Include compiler directives for main program and units@>@/
+   TP_imp@; @<Declare the function called |f_mem|@>)
+  {start of TP split file or unit |tex1a| (maybe)}
+@<Declare the procedure called |show_token_list|@>@;
+@z
+%---------------------------------------
+@x [9] m.120 l.2587 - mem_top=mem_max
+we try first to increase |mem_end|. If that cannot be done, i.e., if
+|mem_end=mem_max|, we try to decrease |hi_mem_min|. If that cannot be
+@y
+we try to decrease |hi_mem_min|. If that cannot be
+@z
+%---------------------------------------
+@x [9] m.120 l.2595 get_avail - mem_top=mem_max
+else if mem_end<mem_max then {or go into virgin territory}
+  begin incr(mem_end); p:=mem_end;
+  end
+@y
+@z
+%---------------------------------------
+@x [9] m.122 l.2628 fast_get_avail - optimization of memory access
+  else  begin avail:=link(#); link(#):=null;
+@y
+  else with mem[#] do begin avail:=link_field; link_field:=null;
+@z
+%---------------------------------------
+@x [9] m.124 l.2667 - optimization
+@d llink(#) == info(#+1) {left link in doubly-linked list of empty nodes}
+@d rlink(#) == link(#+1) {right link in doubly-linked list of empty nodes}
+@y
+@d llink(#) == info(#+1) {left link in doubly-linked list of empty nodes}
+@d rlink(#) == link(#+1) {right link in doubly-linked list of empty nodes}
+@#
+@d llink_field==info_field {the same}
+@d rlink_field==link_field
+@#
+@d fixed_llink==next_cell.llink_field {the same when |next_cell=mem[#+1]|}
+@d fixed_rlink==next_cell.rlink_field
+@z
+%---------------------------------------
+@x [9] m.125 l.2686 get_node - optimization
+@!t:integer; {temporary register}
+@y
+@!t:integer; {temporary register}
+@!cur_cell,@!next_cell: memory_word; {for fewer accesses to |mem|}
+@z
+%---------------------------------------
+@x [9] m.125 l.2696 get_node - subrange trouble
+if lo_mem_max+2<hi_mem_min then if lo_mem_max+2<=mem_bot+max_halfword then
+@y
+if lo_mem_max+2<hi_mem_min then if lo_mem_max+2-mem_bot<=max_halfword then
+@z
+%---------------------------------------
+@x [9] m.126 l.2716 - optimization
+else t:=lo_mem_max+1+(hi_mem_min-lo_mem_max) div 2;
+@y
+else t:=lo_mem_max+1+(hi_mem_min-lo_mem_max) shr 1;
+@z
+%---------------------------------------
+@x [9] m.126 l.2719 - subrange trouble, mem_min=mem_bot
+if t>mem_bot+max_halfword then t:=mem_bot+max_halfword;
+@y
+if t-mem_min>max_halfword then t:=mem_min+max_halfword;
+@z
+%---------------------------------------
+@x [9] m.127 l.2732 - optimization
+while is_empty(q) do {merge node |p| with node |q|}
+  begin t:=rlink(q);
+  if q=rover then rover:=t;
+  llink(t):=llink(q); rlink(llink(q)):=t;@/
+  q:=q+node_size(q);
+@y
+cur_cell:=mem[q];
+while fixed_link=empty_flag do {merge node |p| with node |q|}
+  begin next_cell:=mem[q+1]; t:=fixed_rlink;
+  if q=rover then rover:=t;
+  llink(t):=fixed_llink; rlink(fixed_llink):=t;@/
+  Inc(q,fixed_info);
+  cur_cell:=mem[q];
+@z
+%---------------------------------------
+@x [9] m.127 l.2740 - optimization
+if r=p then if rlink(p)<>p then
+  @<Allocate entire node |p| and |goto found|@>;
+@y
+if r=p then
+  begin next_cell:=mem[p+1];
+  if fixed_rlink<>p then @<Allocate entire node |p| and |goto found|@>;
+  end;
+@z
+%---------------------------------------
+@x [9] m.129 l.2754 - optimization
+begin rover:=rlink(p); t:=llink(p);
+@y
+begin rover:=fixed_rlink; t:=fixed_llink;
+@z
+%---------------------------------------
+@x [10] m.133 l.2819 - optimization
+@d type(#) == mem[#].hh.b0 {identifies what kind of node this is}
+@d subtype(#) == mem[#].hh.b1 {secondary identification in some cases}
+@y
+@d type_field == hh.b0 {the |type| field of a memory word}
+@d subtype_field == hh.b1 {the |subtype| field of a memory word}
+@#
+@d type(#) == mem[#].type_field {identifies what kind of node this is}
+@d subtype(#) == mem[#].subtype_field {secondary identification in some cases}
+@#
+@d fixed_type == cur_cell.type_field {the same when |cur_cell=mem[#]|}
+@d fixed_subtype == cur_cell.subtype_field
+@z
+%---------------------------------------
+@x [10] m.134 l.2862 - optimization
+@d character == subtype {the character code in a |char_node|}
+@y
+@d character == subtype {the character code in a |char_node|}
+@#
+@d font_field == type_field {the same}
+@d character_field == subtype_field
+@#
+@d fixed_font == fixed_type {the same when |cur_cell=mem[#]|}
+@d fixed_character == fixed_subtype
+@z
+%---------------------------------------
+@x [10] m.150 l.3141 - optimization
+@d glue_ref_count(#) == link(#) {reference count of a glue specification}
+@y
+@d glue_ref_count(#) == link(#) {reference count of a glue specification}
+@d glue_ref_count_field == link_field {the same}
+@z
+%---------------------------------------
+@x [11] m.164 l.3351 - mem_top=mem_max
+avail:=null; mem_end:=mem_top;
+@y
+avail:=null;
+@z
+%---------------------------------------
+@x [11] m.165 l.3364 - large arrays, mem_top=mem_max
+are debugging.)
+@y
+are debugging.)
+
+@d was_mem_end==mem_max
+@#
+@d free == p_free^
+@d was_free == p_was_free^
+@d set_free(#) == Inc(free[# shr 3],free_bits[# and 7])
+  {this is used only if the bit is not yet set!}
+@d test_free(#) == ((free[# shr 3] and free_bits[# and 7])<>0)
+@d test_was_free(#) == ((was_free[# shr 3] and free_bits[# and 7])<>0)
+@z
+%---------------------------------------
+@x [11] m.165 l.3367 - large arrays, optimization
+@!debug @!free: packed array [mem_min..mem_max] of boolean; {free cells}
+@t\hskip10pt@>@!was_free: packed array [mem_min..mem_max] of boolean;
+  {previously free cells}
+@y
+@!debug mtype @!a_free= packed array [mem_min div 8..mem_max div 8] of Byte;
+  {now or previously free cells}
+@t\hskip10pt@>var p_free: ^a_free; {free cells}
+@t\hskip10pt@>@!p_was_free: ^a_free; {previously free cells}
+@t\hskip10pt@>@!free_bits: array [0..7] of Byte; {bits in a byte}
+@z
+%---------------------------------------
+@x [11] m.165 l.3370 - mem_top=mem_max
+@t\hskip10pt@>@!was_mem_end,@!was_lo_max,@!was_hi_min: pointer;
+  {previous |mem_end|, |lo_mem_max|, and |hi_mem_min|}
+@y
+@t\hskip10pt@>@!was_lo_max,@!was_hi_min: pointer;
+  {previous |lo_mem_max| and |hi_mem_min|}
+@z
+%---------------------------------------
+@x [11] m.166 l.3376 - mem_top=mem_max
+@!debug was_mem_end:=mem_min; {indicate that everything was previously free}
+@y
+@!debug
+@z
+%---------------------------------------
+@x [11] m.166 l.3378 - optimization
+panicking:=false;
+@y
+panicking:=false;
+for i:=0 to 7 do free_bits[i]:=1 shl i;
+@z
+%---------------------------------------
+@x [11] m.167 l.3389 check_mem - optimization
+begin for p:=mem_min to lo_mem_max do free[p]:=false; {you can probably
+  do this faster}
+for p:=hi_mem_min to mem_end do free[p]:=false; {ditto}
+@y
+begin Fill_Char(free,Size_Of(free),0); {this is faster}
+@z
+%---------------------------------------
+@x [11] m.167 l.3396 - optimization, mem_top=mem_max
+for p:=mem_min to lo_mem_max do was_free[p]:=free[p];
+for p:=hi_mem_min to mem_end do was_free[p]:=free[p];
+  {|was_free:=free| might be faster}
+was_mem_end:=mem_end; was_lo_max:=lo_mem_max; was_hi_min:=hi_mem_min;
+@y
+was_free:=free; {this is faster}
+was_lo_max:=lo_mem_max; was_hi_min:=hi_mem_min;
+@z
+%---------------------------------------
+@x [11] m.168 l.3407 - optimization
+  else if free[p] then clobbered:=true;
+@y
+  else if test_free(p) then clobbered:=true;
+@z
+%---------------------------------------
+@x [11] m.168 l.3413 - optimization
+  free[p]:=true; q:=p; p:=link(q);
+@y
+  set_free(p); q:=p; p:=link(q);
+@z
+%---------------------------------------
+@x [11] m.169 l.3428 - optimization
+  begin if free[q] then
+@y
+  begin if test_free(q) then
+@z
+%---------------------------------------
+@x [11] m.169 l.3433 - optimization
+  free[q]:=true;
+@y
+  set_free(q);
+@z
+%---------------------------------------
+@x [11] m.170 l.3446 - optimization
+  while (p<=lo_mem_max) and not free[p] do incr(p);
+  while (p<=lo_mem_max) and free[p] do incr(p);
+@y
+  while (p<=lo_mem_max) and not test_free(p) do incr(p);
+  while (p<=lo_mem_max) and test_free(p) do incr(p);
+@z
+%---------------------------------------
+@x [11] m.171 l.3453 - optimization
+  if not free[p] and ((p>was_lo_max) or was_free[p]) then
+@y
+  if not test_free(p) and ((p>was_lo_max) or test_was_free(p)) then
+@z
+%---------------------------------------
+@x [11] m.171 l.3457 - optimization
+  if not free[p] and
+   ((p<was_hi_min) or (p>was_mem_end) or was_free[p]) then
+@y
+  if not test_free(p) and
+   ((p<was_hi_min) or (p>was_mem_end) or test_was_free(p)) then
+@z
+%---------------------------------------
+@x [12] m.175 l.3552 - optimization of memory access
+    begin if link(p)<>null then p:=link(p);
+@y
+    begin link_var:=link(p); if link_var<>null then p:=link_var;
+@z
+%---------------------------------------
+@x [12] m.182 l.3667 show_node_list - check stack
+n:=0;
+@y
+check_stack; n:=0;
+@z
+%---------------------------------------
+@x [12] m.186 l.3747 - glue ratio
+  if abs(mem[p+glue_offset].int)<@'4000000 then print("?.?")
+  else if abs(g)>float_constant(20000) then
+@y
+  if abs(g)>float_constant(20000) then
+@z
+%---------------------------------------
+@x [13] m.201 l.3889 fast_delete_glue_ref - optimization
+  begin if glue_ref_count(#)=null then free_node(#,glue_spec_size)
+  else decr(glue_ref_count(#));
+@y
+  begin with mem[#] do
+    if glue_ref_count_field=null then free_node(#,glue_spec_size)
+    else decr(glue_ref_count_field);
+@z
+%---------------------------------------
+@x [13] m.202 l.3904 flush_node_list - optimization of memory access, check stack
+begin while p<>null do
+@^inner loop@>
+  begin q:=link(p);
+  if is_char_node(p) then free_avail(p)
+  else  begin case type(p) of
+@y
+@!cur_cell: memory_word; {for fewer accesses to |mem|}
+begin check_stack;
+while p<>null do
+@^inner loop@>
+  begin cur_cell:=mem[p]; q:=fixed_link;
+  if is_char_node(p) then free_avail(p)
+  else  begin case fixed_type of
+@z
+%---------------------------------------
+@x [14] m.204 l.3969 copy_node_list - check stack
+begin h:=get_avail; q:=h;
+@y
+begin check_stack; h:=get_avail; q:=h;
+@z
+%---------------------------------------
+@x [16] m.214 l.4329 - optimization
+@d tail_append(#)==begin link(tail):=#; tail:=link(tail);
+  end
+@y
+@d tail_append(#)==
+  begin new_tail:=#; link(tail):=new_tail; tail:=new_tail;
+  end
+
+@<Glob...@>=
+@!new_tail:pointer;
+@z
+%---------------------------------------
+@x [17] m.221 l.4483 - large arrays
+@d eq_level_field(#)==#.hh.b1
+@y
+@d eqtb == p_eqtb^
+@#
+@d eq_level_field(#)==#.hh.b1
+@z
+%---------------------------------------
+@x [17] m.241 l.5223 - date and time
+is needed. The program here simply specifies July 4, 1776, at noon; but
+users probably want a better approximation to the truth.
+@y
+is needed. The standard program
+here simply specified July 4, 1776, at noon; but
+we want a better approximation to the truth.
+@z
+%---------------------------------------
+@x [17] m.241 l.5227 fix_date_and_time - date and time
+begin time:=12*60; {minutes since midnight}
+day:=4; {fourth day of the month}
+month:=7; {seventh month of the year}
+year:=1776; {Anno Domini}
+@y
+var y,@!m,@!d,@!dw:Word;
+begin Get_Date(y,m,d,dw); {the time was obtained earlier}
+time:=g_hh*60+g_mm; {minutes since midnight}
+day:=d; {day of the month}
+month:=m; {month of the year}
+year:=y; {Anno Domini}
+@z
+%---------------------------------------
+@x [17] m.253 l.5435 - large arrays
+@!eqtb:array[active_base..eqtb_size] of memory_word;
+@y
+mtype @!a_eqtb=array[active_base..eqtb_size] of memory_word;
+var p_eqtb:^a_eqtb;
+@z
+%---------------------------------------
+@x [18] m.256 l.5477 - large arrays
+@d next(#) == hash[#].lh {link for coalesced lists}
+@y
+@d hash == p_hash^
+@#
+@d next(#) == hash[#].lh {link for coalesced lists}
+@z
+%---------------------------------------
+@x [18] m.256 l.5483 - large arrays
+@!hash: array[hash_base..undefined_control_sequence-1] of two_halves;
+  {the hash table}
+@y
+mtype @!a_hash=array[hash_base..undefined_control_sequence-1] of two_halves;
+  {the hash table}
+var p_hash:^a_hash; {the hash table}
+@z
+%---------------------------------------
+@x [18] m.259 l.5509 _ TP units, optimization
+@p function id_lookup(@!j,@!l:integer):pointer; {search the hash table}
+@y
+@p TP_unit tex2@; {start of TP unit |tex2|}
+TP_int@; @<Include compiler directives for main program and units@>@/
+TP_imp@; @<Declare the function called |f_mem|@>@/
+TP_imp@; @<Declare the function called |f_font|@>@/
+function id_lookup(@!j,@!l:Word):pointer; {search the hash table}
+@z
+%---------------------------------------
+@x [18] m.260 l.5540 - optimization
+while pool_ptr>str_start[str_ptr] do
+  begin decr(pool_ptr); str_pool[pool_ptr+l]:=str_pool[pool_ptr];
+  end; {move current string up to make room for another}
+for k:=j to j+l-1 do append_char(buffer[k]);
+text(p):=make_string; pool_ptr:=pool_ptr+d;
+@y
+k:=pool_ptr-str_start[str_ptr];
+Dec(pool_ptr,d);
+Move(str_pool[pool_ptr],str_pool[pool_ptr+l],d);
+Move(buffer[j],str_pool[pool_ptr],l); Inc(pool_ptr,l);
+text(p):=make_string; Inc(pool_ptr,d);
+@z
+%---------------------------------------
+@x [20] m.293 l.6256 - optimization
+else  begin m:=info(p) div @'400; c:=info(p) mod @'400;
+@y
+else  begin m:=Hi(info(p)); c:=Lo(info(p));
+@z
+%---------------------------------------
+@x [22] m.304 l.6536 - file handling
+@!input_file : array[1..max_in_open] of alpha_file;
+@y
+@!input_file : array[1..max_in_open] of x_file;
+@z
+%---------------------------------------
+@x [23] m.324 l.6973 end_token_list - OS command interface
+    if token_type=macro then {parameters must be flushed}
+@y
+    if (token_type=every_job_text)and(cmd_status=2) then
+      cmd_status:=1 {OS commands not yet decided after everyjob}
+    else if token_type=macro then {parameters must be flushed}
+@z
+%---------------------------------------
+@x [23] m.325 l.7000 back_input - optimization
+p:=get_avail; info(p):=cur_tok;
+@y
+fast_get_avail(p); info(p):=cur_tok;
+@z
+%---------------------------------------
+@x [23] m.329 l.7047 end_file_reading - file handling
+if name>17 then a_close(cur_file); {forget it}
+@y
+if name>17 then x_close(cur_file); {forget it}
+@z
+%---------------------------------------
+@x [24] m.355 l.7427 - optimization
+    limit:=limit-d; first:=first-d;
+    while k<=limit do
+      begin buffer[k]:=buffer[k+d]; incr(k);
+      end;
+@y
+    Dec(limit,d); Dec(first,d);
+    Move(buffer[k+d],buffer[k],limit-k+1);
+    k:=limit+1;
+@z
+%---------------------------------------
+@x [24] m.357 l.7453 - optimization of memory access
+  begin t:=info(loc); loc:=link(loc); {move to next}
+@y
+  begin with mem[loc] do
+    begin t:=info_field; loc:=link_field;@+end; {move to next}
+@z
+%---------------------------------------
+@x [24] m.357 l.7462 - optimization
+  else  begin cur_cmd:=t div @'400; cur_chr:=t mod @'400;
+@y
+  else  begin cur_cmd:=Hi(t); cur_chr:=Lo(t);
+@z
+%---------------------------------------
+@x [24] m.362 l.7539 - file handling
+  begin if input_ln(cur_file,true) then {not end of file}
+@y
+  begin if x_input_ln(cur_file) then {not end of file}
+@z
+%---------------------------------------
+@x [24] m.362 l.7547 - OS command interface
+  end_file_reading; {resume previous level}
+@y
+  if cmd_status=1 then cmd_status:=3; {disallow OS commands}
+  end_file_reading; {resume previous level}
+@z
+%---------------------------------------
+@x [25] m.366 l.7647 expand - check stack
+co_backup:=cur_order; backup_backup:=link(backup_head);
+@y
+check_stack;
+co_backup:=cur_order; backup_backup:=link(backup_head);
+@z
+%---------------------------------------
+@x [25] m.371 l.7712 store_new_token - optimization
+@d store_new_token(#)==begin q:=get_avail; link(p):=q; info(q):=#;
+@y
+@d store_new_token(#)==begin fast_get_avail(q); link(p):=q; info(q):=#;
+@z
+%---------------------------------------
+@x [25] m.374 l.7750 - optimization
+  buffer[j]:=info(p) mod @'400; incr(j); p:=link(p);
+@y
+  buffer[j]:=mod_256(info(p)); incr(j); p:=link(p);
+@z
+%---------------------------------------
+@x [26] m.409 l.8255 - TP units
+@t\4\4@>@<Declare procedures that scan font-related stuff@>
+@y
+@t\4\4@>@<Declare procedures that scan font-related stuff@>
+@t\4\4@>split_or_unit()(TP_split tex2a)
+  (TP_unit tex2a@; TP_int@;
+   @<Include compiler directives for main program and units@>@/
+   TP_imp@; @<Declare the function called |f_mem|@>@/
+   TP_imp@; @<Declare the function called |f_font|@>)
+  {start of TP split file or unit |tex2a| (maybe)}
+@z
+%---------------------------------------
+@x [26] m.457 l.8980 - optimization
+  cur_val:=cur_val+(f div @'200000); f:=f mod @'200000;
+@y
+  Inc(cur_val,div_unity(f)); f:=mod_unity(f);
+@z
+%---------------------------------------
+@x [26] m.458 l.9014 - optimization
+cur_val:=cur_val+(f div @'200000); f:=f mod @'200000;
+@y
+Inc(cur_val,div_unity(f)); f:=mod_unity(f);
+@z
+%---------------------------------------
+@x [27] m.480 l.9412 - file handling
+@!read_file:array[0..15] of alpha_file; {used for \.{\\read}}
+@y
+@!read_file:array[0..15] of x_file; {used for \.{\\read}}
+@z
+%---------------------------------------
+@x [27] m.485 l.9477 - file handling
+if input_ln(read_file[m],false) then read_open[m]:=normal
+else  begin a_close(read_file[m]); read_open[m]:=closed;
+@y
+if x_input_ln(read_file[m]) then read_open[m]:=normal
+else  begin x_close(read_file[m]); read_open[m]:=closed;
+@z
+%---------------------------------------
+@x [27] m.486 l.9485 - file handling
+begin if not input_ln(read_file[m],true) then
+  begin a_close(read_file[m]); read_open[m]:=closed;
+@y
+begin if not x_input_ln(read_file[m]) then
+  begin x_close(read_file[m]); read_open[m]:=closed;
+@z
+%---------------------------------------
+@x [28] m.495 l.9656 - optimization
+begin p:=get_node(if_node_size); link(p):=cond_ptr; type(p):=if_limit;
+subtype(p):=cur_if; if_line_field(p):=if_line;
+@y
+begin p:=get_node(if_node_size);
+with mem[p] do
+  begin link_field:=cond_ptr; type_field:=if_limit; subtype_field:=cur_if;
+  end;
+if_line_field(p):=if_line;
+@z
+%---------------------------------------
+@x [28] m.496 l.9663 - optimization
+cur_if:=subtype(p); if_limit:=type(p); cond_ptr:=link(p);
+@y
+with mem[p] do
+  begin cur_if:=subtype_field; if_limit:=type_field; cond_ptr:=link_field;
+  end;
+@z
+%---------------------------------------
+@x [29] m.513 l.9951 - file names
+@ The file names we shall deal with for illustrative purposes have the
+following structure:  If the name contains `\.>' or `\.:', the file area
+@y
+@ The \.{DOS} file names we have to deal with have the following
+structure: If the name contains `\.:', `\.\\', or `\./', the file area
+@z
+%---------------------------------------
+@x [29] m.513 l.9956 - file names
+remaining `\..' to the end, otherwise the file extension is null.
+@y
+remaining `\..' to the end, otherwise the file extension is null.
+If the name proper is null then |"nul"| will be substituted.
+
+Since it is usually difficult in \TeX\ to enter |'\'| as a character
+we allow |'/'| as alternate directory separation character. Actually
+\.{DOS} always allows this \.{Unix} like alternative, it is the command
+shell only which does otherwise; we must, however, convert |'/'| into
+|'\'| in order to use \TP's |F_Search| function.
+@z
+%---------------------------------------
+@x [29] m.513 l.9963 - file names
+@!area_delimiter:pool_pointer; {the most recent `\.>' or `\.:', if any}
+@y
+@!area_delimiter:pool_pointer; {the most recent `\.:', `\.\\', or `\./',
+  if any}
+@z
+%---------------------------------------
+@x [29] m.514 l.9973 - file names
+@d TEX_area=="TeXinputs:"
+@.TeXinputs@>
+@d TEX_font_area=="TeXfonts:"
+@.TeXfonts@>
+@y
+@z
+%---------------------------------------
+@x [29] m.516 l.9993 more_name - file names
+else  begin str_room(1); append_char(c); {contribute |c| to the current string}
+  if (c=">")or(c=":") then
+@y
+else  begin if c="/" then c:="\";
+  str_room(1); append_char(c); {contribute |c| to the current string}
+  if (c="\")or(c=":") then
+@z
+%---------------------------------------
+@x [29] m.517 l.10013 end_name - file names
+if ext_delimiter=0 then
+  begin cur_ext:=""; cur_name:=make_string;
+  end
+else  begin cur_name:=str_ptr;
+  str_start[str_ptr+1]:=str_start[str_ptr]+ext_delimiter-area_delimiter-1;
+  incr(str_ptr); cur_ext:=make_string;
+  end;
+@y
+if ext_delimiter=0 then ext_delimiter:=cur_length
+else Dec(ext_delimiter,area_delimiter+1);
+if ext_delimiter=0 then cur_name:="nul"
+else  begin cur_name:=str_ptr;
+  str_start[str_ptr+1]:=str_start[str_ptr]+ext_delimiter;
+  incr(str_ptr);
+  end;
+if pool_ptr=str_start[str_ptr] then cur_ext:=""
+else cur_ext:=make_string;
+@z
+%---------------------------------------
+@x [29] m.519 l.10038 - file names
+@d append_to_name(#)==begin c:=#; incr(k);
+  if k<=file_name_size then name_of_file[k]:=xchr[c];
+@y
+@d append_to_name(#)==begin incr(k);
+  if k<=file_name_size then name_of_file[k]:=xchr[#];
+@z
+%---------------------------------------
+@x [29] m.519 l.10044 pack_file_name - file names
+@!c: ASCII_code; {character being packed}
+@y
+@z
+%---------------------------------------
+@x [29] m.519 l.10051 pack_file_name - file names
+for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
+@y
+@z
+%---------------------------------------
+@x [29] m.520 l.10060 - file names
+@d format_default_length=20 {length of the |TEX_format_default| string}
+@d format_area_length=11 {length of its area part}
+@d format_ext_length=4 {length of its `\.{.fmt}' part}
+@y
+@z
+%---------------------------------------
+@x [29] m.520 l.10066 - file names
+@!TEX_format_default:packed array[1..format_default_length] of char;
+@y
+@z
+%---------------------------------------
+@x [29] m.521 l.10069 - file names
+TEX_format_default:='TeXformats:plain.fmt';
+@y
+@z
+%---------------------------------------
+@x [29] m.522 l.10075 - file names
+if format_default_length>file_name_size then bad:=31;
+@y
+@z
+%---------------------------------------
+@x [29] m.523 l.10078 pack_buffered_name - file names
+from the first |n| characters of |TEX_format_default|, followed by
+|buffer[a..b]|, followed by the last |format_ext_length| characters of
+|TEX_format_default|.
+@y
+from |buffer[a..b]|, followed by |format_ext|.
+@z
+%---------------------------------------
+@x [29] m.523 l.10088 pack_buffered_name - file names
+@p procedure pack_buffered_name(@!n:small_number;@!a,@!b:integer);
+@y
+@p procedure pack_buffered_name(@!a,@!b:Integer);
+@z
+%---------------------------------------
+@x [29] m.523 l.10092 pack_buffered_name - file names
+begin if n+b-a+1+format_ext_length>file_name_size then
+  b:=a+file_name_size-n-1-format_ext_length;
+k:=0;
+for j:=1 to n do append_to_name(xord[TEX_format_default[j]]);
+for j:=a to b do append_to_name(buffer[j]);
+for j:=format_default_length-format_ext_length+1 to format_default_length do
+  append_to_name(xord[TEX_format_default[j]]);
+if k<=file_name_size then name_length:=k@+else name_length:=file_name_size;
+for k:=name_length+1 to file_name_size do name_of_file[k]:=' ';
+@y
+begin if b-a>file_name_size-5 then b:=a+file_name_size-5;
+k:=0;
+for j:=a to b do
+  begin c:=buffer[j]; if c="/" then c:="\"; append_to_name(c);@+end;
+if k<=file_name_size then name_length:=k@+else name_length:=file_name_size;
+name_of_file:=name_of_file+format_ext;
+@z
+%---------------------------------------
+@x [29] m.524 l.10118 open_fmt_file - file names
+  pack_buffered_name(0,loc,j-1); {try first without the system file area}
+  if w_open_in(fmt_file) then goto found;
+  pack_buffered_name(format_area_length,loc,j-1);
+@y
+  pack_buffered_name(loc,j-1);
+@z
+%---------------------------------------
+@x [29] m.524 l.10124 open_fmt_file - file names
+  wterm_ln('Sorry, I can''t find that format;',' will try PLAIN.');
+@y
+  wterm_ln('Sorry, I can''t find that format;',' will try ',format_name,'.');
+@z
+%---------------------------------------
+@x [29] m.524 l.10129 open_fmt_file - file names
+pack_buffered_name(format_default_length-format_ext_length,1,0);
+@y
+name_of_file:=format_name+format_ext;
+@z
+%---------------------------------------
+@x [29] m.524 l.10132 open_fmt_file - file names
+  wterm_ln('I can''t find the PLAIN format file!');
+@.I can't find PLAIN...@>
+@.plain@>
+@y
+  wterm_ln('I can''t find the default (',format_name,') format file!');
+@.I can't find default...@>
+@.default@>
+@z
+%---------------------------------------
+@x [29] m.525 l.10150 make_name_string - file names
+@p function make_name_string:str_number;
+var k:1..file_name_size; {index into |name_of_file|}
+begin if (pool_ptr+name_length>pool_size)or(str_ptr=max_strings)or
+ (cur_length>0) then
+  make_name_string:="?"
+else  begin for k:=1 to name_length do append_char(xord[name_of_file[k]]);
+@y
+@d a_make_name_string==make_name_string
+@d b_make_name_string==make_name_string
+@d w_make_name_string==make_name_string
+
+@p function make_name_string(var @!f):str_number;
+var k:0..80; {indices into ASCIIZ file name}
+begin k:=0;
+while (k<80)and(Byte(File_Rec(f).Name[k])<>0) do incr(k);
+if (pool_ptr+k>pool_size)or(str_ptr=max_strings)or
+ (cur_length>0) then
+  make_name_string:="?"
+else  begin for k:=1 to k do append_char(xord[File_Rec(f).Name[k-1]]);
+@z
+%---------------------------------------
+@x [29] m.525 l.10159 make_name_string - file names
+function a_make_name_string(var f:alpha_file):str_number;
+begin a_make_name_string:=make_name_string;
+end;
+function b_make_name_string(var f:byte_file):str_number;
+begin b_make_name_string:=make_name_string;
+end;
+function w_make_name_string(var f:word_file):str_number;
+begin w_make_name_string:=make_name_string;
+end;
+@y
+@z
+%---------------------------------------
+@x [29] m.537 l.10342 start_input - file names, file handling
+  if a_open_in(cur_file) then goto done;
+  if cur_area="" then
+    begin pack_file_name(cur_name,TEX_area,cur_ext);
+    if a_open_in(cur_file) then goto done;
+    end;
+@y
+  if x_open_in(cur_file) then goto done;
+@z
+%---------------------------------------
+@x [29] m.537 l.10350 start_input - file names
+done: name:=a_make_name_string(cur_file);
+@y
+done:
+@z
+%---------------------------------------
+@x [29] m.537 l.10355 start_input - file names
+if term_offset+length(name)>max_print_line-2 then print_ln
+@y
+name:=a_make_name_string(cur_file);
+if term_offset+length(name)>max_print_line-2 then print_ln
+@z
+%---------------------------------------
+@x [29] m.538 l.10373 - file handling
+if input_ln(cur_file,false) then do_nothing;
+@y
+if x_input_ln(cur_file) then do_nothing;
+@z
+%---------------------------------------
+@x [30] m.539 l.10393 - file handling
+of information in a compact but useful form.
+
+@<Glob...@>=
+@y
+of information in a compact but useful form.
+
+We will use |Block_Read| to read up to 512~bytes from |tfm_file| into a
+buffer; the |read_tfm_word| procedure extracts the four bytes of a
+\.{TFM} word and stores them in the |tfm_aux| record variable.
+
+@d tfm_buf==dump_buf {we can reuse the dump/undump buffer}
+@d tfm_ndx==Byte(dump_ndx) {next word to be read from |tfm_buf|}
+
+@<Glob...@>=
+@!tfm_aux:aux_word; {four bytes of a \.{TFM} word}
+@!tfm_count:Word; {number of words in |tfm_buf|}
+@!eof_tfm_file:boolean; {have we tried to read beyond the end of file?}
+@z
+%---------------------------------------
+@x [30] m.549 l.10676 - font_info array
+@ Here now is the (rather formidable) array of font arrays.
+
+@y
+@ Here now is the (rather formidable) array of font arrays.
+
+@d font_info[#]==f_font(#)^ {the big collection of font data}
+@d font_info_begin==f_font@=(@> {instead of |font_info[|\dots}
+@d font_info_end==@=)@>^ {and \dots|]|}
+@#
+@z
+%---------------------------------------
+@x [30] m.549 l.10682 - font_info array
+@!font_info:array[font_index] of memory_word;
+  {the big collection of font data}
+@y
+@z
+%---------------------------------------
+@x [30] m.554 l.10798 - font_info array
+@d char_info_end(#)==#].qqqq
+@d char_info(#)==font_info[char_base[#]+char_info_end
+@d char_width_end(#)==#.b0].sc
+@d char_width(#)==font_info[width_base[#]+char_width_end
+@d char_exists(#)==(#.b0>min_quarterword)
+@d char_italic_end(#)==(qo(#.b2)) div 4].sc
+@d char_italic(#)==font_info[italic_base[#]+char_italic_end
+@d height_depth(#)==qo(#.b1)
+@d char_height_end(#)==(#) div 16].sc
+@d char_height(#)==font_info[height_base[#]+char_height_end
+@d char_depth_end(#)==(#) mod 16].sc
+@d char_depth(#)==font_info[depth_base[#]+char_depth_end
+@y
+@d char_info_end(#)==# font_info_end.qqqq
+@d char_info(#)==font_info_begin char_base[#]+char_info_end
+@d char_width_end(#)==#.b0 font_info_end.sc
+@d char_width(#)==font_info_begin width_base[#]+char_width_end
+@d char_exists(#)==(#.b0>min_quarterword)
+@d char_italic_end(#)==(qo(#.b2)) shr 2 font_info_end.sc
+@d char_italic(#)==font_info_begin italic_base[#]+char_italic_end
+@d height_depth(#)==qo(#.b1)
+@d char_height_end(#)==(#) shr 4 font_info_end.sc
+@d char_height(#)==font_info_begin height_base[#]+char_height_end
+@d char_depth_end(#)==(#) and 15 font_info_end.sc
+@d char_depth(#)==font_info_begin depth_base[#]+char_depth_end
+@z
+%---------------------------------------
+@x [30] m.554 l.10810 - font_info array
+@d char_tag(#)==((qo(#.b2)) mod 4)
+@y
+@d char_tag(#)==((qo(#.b2)) and 3)
+@z
+%---------------------------------------
+@x [30] m.557 l.10834 - font_info array, subrange trouble, optimization
+@d char_kern_end(#)==256*op_byte(#)+rem_byte(#)].sc
+@d char_kern(#)==font_info[kern_base[#]+char_kern_end
+@y
+@d char_kern_end(#)==aux_word(#).w23 font_info_end.sc
+@d char_kern(#)==font_info_begin kern_base[#]+char_kern_end
+@z
+%---------------------------------------
+@x [30] m.558 l.10843 - font_info array
+@d param_end(#)==param_base[#]].sc
+@d param(#)==font_info[#+param_end
+@y
+@d param_end(#)==param_base[#] font_info_end.sc
+@d param(#)==font_info_begin #+param_end
+@z
+%---------------------------------------
+@x [30] m.560 l.10876 read_tfm_word - file handling
+@p function read_font_info(@!u:pointer;@!nom,@!aire:str_number;
+@y
+@p procedure read_tfm_word; {reads one \.{TFM} word into |tfm_aux|}
+begin if tfm_ndx>=tfm_count then
+  begin if eof(tfm_file) then
+    begin eof_tfm_file:=true; tfm_aux.l0123:=0;
+    end;
+  Block_Read(tfm_file,tfm_buf,128,tfm_count); tfm_ndx:=0;
+  end;
+with aux_word(tfm_buf[tfm_ndx]) do
+  begin tfm_aux.w01:=Swap(w23); tfm_aux.w23:=Swap(w01); {exchange bytes}
+  end;
+incr(tfm_ndx);
+end;
+@#
+function read_font_info(@!u:pointer;@!nom,@!aire:str_number;
+@z
+%---------------------------------------
+@x [30] m.560 l.10885 read_font_info - file handling
+@!a,@!b,@!c,@!d:eight_bits; {byte variables}
+@y
+@z
+%---------------------------------------
+@x [30] m.560 l.10890 read_font_info - optimization
+@!alpha:integer;@!beta:1..16;
+@y
+@!alpha:integer;@!beta:Byte;
+@z
+%---------------------------------------
+@x [30] m.563 l.10943 - file names
+if aire="" then pack_file_name(nom,TEX_font_area,".tfm")
+else pack_file_name(nom,aire,".tfm");
+@y
+pack_file_name(nom,aire,".tfm");
+@z
+%---------------------------------------
+@x [30] m.563 l.10946 - file handling
+file_opened:=true
+@y
+file_opened:=true;
+eof_tfm_file:=false; tfm_ndx:=0; tfm_count:=0;
+with tfm_aux do
+begin
+@z
+%---------------------------------------
+@x [30] m.564 l.10956 - file handling, optimization
+@d fget==get(tfm_file)
+@d fbyte==tfm_file^
+@d read_sixteen(#)==begin #:=fbyte;
+  if #>127 then abort;
+  fget; #:=#*@'400+fbyte;
+  end
+@d store_four_quarters(#)==begin fget; a:=fbyte; qw.b0:=qi(a);
+  fget; b:=fbyte; qw.b1:=qi(b);
+  fget; c:=fbyte; qw.b2:=qi(c);
+  fget; d:=fbyte; qw.b3:=qi(d);
+  #:=qw;
+  end
+@y
+@d tfm_b01(#)==read_tfm_word; if i01<0 then abort; #:=i01
+@d tfm_b23(#)==if i23<0 then abort; #:=i23
+@d store_four_quarters(#)==begin read_tfm_word;
+  #:=four_quarters(tfm_aux);
+  end
+@z
+%---------------------------------------
+@x [30] m.565 l.10970 - file handling
+begin read_sixteen(lf);
+fget; read_sixteen(lh);
+fget; read_sixteen(bc);
+fget; read_sixteen(ec);
+@y
+begin tfm_b01(lf); tfm_b23(lh);
+tfm_b01(bc); tfm_b23(ec);
+@z
+%---------------------------------------
+@x [30] m.565 l.10978 - file handling
+fget; read_sixteen(nw);
+fget; read_sixteen(nh);
+fget; read_sixteen(nd);
+fget; read_sixteen(ni);
+fget; read_sixteen(nl);
+fget; read_sixteen(nk);
+fget; read_sixteen(ne);
+fget; read_sixteen(np);
+@y
+tfm_b01(nw); tfm_b23(nh);
+tfm_b01(nd); tfm_b23(ni);
+tfm_b01(nl); tfm_b23(nk);
+tfm_b01(ne); tfm_b23(np);
+@z
+%---------------------------------------
+@x [30] m.565 l.10986 - arithmetic robustness
+if lf<>6+lh+(ec-bc+1)+nw+nh+nd+ni+nl+nk+ne+np then abort;
+@y
+if lf<>6+lh+(ec+1-bc)+nw+nh+nd+ni+nl+nk+ne+np then abort;
+@z
+%---------------------------------------
+@x [30] m.566 l.10998 - arithmetic robustness
+if (font_ptr=font_max)or(fmem_ptr+lf>font_mem_size) then
+@y
+if (font_ptr=font_max)or(lf>font_mem_size-fmem_ptr) then
+@z
+%---------------------------------------
+@x [30] m.568 l.11027 - file handling, optimization
+fget; read_sixteen(z); {this rejects a negative design size}
+fget; z:=z*@'400+fbyte; fget; z:=(z*@'20)+(fbyte div@'20);
+if z<unity then abort;
+while lh>2 do
+  begin fget;fget;fget;fget;decr(lh); {ignore the rest of the header}
+@y
+read_tfm_word; z:=div_shift(l0123,4);
+if z<unity then abort; {this also rejects a negative design size}
+while lh>2 do
+  begin read_tfm_word; decr(lh); {ignore the rest of the header}
+@z
+%---------------------------------------
+@x [30] m.569 l.11043 - optimization
+  if (a>=nw)or(b div @'20>=nh)or(b mod @'20>=nd)or
+@y
+  if (a>=nw)or(b shr 4>=nh)or(b and @'17>=nd)or
+@z
+%---------------------------------------
+@x [30] m.569 l.11044 - optimization
+    (c div 4>=ni) then abort;
+@y
+    (c shr 2>=ni) then abort;
+@z
+%---------------------------------------
+@x [30] m.569 l.11045 - optimization
+  case c mod 4 of
+@y
+  case c and 3 of
+@z
+%---------------------------------------
+@x [30] m.571 l.11090 - file handling
+@d store_scaled(#)==begin fget; a:=fbyte; fget; b:=fbyte;
+  fget; c:=fbyte; fget; d:=fbyte;@/
+@y
+@d store_scaled(#)==begin read_tfm_word;@/
+@z
+%---------------------------------------
+@x [30] m.571 l.11092 store_scaled - optimization
+  sw:=(((((d*z)div@'400)+(c*z))div@'400)+(b*z))div beta;
+@y
+  sw:=(((((d*z)shr 8)+(c*z))shr 8)+(b*z))shr beta;
+@z
+%---------------------------------------
+@x [30] m.572 l.11107 - optimization
+begin alpha:=16;
+while z>=@'40000000 do
+  begin z:=z div 2; alpha:=alpha+alpha;
+  end;
+beta:=256 div alpha; alpha:=alpha*z;
+@y
+begin beta:=4;
+while z>=@'40000000 do
+  begin z:=z shr 1; decr(beta);
+  end;
+alpha:=z shl (8-beta);
+@z
+%---------------------------------------
+@x [30] m.575 l.11155 - file handling, optimization
+    begin fget; sw:=fbyte; if sw>127 then sw:=sw-256;
+    fget; sw:=sw*@'400+fbyte; fget; sw:=sw*@'400+fbyte;
+    fget; font_info[param_base[f]].sc:=
+      (sw*@'20)+(fbyte div@'20);
+@y
+    begin read_tfm_word;
+    font_info[param_base[f]].sc:=div_shift(l0123,4);
+@z
+%---------------------------------------
+@x [30] m.575 l.11161 - file handling
+if eof(tfm_file) then abort;
+@y
+end;
+if eof_tfm_file then abort;
+@z
+%---------------------------------------
+@x [32] m.597 l.11886 - TP units
+@p procedure write_dvi(@!a,@!b:dvi_index);
+@y
+@p TP_unit tex3@; {start of TP unit |tex3|}
+TP_int@; @<Include compiler directives for main program and units@>@/
+TP_imp@; @<Declare the function called |f_mem|@>@/
+TP_imp@; @<Declare the function called |f_font|@>@/
+procedure write_dvi(@!a,@!b:dvi_index);
+@z
+%---------------------------------------
+@x [32] m.597 l.11887 write_dvi - file handling
+var k:dvi_index;
+begin for k:=a to b do write(dvi_file,dvi_buf[k]);
+@y
+begin Block_Write(dvi_file,dvi_buf[a],b-a+1);
+@z
+%---------------------------------------
+@x [32] m.598 l.11894 dvi_out, dvi_swap - shorten program
+@d dvi_out(#)==@+begin dvi_buf[dvi_ptr]:=#; incr(dvi_ptr);
+  if dvi_ptr=dvi_limit then dvi_swap;
+  end
+
+@p procedure dvi_swap; {outputs half of the buffer}
+@y
+@p procedure dvi_out(@!x:eight_bits);
+begin dvi_buf[dvi_ptr]:=x; incr(dvi_ptr);
+if dvi_ptr=dvi_limit then
+@z
+%---------------------------------------
+@x [32] m.598 l.11906 dvi_out, dvi_swap - shorten program
+end;
+@y
+end;
+end;
+@z
+%---------------------------------------
+@x [32] m.600 l.11919 dvi_four - optimization
+begin if x>=0 then dvi_out(x div @'100000000)
+else  begin x:=x+@'10000000000;
+  x:=x+@'10000000000;
+  dvi_out((x div @'100000000) + 128);
+  end;
+x:=x mod @'100000000; dvi_out(x div @'200000);
+x:=x mod @'200000; dvi_out(x div @'400);
+dvi_out(x mod @'400);
+@y
+begin with aux_word(x) do
+  begin dvi_out(b0); dvi_out(b1); dvi_out(b2); dvi_out(b3);
+  end;
+@z
+%---------------------------------------
+@x [32] m.607 l.12037 movement - optimization
+label exit,found,not_found,2,1;
+@y
+label exit,found,not_found;
+@z
+%---------------------------------------
+@x [32] m.609 l.12099 - optimization of memory access
+  while link(q)<>p do
+    begin q:=link(q);
+@y
+  link_var:=link(q);
+  while link_var<>p do
+    begin q:=link_var; link_var:=link(q);
+@z
+%---------------------------------------
+@x [32] m.609 l.12109 - optimization of memory access
+  while link(q)<>p do
+    begin q:=link(q);
+@y
+  link_var:=link(q);
+  while link_var<>p do
+    begin q:=link_var; link_var:=link(q);
+@z
+%---------------------------------------
+@x [32] m.610 l.12121 - optimization
+if abs(w)>=@'40000000 then
+  begin dvi_out(o+3); {|down4| or |right4|}
+  dvi_four(w); return;
+  end;
+if abs(w)>=@'100000 then
+  begin dvi_out(o+2); {|down3| or |right3|}
+  if w<0 then w:=w+@'100000000;
+  dvi_out(w div @'200000); w:=w mod @'200000; goto 2;
+  end;
+if abs(w)>=@'200 then
+  begin dvi_out(o+1); {|down2| or |right2|}
+  if w<0 then w:=w+@'200000;
+  goto 2;
+  end;
+dvi_out(o); {|down1| or |right1|}
+if w<0 then w:=w+@'400;
+goto 1;
+2: dvi_out(w div @'400);
+1: dvi_out(w mod @'400); return
+@y
+with aux_word(w) do
+  begin if s3=l0123 then dvi_out(o) {|down1| or |right1|}
+  else  begin if i23=l0123 then dvi_out(o+1) {|down2| or |right2|}
+    else  begin if s1=i01 then dvi_out(o+2) {|down3| or |right3|}
+      else  begin dvi_out(o+3); dvi_out(b0); {|down4| or |right4|}
+        end;
+      dvi_out(b1);
+      end;
+    dvi_out(b2);
+    end;
+  dvi_out(b3);
+  end;
+return
+@z
+%---------------------------------------
+@x [32] m.619 l.12311 hlist_out - check stack
+g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
+@y
+check_stack; g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
+@z
+%---------------------------------------
+@x [32] m.620 l.12332 - optimization
+  repeat f:=font(p); c:=character(p);
+@y
+  repeat with mem[p] do
+    begin f:=font_field; c:=character_field;@+end;
+@z
+%---------------------------------------
+@x [32] m.620 l.12336 - optimization
+  cur_h:=cur_h+char_width(f)(char_info(f)(c));
+@y
+  Inc(cur_h,char_width(f)(char_info(f)(c)));
+@z
+%---------------------------------------
+@x [32] m.627 l.12462 - optimization
+  if subtype(p)=c_leaders then cur_h:=cur_h+(lr div 2)
+@y
+  if subtype(p)=c_leaders then Inc(cur_h,div_shift(lr,1))
+@z
+%---------------------------------------
+@x [32] m.627 l.12464 - optimization
+    cur_h:=cur_h+((lr-(lq-1)*lx) div 2);
+@y
+    Inc(cur_h,div_shift(lr-(lq-1)*lx,1));
+@z
+%---------------------------------------
+@x [32] m.629 l.12500 vlist_out - check stack
+g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
+@y
+check_stack; g_sign:=glue_sign(this_box); p:=list_ptr(this_box);
+@z
+%---------------------------------------
+@x [32] m.636 l.12609 - optimization
+  if subtype(p)=c_leaders then cur_v:=cur_v+(lr div 2)
+@y
+  if subtype(p)=c_leaders then Inc(cur_v,div_shift(lr,1))
+@z
+%---------------------------------------
+@x [32] m.636 l.12611 - optimization
+    cur_v:=cur_v+((lr-(lq-1)*lx) div 2);
+@y
+    Inc(cur_v,div_shift(lr-(lq-1)*lx,1));
+@z
+%---------------------------------------
+@x [32] m.639 l.12671 - free list reorganization
+flush_node_list(p);
+@y
+flush_node_list(p); reorganize_free_lists;
+@z
+%---------------------------------------
+@x [32] m.642 l.12738 - optimization
+  dvi_out(max_push div 256); dvi_out(max_push mod 256);@/
+  dvi_out((total_pages div 256) mod 256); dvi_out(total_pages mod 256);@/
+@y
+  with aux_word(max_push) do
+    begin dvi_out(b2); dvi_out(b3);@+end;@/
+  with aux_word(total_pages) do
+    begin dvi_out(b2); dvi_out(b3);@+end;@/
+@z
+%---------------------------------------
+@x [32] m.642 l.12742 - optimization
+  k:=4+((dvi_buf_size-dvi_ptr) mod 4); {the number of 223's}
+@y
+  k:=4+((dvi_buf_size-dvi_ptr) and 3); {the number of 223's}
+@z
+%---------------------------------------
+@x [33] m.649 l.12864 hpack - optimization
+var r:pointer; {the box node that will be returned}
+@y
+var r:pointer; {the box node that will be returned}
+@!cur_cell: memory_word; {for fewer accesses to |mem|}
+@z
+%---------------------------------------
+@x [33] m.653 l.12930 - optimization
+begin x:=x+width(p);
+@y
+begin Inc(x,width(p));
+@z
+%---------------------------------------
+@x [33] m.654 l.12942 - optimization
+begin f:=font(p); i:=char_info(f)(character(p)); hd:=height_depth(i);
+x:=x+char_width(f)(i);@/
+s:=char_height(f)(hd);@+if s>h then h:=s;
+s:=char_depth(f)(hd);@+if s>d then d:=s;
+p:=link(p);
+@y
+begin cur_cell:=mem[p]; f:=fixed_font;
+i:=char_info(f)(fixed_character); hd:=height_depth(i);
+Inc(x,char_width(f)(i));@/
+s:=char_height(f)(hd);@+if s>h then h:=s;
+s:=char_depth(f)(hd);@+if s>d then d:=s;
+p:=fixed_link;
+@z
+%---------------------------------------
+@x [33] m.655 l.12956 - optimization of memory access
+begin while link(q)<>p do q:=link(q);
+if type(p)=adjust_node then
+  begin link(adjust_tail):=adjust_ptr(p);
+  while link(adjust_tail)<>null do adjust_tail:=link(adjust_tail);
+@y
+begin link_var:=link(q);
+while link_var<>p do begin q:=link_var; link_var:=link(q);@+end;
+if type(p)=adjust_node then
+  begin link_var:=adjust_ptr(p); link(adjust_tail):=link_var;
+  while link_var<>0 do
+    begin adjust_tail:=link_var; link_var:=link(adjust_tail);@+end;
+@z
+%---------------------------------------
+@x [33] m.656 l.12968 - optimization
+begin g:=glue_ptr(p); x:=x+width(g);@/
+o:=stretch_order(g); total_stretch[o]:=total_stretch[o]+stretch(g);
+o:=shrink_order(g); total_shrink[o]:=total_shrink[o]+shrink(g);
+@y
+begin g:=glue_ptr(p); Inc(x,width(g));@/
+Inc(total_stretch[stretch_order(g)],stretch(g));
+Inc(total_shrink[shrink_order(g)],shrink(g));
+@z
+%---------------------------------------
+@x [33] m.666 l.13082 - optimization of memory access
+    begin while link(q)<>null do q:=link(q);
+@y
+    begin find_last(q)(null);
+@z
+%---------------------------------------
+@x [33] m.668 l.13126 vpackage - optimization
+  begin x:=x+d-l; depth(r):=l;
+@y
+  begin Inc(x,d-l); depth(r):=l;
+@z
+%---------------------------------------
+@x [33] m.669 l.13145 - optimization
+  kern_node: begin x:=x+d+width(p); d:=0;
+@y
+  kern_node: begin Inc(x,d+width(p)); d:=0;
+@z
+%---------------------------------------
+@x [33] m.670 l.13153 - optimization
+begin x:=x+d+height(p); d:=depth(p);
+@y
+begin Inc(x,d+height(p)); d:=depth(p);
+@z
+%---------------------------------------
+@x [33] m.671 l.13159 - optimization
+begin x:=x+d; d:=0;@/
+g:=glue_ptr(p); x:=x+width(g);@/
+o:=stretch_order(g); total_stretch[o]:=total_stretch[o]+stretch(g);
+o:=shrink_order(g); total_shrink[o]:=total_shrink[o]+shrink(g);
+@y
+begin Inc(x,d); d:=0;@/
+g:=glue_ptr(p); Inc(x,width(g));@/
+Inc(total_stretch[stretch_order(g)],stretch(g));
+Inc(total_shrink[shrink_order(g)],shrink(g));
+@z
+%---------------------------------------
+@x [34] m.681 l.13369 - optimization
+@d math_type==link {a |halfword| in |mem|}
+@d fam==font {a |quarterword| in |mem|}
+@y
+@d math_type==link {a |halfword| in |mem|}
+@d math_type_field==link_field {the same}
+@d fam==font {a |quarterword| in |mem|}
+@d fam_field==font_field {the same}
+@z
+%---------------------------------------
+@x [34] m.683 l.13438 - optimization
+@d small_fam(#)==mem[#].qqqq.b0 {|fam| for ``small'' delimiter}
+@d small_char(#)==mem[#].qqqq.b1 {|character| for ``small'' delimiter}
+@d large_fam(#)==mem[#].qqqq.b2 {|fam| for ``large'' delimiter}
+@d large_char(#)==mem[#].qqqq.b3 {|character| for ``large'' delimiter}
+@y
+@d small_fam_field==qqqq.b0 {|fam| for ``small'' delimiter}
+@d small_char_field==qqqq.b1 {|character| for ``small'' delimiter}
+@d large_fam_field==qqqq.b2 {|fam| for ``large'' delimiter}
+@d large_char_field==qqqq.b3 {|character| for ``large'' delimiter}
+@d small_fam(#)==mem[#].small_fam_field {the same}
+@d small_char(#)==mem[#].small_char_field {the same}
+@d large_fam(#)==mem[#].large_fam_field {the same}
+@d large_char(#)==mem[#].large_char_field {the same}
+@z
+%---------------------------------------
+@x [34] m.694 l.13634 print_style - optimization
+begin case c div 2 of
+@y
+begin case c shr 1 of
+@z
+%---------------------------------------
+@x [35] m.700 l.13762 - font_info array
+@d mathsy_end(#)==fam_fnt(2+#)]].sc
+@d mathsy(#)==font_info[#+param_base[mathsy_end
+@y
+@d mathsy_end(#)==fam_fnt(2+#)]font_info_end.sc
+@d mathsy(#)==font_info_begin #+param_base[mathsy_end
+@z
+%---------------------------------------
+@x [35] m.702 l.13804 - optimization
+@d cramped_style(#)==2*(# div 2)+cramped {cramp the style}
+@d sub_style(#)==2*(# div 4)+script_style+cramped {smaller and cramped}
+@d sup_style(#)==2*(# div 4)+script_style+(# mod 2) {smaller}
+@d num_style(#)==#+2-2*(# div 6) {smaller unless already script-script}
+@d denom_style(#)==2*(# div 2)+cramped+2-2*(# div 6) {smaller, cramped}
+@y
+@d cramped_style(#)==(# or cramped) {cramp the style}
+@d sub_style(#)==((# and -4)shr 1)+script_style+cramped {smaller and cramped}
+@d sup_style(#)==((# and -4)shr 1)+script_style+(# and 1) {smaller}
+@d num_style(#)==#+2*((13-#)shr 3) {smaller unless already script-script}
+@d denom_style(#)==(# or cramped)+2*((13-#)shr 3) {smaller, cramped}
+@z
+%---------------------------------------
+@x [35] m.703 l.13815 - optimization
+else cur_size:=16*((cur_style-text_style) div 2);
+@y
+else cur_size:=((cur_style-text_style) and -2) shl 3;
+@z
+%---------------------------------------
+@x [35] m.715 l.14034 rebox - optimization of memory access
+  while link(p)<>null do p:=link(p);
+@y
+  find_last(p)(null);
+@z
+%---------------------------------------
+@x [36] m.726 l.14244 mlist_to_hlist - check stack
+begin mlist:=cur_mlist; penalties:=mlist_penalties;
+@y
+begin check_stack; mlist:=cur_mlist; penalties:=mlist_penalties;
+@z
+%---------------------------------------
+@x [36] m.731 l.14321 - optimization
+begin case cur_style div 2 of
+@y
+begin case cur_style shr 1 of
+@z
+%---------------------------------------
+@x [36] m.731 l.14334 - optimization of memory access
+  while link(p)<>null do p:=link(p);
+@y
+  find_last(p)(null);
+@z
+%---------------------------------------
+@x [36] m.736 l.14404 - TP units
+procedure make_vcenter(@!q:pointer);
+@y
+split_or_unit()(TP_split tex3a)
+  (TP_unit tex3a@; TP_int@;
+   @<Include compiler directives for main program and units@>@/
+   TP_imp@; @<Declare the function called |f_mem|@>@/
+   TP_imp@; @<Declare the function called |f_font|@>)
+  {start of TP split file or unit |tex3a| (maybe)}
+procedure make_vcenter(@!q:pointer);
+@z
+%---------------------------------------
+@x [36] m.737 l.14430 make_radical - optimization
+  clr:=default_rule_thickness+(abs(math_x_height(cur_size)) div 4)
+else  begin clr:=default_rule_thickness; clr:=clr + (abs(clr) div 4);
+@y
+  clr:=default_rule_thickness+(abs(math_x_height(cur_size)) shr 2)
+else  begin clr:=default_rule_thickness; Inc(clr,abs(clr) shr 2);
+@z
+%---------------------------------------
+@x [36] m.756 l.14856 make_scripts - optimization of memory access
+  while link(p)<>null do p:=link(p);
+@y
+  find_last(p)(null);
+@z
+%---------------------------------------
+@x [36] m.758 l.14883 - optimization
+clr:=depth(x)+(abs(math_x_height(cur_size)) div 4);
+@y
+clr:=depth(x)+(abs(math_x_height(cur_size)) shr 2);
+@z
+%---------------------------------------
+@x [37] m.772 l.15237 push_alignment - optimization of memory access
+link(p):=align_ptr; info(p):=cur_align;
+llink(p):=preamble; rlink(p):=cur_span;
+mem[p+2].int:=cur_loop; mem[p+3].int:=align_state;
+info(p+4):=cur_head; link(p+4):=cur_tail;
+@y
+with mem[p] do
+  begin link_field:=align_ptr; info_field:=cur_align;@+end;
+with mem[p+1] do
+  begin llink_field:=preamble; rlink_field:=cur_span;@+end;
+mem[p+2].int:=cur_loop; mem[p+3].int:=align_state;
+with mem[p+4] do
+  begin info_field:=cur_head; link_field:=cur_tail;@+end;
+@z
+%---------------------------------------
+@x [37] m.772 l.15249 pop_alignment - optimization of memory access
+cur_tail:=link(p+4); cur_head:=info(p+4);
+align_state:=mem[p+3].int; cur_loop:=mem[p+2].int;
+cur_span:=rlink(p); preamble:=llink(p);
+cur_align:=info(p); align_ptr:=link(p);
+@y
+with mem[p+4] do
+  begin cur_tail:=link_field; cur_head:=info_field;@+end;
+align_state:=mem[p+3].int; cur_loop:=mem[p+2].int;
+with mem[p+1] do
+  begin cur_span:=rlink_field; preamble:=llink_field;@+end;
+with mem[p] do
+  begin cur_align:=info_field; align_ptr:=link_field;@+end;
+@z
+%---------------------------------------
+@x [37] m.798 l.15654 - optimization of memory access
+q:=cur_span; while link(info(q))<n do q:=info(q);
+@y
+link_var:=cur_span;
+repeat q:=link_var; link_var:=info(q)
+until link(link_var)>=n;
+@z
+%---------------------------------------
+@x [38] m.815 l.16001 - TP units
+@p@t\4@>@<Declare subprocedures for |line_break|@>
+@y
+@p TP_unit tex4@; {start of TP unit |tex4|}
+TP_int@; @<Include compiler directives for main program and units@>@/
+TP_imp@; @<Declare the function called |f_mem|@>@/
+TP_imp@; @<Declare the function called |f_font|@>@/
+TP_imp@; @<Declare the function called |f_hyph|@>@/
+TP_imp@; @<Declare the functions called |f_trie1| and |f_trie2|@>@/
+@<Declare subprocedures for |line_break|@>
+@z
+%---------------------------------------
+@x [38] m.832 l.16360 - optimization
+  cur_active_width[#]:=cur_active_width[#]+mem[r+#].sc
+@y
+  Inc(cur_active_width[#],mem[r+#].sc)
+@z
+%---------------------------------------
+@x [38] m.836 l.16431 - optimization
+else minimum_demerits:=minimum_demerits+abs(adj_demerits);
+@y
+else Inc(minimum_demerits,abs(adj_demerits));
+@z
+%---------------------------------------
+@x [38] m.837 l.16475 - optimization
+    else break_width[1]:=break_width[1]-width(s);
+@y
+    else Dec(break_width[1],width(s));
+@z
+%---------------------------------------
+@x [38] m.838 l.16483 - optimization
+begin v:=glue_ptr(s); break_width[1]:=break_width[1]-width(v);
+break_width[2+stretch_order(v)]:=break_width[2+stretch_order(v)]-stretch(v);
+break_width[6]:=break_width[6]-shrink(v);
+@y
+begin v:=glue_ptr(s); Dec(break_width[1],width(v));
+Dec(break_width[2+stretch_order(v)],stretch(v));
+Dec(break_width[6],shrink(v));
+@z
+%---------------------------------------
+@x [38] m.840 l.16516 - optimization
+break_width[1]:=break_width[1]+disc_width;
+@y
+Inc(break_width[1],disc_width);
+@z
+%---------------------------------------
+@x [38] m.841 l.16527 - optimization
+  break_width[1]:=break_width[1]-char_width(f)(char_info(f)(character(v)));
+@y
+  Dec(break_width[1],char_width(f)(char_info(f)(character(v))));
+@z
+%---------------------------------------
+@x [38] m.841 l.16531 - optimization
+    break_width[1]:=@|break_width[1]-
+      char_width(f)(char_info(f)(character(lig_char(v))));
+@y
+    Dec(break_width[1],char_width(f)(char_info(f)(character(lig_char(v)))));
+@z
+%---------------------------------------
+@x [38] m.841 l.16535 - optimization
+    break_width[1]:=break_width[1]-width(v);
+@y
+    Dec(break_width[1],width(v));
+@z
+%---------------------------------------
+@x [38] m.842 l.16543 - optimization
+  break_width[1]:=@|break_width[1]+char_width(f)(char_info(f)(character(s)));
+@y
+  Inc(break_width[1],char_width(f)(char_info(f)(character(s))));
+@z
+%---------------------------------------
+@x [38] m.842 l.16547 - optimization
+    break_width[1]:=break_width[1]+
+      char_width(f)(char_info(f)(character(lig_char(s))));
+@y
+    Inc(break_width[1],char_width(f)(char_info(f)(character(lig_char(s)))));
+@z
+%---------------------------------------
+@x [38] m.842 l.16551 - optimization
+    break_width[1]:=break_width[1]+width(s);
+@y
+    Inc(break_width[1],width(s));
+@z
+%---------------------------------------
+@x [38] m.843 l.16559 - optimization
+  mem[prev_r+#].sc:=@|@t\hskip10pt@>mem[prev_r+#].sc
+  -cur_active_width[#]+break_width[#]
+@y
+  Inc(mem[prev_r+#].sc,break_width[#]-cur_active_width[#])
+@z
+%---------------------------------------
+@x [38] m.860 l.16864 - optimization
+@d combine_two_deltas(#)==@|mem[prev_r+#].sc:=mem[prev_r+#].sc+mem[r+#].sc
+@d downdate_width(#)==@|cur_active_width[#]:=cur_active_width[#]-
+  mem[prev_r+#].sc
+@y
+@d combine_two_deltas(#)==Inc(mem[prev_r+#].sc,mem[r+#].sc)
+@d downdate_width(#)==Dec(cur_active_width[#],mem[prev_r+#].sc)
+@z
+%---------------------------------------
+@x [38] m.861 l.16891 - optimization
+@d update_active(#)==active_width[#]:=active_width[#]+mem[r+#].sc
+@y
+@d update_active(#)==Inc(active_width[#],mem[r+#].sc)
+@z
+%---------------------------------------
+@x [39] m.862 l.16922 - optimization
+@<Local variables for line breaking@>=
+@y
+@<Local variables for line breaking@>=
+@!cur_cell: memory_word; {for fewer accesses to |mem|}
+@z
+%---------------------------------------
+@x [39] m.866 l.17009 kern_break - optimization
+  act_width:=act_width+width(cur_p);
+@y
+  Inc(act_width,width(cur_p));
+@z
+%---------------------------------------
+@x [39] m.866 l.17027 - optimization
+  act_width:=act_width+char_width(f)(char_info(f)(character(lig_char(cur_p))));
+@y
+  Inc(act_width,char_width(f)(char_info(f)(character(lig_char(cur_p)))));
+@z
+%---------------------------------------
+@x [39] m.867 l.17049 - optimization of memory access
+repeat f:=font(cur_p);
+act_width:=act_width+char_width(f)(char_info(f)(character(cur_p)));
+cur_p:=link(cur_p);
+@y
+repeat cur_cell:=mem[cur_p]; f:=fixed_font;
+Inc(act_width,char_width(f)(char_info(f)(fixed_character)));
+cur_p:=fixed_link;
+@z
+%---------------------------------------
+@x [39] m.868 l.17066 - optimization
+act_width:=act_width+width(q);@|
+active_width[2+stretch_order(q)]:=@|
+  active_width[2+stretch_order(q)]+stretch(q);@/
+active_width[6]:=active_width[6]+shrink(q)
+@y
+Inc(act_width,width(q));
+Inc(active_width[2+stretch_order(q)],stretch(q));
+Inc(active_width[6],shrink(q))
+@z
+%---------------------------------------
+@x [39] m.869 l.17080 - optimization
+  act_width:=act_width+disc_width;
+  try_break(hyphen_penalty,hyphenated);
+  act_width:=act_width-disc_width;
+@y
+  Inc(act_width,disc_width);
+  try_break(hyphen_penalty,hyphenated);
+  Dec(act_width,disc_width);
+@z
+%---------------------------------------
+@x [39] m.870 l.17095 - optimization
+  disc_width:=disc_width+char_width(f)(char_info(f)(character(s)));
+@y
+  Inc(disc_width,char_width(f)(char_info(f)(character(s))));
+@z
+%---------------------------------------
+@x [39] m.870 l.17099 - optimization
+    disc_width:=disc_width+
+      char_width(f)(char_info(f)(character(lig_char(s))));
+@y
+    Inc(disc_width,char_width(f)(char_info(f)(character(lig_char(s)))));
+@z
+%---------------------------------------
+@x [39] m.870 l.17103 - optimization
+    disc_width:=disc_width+width(s);
+@y
+    Inc(disc_width,width(s));
+@z
+%---------------------------------------
+@x [39] m.875 l.17170 - subrange trouble
+  begin line_diff:=line_number(r)-best_line;
+@y
+  begin line_diff:=integer(line_number(r))-best_line;
+@z
+%---------------------------------------
+@x [39] m.881 l.17301 - optimization of memory acces
+else  begin q:=temp_head;
+  while link(q)<>null do q:=link(q);
+@y
+else  begin set_and_find_last(temp_head)(q)(null);
+@z
+%---------------------------------------
+@x [39] m.884 l.17331 - optimization of memory access
+begin s:=post_break(q);
+while link(s)<>null do s:=link(s);
+@y
+begin set_and_find_last(post_break(q))(s)(null);
+@z
+%---------------------------------------
+@x [39] m.885 l.17340 - optimization of memory access
+begin s:=pre_break(q); link(q):=s;
+while link(s)<>null do s:=link(s);
+@y
+begin set_and_find_last(pre_break(q); link(q):=link_var)(s)(null);
+@z
+%---------------------------------------
+@x [41] m.903 l.17657 - optimization of memory access
+s:=cur_p; {we have |cur_p<>ha| because |type(cur_p)=glue_node|}
+while link(s)<>ha do s:=link(s);
+@y
+set_and_find_last(cur_p)(s)(ha);
+ {we have |cur_p<>ha| because |type(cur_p)=glue_node|}
+@z
+%---------------------------------------
+@x [41] m.913 l.17918 - optimization of memory access
+  while link(s)>null do s:=link(s);
+@y
+  find_last(s)(null);
+@z
+%---------------------------------------
+@x [41] m.914 l.17937 - optimization of memory access
+@d advance_major_tail==begin major_tail:=link(major_tail); incr(r_count);
+    end
+@y
+@d advance_major_tail==while link_var>null do
+  begin major_tail:=link_var; incr(r_count); link_var:=link(major_tail);
+  end
+@z
+%---------------------------------------
+@x [41] m.914 l.17943 - optimization of memory access
+major_tail:=r; r_count:=0;
+while link(major_tail)>null do advance_major_tail;
+@y
+major_tail:=r; r_count:=0;
+link_var:=link(major_tail); advance_major_tail;
+@z
+%---------------------------------------
+@x [41] m.915 l.17967 - optimization of memory access
+    minor_tail:=link(hold_head);
+    while link(minor_tail)>null do minor_tail:=link(minor_tail);
+@y
+    set_and_find_last(link(hold_head))(minor_tail)(null);
+@z
+%---------------------------------------
+@x [41] m.916 l.17991 - optimization of memory access
+    minor_tail:=link(hold_head);
+    while link(minor_tail)>null do minor_tail:=link(minor_tail);
+@y
+    set_and_find_last(link(hold_head))(minor_tail)(null);
+@z
+%---------------------------------------
+@x [41] m.917 l.18001 - optimization of memory access
+link(major_tail):=link(hold_head);
+while link(major_tail)>null do advance_major_tail;
+@y
+link_var:=link(hold_head); link(major_tail):=link_var; advance_major_tail;
+@z
+%---------------------------------------
+@x [42] m.920 l.18056 - allow >255 trie_ops
+Comparatively few different number sequences $n_0\ldots n_k$ actually occur,
+since most of the |n|'s are generally zero. Therefore the number sequences
+are encoded in such a way that |trie_op|$(z_k)$ is only one byte long.
+@y
+The theory that comparatively few different number sequences $n_0\ldots n_k$
+actually occur, since most of the |n|'s are generally zero, seems to fail
+at least for the large German hyphenation patterns.
+Therefore the number sequences cannot any longer be encoded in such a way
+that |trie_op|$(z_k)$ is only one byte long.
+
+We have introduced a new constant |max_trie_op| for the maximum allowable
+hyphenation operation code value; |max_trie_op| might be different for
+\TeX\ and \.{INITEX} and must not exceed |max_halfword|. Depending on
+whether |max_op_used|, the largest trie opcode actually used for any
+language, doesn't or does exceed |max_quarterword| a quarterword does or
+doesn't suffice to store an opcode.
+
+Since |max_op_used| is known (either from the format file or from
+\.{INITEX}'s trie compression routines) before the trie opcodes and
+characters are accessed, we use the boolean variable |small_trie| to
+distinguish the two possibilites mentioned above and proceed as follows:
+(1)~If |small_trie=true|, indicating |max_op_used<=max_quarterword|, the
+opcodes |trie_op(z)| and characters |trie_char(z)| are stored in
+|trie[z].b0| and |trie[z].b1| exactly as in the standard program;
+or (2)~if |small_trie=false|, indicating |max_op_used>max_quarterword|,
+the opcodes |large_trie_op(z)| are stored in |trie[z].lh| and the
+characters |large_trie_char(z)| are stored in a separate array.
+@^system dependencies@>
+@z
+%---------------------------------------
+@x [42] m.920 l.18068 - allow >255 trie_ops
+@!trie_pointer=0..trie_size; {an index into |trie|}
+@y
+@!trie_opcode=min_quarterword..max_trie_op;  {a trie opcode}
+@!trie_pointer=0..trie_size; {an index into |trie|}
+@z
+%---------------------------------------
+@x [42] m.921 l.18070 - trie array, allow >255 trie_ops
+@ @d trie_link(#)==trie[#].rh {``downward'' link in a trie}
+@d trie_char(#)==trie[#].b1 {character matched at this trie location}
+@d trie_op(#)==trie[#].b0 {program for hyphenation at this trie location}
+
+@<Glob...@>=
+@!trie:array[trie_pointer] of two_halves; {|trie_link|, |trie_char|, |trie_op|}
+@y
+@ @d trie[#]==f_hyph(#)^ {|trie_link|, |trie_char|, |trie_op|}
+@#
+@d trie_link_field==rh {``downward'' link in a trie}
+@d trie_char_field==b1 {character matched at this trie location}
+@d trie_op_field==b0 {program for hyphenation at this trie location}
+@d large_trie_op_field==lh {opcode field in case |small_trie=false|}
+@#
+@d trie_link(#)==trie[#].trie_link_field {the same}
+@d trie_char(#)==trie[#].trie_char_field
+@d trie_op(#)==trie[#].trie_op_field
+@d large_trie_char(#)==p_trie_char^[#] {large variant}
+@d large_trie_op(#)==trie[#].large_trie_op_field {large variant}
+
+@<Glob...@>=
+mtype @!a_trie_char=array[trie_pointer] of quarterword;
+  {large variant of |trie_char|}
+var p_trie_char:^a_trie_char;
+@!max_op_used:trie_opcode; {largest opcode used for any language}
+@!small_trie:boolean; {does an trie opcode fit into a quarterword?}
+@z
+%---------------------------------------
+@x [42] m.922 l.18083 - optimization
+@!v:integer; {an index into |hyf_distance|, etc.}
+@y
+@!cur_start:two_halves; {value of |trie[cur_lang+1]|}
+@!trie_z:two_halves; {value of |trie[z]|}
+@!v:Integer; {an index into |hyf_distance|, etc.}
+@z
+%---------------------------------------
+@x [42] m.923 l.18094 - optimization of memory access, allow >255 trie_ops
+if trie_char(cur_lang+1)<>qi(cur_lang) then return; {no patterns for |cur_lang|}
+hc[0]:=0; hc[hn+1]:=0; hc[hn+2]:=256; {insert delimiters}
+for j:=0 to hn-r_hyf+1 do
+  begin z:=trie_link(cur_lang+1)+hc[j]; l:=j;
+  while hc[l]=qo(trie_char(z)) do
+    begin if trie_op(z)<>min_quarterword then
+      @<Store \(m)maximum values in the |hyf| table@>;
+    incr(l); z:=trie_link(z)+hc[l];
+@y
+hc[0]:=0; hc[hn+1]:=0; hc[hn+2]:=256; {insert delimiters}
+cur_start:=trie[cur_lang+1];
+if small_trie then
+  begin if cur_start.trie_char_field<>qi(cur_lang) then return;
+    {no patterns for |cur_lang|}
+  for j:=0 to hn-r_hyf+1 do
+    begin z:=cur_start.trie_link_field+hc[j]; trie_z:=trie[z]; l:=j;
+    while hc[l]=qo(trie_z.trie_char_field) do
+      begin v:=trie_z.trie_op_field;
+      if v<>min_quarterword then
+        @<Store \(m)maximum values in the |hyf| table@>;
+      incr(l); z:=trie_z.trie_link_field+hc[l]; trie_z:=trie[z];
+      end;
+    end;
+  end
+else  begin if large_trie_char(cur_lang+1)<>qi(cur_lang) then return;
+    {no patterns for |cur_lang|}
+  for j:=0 to hn-r_hyf+1 do
+    begin z:=cur_start.trie_link_field+hc[j]; l:=j;
+    while hc[l]=qo(large_trie_char(z)) do
+      begin trie_z:=trie[z]; v:=trie_z.large_trie_op_field;
+      if v<>min_quarterword then
+        @<Store \(m)maximum values in the |hyf| table@>;
+      incr(l); z:=trie_z.trie_link_field+hc[l];
+      end;
+@z
+%---------------------------------------
+@x [42] m.924 l.18108 - optimization, allow >255 trie_ops
+begin v:=trie_op(z);
+repeat v:=v+op_start[cur_lang]; i:=l-hyf_distance[v];
+@y
+begin
+repeat Inc(v,op_start[cur_lang]); i:=l-hyf_distance[v];
+@z
+%---------------------------------------
+@x [42] m.934 l.18210 - TP units
+@p procedure new_hyph_exceptions; {enters new exceptions}
+@y
+@p split_or_unit()(TP_split tex4a)
+  (TP_unit tex4a@; TP_int@;
+   @<Include compiler directives for main program and units@>@/
+   TP_imp@; @<Declare the function called |f_mem|@>@/
+   TP_imp@; @<Declare the function called |f_font|@>)
+  {start of TP split file or unit |tex4a| (maybe)}
+procedure new_hyph_exceptions; {enters new exceptions}
+@z
+%---------------------------------------
+@x [43] m.943 l.18343 - allow >255 trie_ops, large arrays
+is |trie_op_ptr|.
+
+@<Glob...@>=
+@!init@! trie_op_hash:array[-trie_op_size..trie_op_size] of 0..trie_op_size;
+  {trie op codes for quadruples}
+@!trie_used:array[ASCII_code] of quarterword;
+  {largest opcode used so far for this language}
+@!trie_op_lang:array[1..trie_op_size] of ASCII_code;
+  {language part of a hashed quadruple}
+@!trie_op_val:array[1..trie_op_size] of quarterword;
+@y
+is |trie_op_ptr|.
+
+@d trie_op_hash==p_tr_op_hash^
+@d trie_op_lang==p_tr_op_lang^
+@d trie_op_val==p_tr_op_val^
+
+@<Glob...@>=
+@!init@!
+mtype @!a_tr_op_hash=array[-trie_op_size..trie_op_size] of 0..trie_op_size;
+  {trie op codes for quadruples}
+var p_tr_op_hash:^a_tr_op_hash; {trie op codes for quadruples}
+@!trie_used:array[ASCII_code] of trie_opcode;
+  {largest opcode used so far for this language}
+mtype @!a_tr_op_lang=array[1..trie_op_size] of ASCII_code;
+  {language part of a hashed quadruple}
+var p_tr_op_lang:^a_tr_op_lang;
+  {language part of a hashed quadruple}
+mtype @!a_tr_op_val=array[1..trie_op_size] of trie_opcode;
+  {opcode corresponding to a hashed quadruple}
+var p_tr_op_val:^a_tr_op_val;
+@z
+%---------------------------------------
+@x [43] m.944 l.18365 new_trie_op - allow >255 trie_ops
+function new_trie_op(@!d,@!n:small_number;@!v:quarterword):quarterword;
+label exit;
+var h:-trie_op_size..trie_op_size; {trial hash location}
+@!u:quarterword; {trial op code}
+@y
+function new_trie_op(@!d,@!n:small_number;@!v:trie_opcode):trie_opcode;
+label exit;
+var h:-trie_op_size..trie_op_size; {trial hash location}
+@!u:trie_opcode; {trial op code}
+@z
+%---------------------------------------
+@x [43] m.944 l.18377 new_trie_op - allow >255 trie_ops
+    if u=max_quarterword then
+      overflow("pattern memory ops per language",
+        max_quarterword-min_quarterword);
+    incr(trie_op_ptr); incr(u); trie_used[cur_lang]:=u;
+@y
+    if u=max_trie_op then
+      overflow("pattern memory ops per language",
+        max_trie_op-min_quarterword);
+    incr(trie_op_ptr); incr(u); trie_used[cur_lang]:=u;
+    if u>max_op_used then max_op_used:=u;
+@z
+%---------------------------------------
+@x [43] m.946 l.18417 - allow >255 trie_ops
+trie_op_ptr:=0;
+@y
+max_op_used:=min_quarterword;
+trie_op_ptr:=0;
+@z
+%---------------------------------------
+@x [43] m.947 l.18435 - trie arrays
+@d trie_root==trie_l[0] {root of the linked trie}
+@y
+@d trie1[#]==f_trie1(#)^
+@d trie2[#]==f_trie2(#)^
+@#
+@d trie_c == p_trie_c^
+@d trie_o[#]==trie2[#].lh {operations to perform}
+@d trie_l[#]==trie1[#].lh {left subtrie links}
+@d trie_r[#]==trie1[#].rh {right subtrie links}
+@d trie_hash[#]==trie2[#].rh
+@#
+@d trie_root==trie_l[0] {root of the linked trie}
+@z
+%---------------------------------------
+@x [43] m.947 l.18438 - trie arrays
+@!init @!trie_c:packed array[trie_pointer] of packed_ASCII_code;
+  {characters to match}
+@t\hskip10pt@>@!trie_o:packed array[trie_pointer] of quarterword;
+  {operations to perform}
+@t\hskip10pt@>@!trie_l:packed array[trie_pointer] of trie_pointer;
+  {left subtrie links}
+@t\hskip10pt@>@!trie_r:packed array[trie_pointer] of trie_pointer;
+  {right subtrie links}
+@y
+@!init mtype @!a_trie_c=packed array[trie_pointer] of packed_ASCII_code;
+  {characters to match}
+@t\hskip10pt@>var p_trie_c:^a_trie_c; {characters to match}
+@z
+%---------------------------------------
+@x [43] m.947 l.18447 - large arrays
+@t\hskip10pt@>@!trie_hash:packed array[trie_pointer] of trie_pointer;
+@y
+@z
+%---------------------------------------
+@x [43] m.949 l.18494 compress_trie - check stack
+else  begin trie_l[p]:=compress_trie(trie_l[p]);
+@y
+else  begin check_stack; trie_l[p]:=compress_trie(trie_l[p]);
+@z
+%---------------------------------------
+@x [43] m.950 l.18521 - large arrays, trie array
+@d trie_back(#)==trie[#].lh {backward links in |trie| holes}
+@y
+@d trie_back(#)==trie[#].lh {backward links in |trie| holes}
+@#
+@d trie_taken == p_trie_taken^
+@z
+%---------------------------------------
+@x [43] m.950 l.18524 - large arrays
+@!init@!trie_taken:packed array[1..trie_size] of boolean;
+@y
+@!init mtype @!a_trie_taken=packed array[1..trie_size] of boolean;
+  {does a family start here?}
+@t\hskip10pt@>var p_trie_taken:^a_trie_taken;
+@z
+%---------------------------------------
+@x [43] m.952 l.18548 - large arrays, allow >255 trie_ops
+for p:=0 to trie_size do trie_hash[p]:=0;
+@y
+small_trie:=(max_op_used<=max_quarterword);
+dispose(p_tr_op_hash); dispose(p_tr_op_lang); dispose(p_tr_op_val);
+if small_trie then dispose(p_trie_char);
+for p:=0 to trie_size do trie_hash[p]:=0;
+@z
+%---------------------------------------
+@x [43] m.957 l.18621 trie_pack - check stack
+begin repeat q:=trie_l[p];
+@y
+begin check_stack; repeat q:=trie_l[p];
+@z
+%---------------------------------------
+@x [43] m.958 l.18634 - large arrays, allow >255 trie_ops
+@<Move the data into |trie|@>=
+h.rh:=0; h.b0:=min_quarterword; h.b1:=min_quarterword; {|trie_link:=0|,
+  |trie_op:=min_quarterword|, |trie_char:=qi(0)|}
+@y
+@d clear_trie ==
+  begin trie[r]:=h;
+  if not small_trie then large_trie_char(r):=min_quarterword;
+  end
+  {|trie_link(r):=0|, |trie_op(r):=min_quarterword|, |trie_char(r):=qi(0)|}
+
+@<Move the data into |trie|@>=
+if not small_trie then
+  begin dispose(p_trie_char);
+  Get_Mem(p_trie_char,(trie_max+16) and @"FFF0); k:=0;
+  end;
+h.trie_link_field:=0;
+if small_trie then
+  begin h.trie_op_field:=min_quarterword;
+  h.trie_char_field:=min_quarterword;
+  end
+else h.large_trie_op_field:=min_quarterword;
+@z
+%---------------------------------------
+@x [43] m.958 l.18638 - allow >255 trie_ops
+  begin for r:=0 to 256 do trie[r]:=h;
+@y
+  begin for r:=0 to 256 do clear_trie;
+@z
+%---------------------------------------
+@x [43] m.958 l.18643 - allow >255 trie_ops
+  repeat s:=trie_link(r); trie[r]:=h; r:=s;
+@y
+  repeat s:=trie_link(r); clear_trie; r:=s;
+@z
+%---------------------------------------
+@x [43] m.958 l.18646 - large arrays, allow >255 trie_ops, redundant semicolon
+trie_char(0):=qi("?"); {make |trie_char(c)<>c| for all |c|}
+@y
+dispose(p_trie_c); dispose(p_trie_taken);
+if not small_trie then large_trie_char(0):=qi("?")@+else@/
+trie_char(0):=qi("?") {make |trie_char(c)<>c| for all |c|}
+@z
+%---------------------------------------
+@x [43] m.959 l.18659 trie_fix - check stack
+begin z:=trie_ref[p];
+@y
+begin check_stack; z:=trie_ref[p];
+@z
+%---------------------------------------
+@x [43] m.959 l.18661 trie_fix - allow >255 trie_ops, optimization
+trie_link(z+c):=trie_ref[q]; trie_char(z+c):=qi(c); trie_op(z+c):=trie_o[p];
+@y
+with trie[z+c] do
+  begin trie_link_field:=trie_ref[q];
+  if small_trie then
+    begin trie_char_field:=qi(c); trie_op_field:=trie_o[p];
+    end
+  else  begin large_trie_op_field:=trie_o[p]; large_trie_char(z+c):=qi(c);
+    end;
+  end;
+@z
+%---------------------------------------
+@x [43] m.960 l.18677 new_patterns - allow >255 trie_ops
+@!v:quarterword; {trie op code}
+@y
+@!v:trie_opcode; {trie op code}
+@z
+%---------------------------------------
+@x [44] m.969 l.18836 - optimization
+if width(temp_ptr)>height(p) then width(temp_ptr):=width(temp_ptr)-height(p)
+@y
+if width(temp_ptr)>height(p) then Dec(width(temp_ptr),height(p))
+@z
+%---------------------------------------
+@x [44] m.976 l.18960 - optimization
+  active_height[2+stretch_order(q)]:=@|
+    active_height[2+stretch_order(q)]+stretch(q);@/
+@y
+  Inc(active_height[2+stretch_order(q)],stretch(q));@/
+@z
+%---------------------------------------
+@x [44] m.979 l.19036 - optimization
+      token_ref_count(split_first_mark):=@|
+        token_ref_count(split_first_mark)+2;
+@y
+      Inc(token_ref_count(split_first_mark),2);
+@z
+%---------------------------------------
+@x [45] m.1001 l.19455 - optimization
+if width(temp_ptr)>height(p) then width(temp_ptr):=width(temp_ptr)-height(p)
+@y
+if width(temp_ptr)>height(p) then Dec(width(temp_ptr),height(p))
+@z
+%---------------------------------------
+@x [45] m.1004 l.19476 - optimization
+  page_so_far[2+stretch_order(q)]:=@|
+    page_so_far[2+stretch_order(q)]+stretch(q);@/
+@y
+  Inc(page_so_far[2+stretch_order(q)],stretch(q));@/
+@z
+%---------------------------------------
+@x [45] m.1009 l.19583 - optimization
+page_so_far[2+stretch_order(q)]:=@|page_so_far[2+stretch_order(q)]+stretch(q);@/
+@y
+Inc(page_so_far[2+stretch_order(q)],stretch(q));@/
+@z
+%---------------------------------------
+@x [45] m.1010 l.19613 - optimization
+height(r):=height(r)+best_height_plus_depth;
+@y
+Inc(height(r),best_height_plus_depth);
+@z
+%---------------------------------------
+@x [45] m.1018 l.19775 - optimization of memory access
+    p:=box(n)+list_offset;
+    while link(p)<>null do p:=link(p);
+@y
+    set_and_find_last(box(n)+list_offset)(p)(null);
+@z
+%---------------------------------------
+@x [45] m.1020 l.19804 - optimization of memory access
+  else  begin while link(s)<>null do s:=link(s);
+@y
+  else  begin find_last(s)(null);
+@z
+%---------------------------------------
+@x [45] m.1021 l.19815 - optimization of memory access
+    begin while link(s)<>broken_ptr(r) do s:=link(s);
+@y
+    begin find_last(s)(broken_ptr(r));
+@z
+%---------------------------------------
+@x [46] m.1030 l.19982 main_control - OS command interface
+begin if every_job<>null then begin_token_list(every_job,every_job_text);
+@y
+begin if every_job<>null then
+  begin begin_token_list(every_job,every_job_text);
+  cmd_status:=2; {disallow OS commands during everyjob}
+  end;
+@z
+%---------------------------------------
+@x [46] m.1034 l.20077 - optimization
+fast_get_avail(lig_stack); font(lig_stack):=main_f; cur_l:=qi(cur_chr);
+character(lig_stack):=cur_l;@/
+@y
+fast_get_avail(lig_stack);
+with mem[lig_stack] do
+  begin font_field:=main_f; cur_l:=qi(cur_chr);
+  character_field:=cur_l;@+end;@/
+@z
+%---------------------------------------
+@x [46] m.1038 l.20180 - optimization
+fast_get_avail(lig_stack); font(lig_stack):=main_f;
+cur_r:=qi(cur_chr); character(lig_stack):=cur_r;
+@y
+fast_get_avail(lig_stack);
+with mem[lig_stack] do
+  begin font_field:=main_f;
+  cur_r:=qi(cur_chr); character_field:=cur_r;@+end;
+@z
+%---------------------------------------
+@x [48] m.1136 l.21616 - TP units
+procedure push_math(@!c:group_code);
+@y
+TP_unit tex5@; {start of TP unit |tex5|}
+TP_int@; @<Include compiler directives for main program and units@>@/
+TP_imp@; @<Declare the function called |f_mem|@>@/
+TP_imp@; @<Declare the function called |f_font|@>@/
+split_or_unit
+  (TP_imp@; @<Declare the function called |f_hyph|@>)
+  (TP_imp@; @<Declare the function called |f_hyph|@>)()
+@#
+procedure push_math(@!c:group_code);
+@z
+%---------------------------------------
+@x [48] m.1151 l.21827 scan_math - optimization
+delim_num: begin scan_twenty_seven_bit_int; c:=cur_val div @'10000;
+@y
+delim_num: begin scan_twenty_seven_bit_int; c:=div_shift(cur_val,12);
+@z
+%---------------------------------------
+@x [48] m.1151 l.21831 scan_math - optimization
+math_type(p):=math_char; character(p):=qi(c mod 256);
+if (c>=var_code)and fam_in_range then fam(p):=cur_fam
+else fam(p):=(c div 256) mod 16;
+@y
+with mem[p] do
+  begin math_type_field:=math_char; character_field:=qi(mod_256(c));
+  if (c>=var_code)and fam_in_range then fam_field:=cur_fam
+  else fam_field:=Hi(Word(c)) and 15;
+  end;
+@z
+%---------------------------------------
+@x [48] m.1154 l.21869 - optimization
+  set_math_char(cur_val div @'10000);
+@y
+  set_math_char(div_shift(cur_val,12));
+@z
+%---------------------------------------
+@x [48] m.1155 l.21882 set_math_char - optimization
+else  begin p:=new_noad; math_type(nucleus(p)):=math_char;
+  character(nucleus(p)):=qi(c mod 256);
+  fam(nucleus(p)):=(c div 256) mod 16;
+  if c>=var_code then
+    begin if fam_in_range then fam(nucleus(p)):=cur_fam;
+    type(p):=ord_noad;
+    end
+  else  type(p):=ord_noad+(c div @'10000);
+@y
+else  begin p:=new_noad;
+  with mem[nucleus(p)] do
+    begin math_type_field:=math_char;
+    character_field:=qi(mod_256(c));
+    fam_field:=Hi(Word(c)) and 15;
+    if c>=var_code then
+      begin if fam_in_range then fam_field:=cur_fam;
+      type(p):=ord_noad;
+      end
+    else  type(p):=ord_noad+div_shift(c,12);
+    end;
+@z
+%---------------------------------------
+@x [48] m.1160 l.21977 scan_delimiter - optimization
+small_fam(p):=(cur_val div @'4000000) mod 16;
+small_char(p):=qi((cur_val div @'10000) mod 256);
+large_fam(p):=(cur_val div 256) mod 16;
+large_char(p):=qi(cur_val mod 256);
+@y
+with mem[p], aux_word(cur_val) do
+  begin small_fam_field:=b1 shr 4;
+  small_char_field:=qi(mod_256(w12 shr 4));
+  large_fam_field:=b2 and 15;
+  large_char_field:=qi(b3);
+  end;
+@z
+%---------------------------------------
+@x [48] m.1165 l.22022 math_ac - optimization
+character(accent_chr(tail)):=qi(cur_val mod 256);
+if (cur_val>=var_code)and fam_in_range then fam(accent_chr(tail)):=cur_fam
+else fam(accent_chr(tail)):=(cur_val div 256) mod 16;
+@y
+with mem[accent_chr(tail)], aux_word(cur_val) do
+  begin character_field:=qi(b3);
+  if (cur_val>=var_code)and fam_in_range then fam_field:=cur_fam
+  else fam_field:=b2 and 15;
+  end;
+@z
+%---------------------------------------
+@x [48] m.1187 l.22271 - optimization of memory access
+begin q:=head; while link(q)<>tail do q:=link(q);
+@y
+begin set_and_find_last(head)(q)(tail);
+@z
+%---------------------------------------
+@x [48] m.1196 l.22391 - optimization of memory access
+while link(tail)<>null do tail:=link(tail);
+@y
+find_last(tail)(null);
+@z
+%---------------------------------------
+@x [49] m.1275 l.23437 open_or_close_in - file handling
+  begin a_close(read_file[n]); read_open[n]:=closed;
+@y
+  begin x_close(read_file[n]); read_open[n]:=closed;
+@z
+%---------------------------------------
+@x [49] m.1275 l.23443 open_or_close_in - file handling
+  if a_open_in(read_file[n]) then read_open[n]:=just_open;
+@y
+  if x_open_in(read_file[n]) then read_open[n]:=just_open;
+@z
+%---------------------------------------
+@x [50] m.1302 l.23685 - TP units, external, optimization of dump/undump
+@!init procedure store_fmt_file;
+@y
+split_or_unit()(TP_split tex5a)
+  (TP_unit tex5a@; TP_int@;
+   @<Include compiler directives for main program and units@>@/
+   @<Declare the function called |f_mem|@>@/
+   @<Declare the function called |f_font|@>@/
+   @<Declare the function called |f_hyph|@>)
+  {start of TP split file or unit |tex5a| (maybe)}
+@#
+procedure dump_io; {read or write |dump_buf|}
+begin
+@!init if dumping then Block_Write(fmt_file,dump_buf,128)@+else@+tini@/
+TP_dir(I-)@; Block_Read(fmt_file,dump_buf,128); TP_dir(I+)@; dump_ndx:=0;
+end;
+@#
+TP_imp@; TP_dir(L dump_ptr)@/
+function dump_ptr:p_memory_word; {pointer to next |dump_buf| word}
+External;
+@#
+@!init procedure store_fmt_file;
+@z
+%---------------------------------------
+@x [50] m.1305 l.23751 - optimization of dump/undump
+@d dump_wd(#)==begin fmt_file^:=#; put(fmt_file);@+end
+@d dump_int(#)==begin fmt_file^.int:=#; put(fmt_file);@+end
+@d dump_hh(#)==begin fmt_file^.hh:=#; put(fmt_file);@+end
+@d dump_qqqq(#)==begin fmt_file^.qqqq:=#; put(fmt_file);@+end
+@y
+@d dump_wd(#)==dump_ptr^:=#
+@d dump_int(#)==dump_ptr^.int:=#
+@d dump_hh(#)==dump_ptr^.hh:=#
+@d dump_qqqq(#)==dump_ptr^.qqqq:=#
+@z
+%---------------------------------------
+@x [50] m.1305 l.23757 - optimization of dump/undump
+@!fmt_file:word_file; {for input or output of format information}
+@y
+mtype @!byte_array=array[0..63] of memory_word; {256 bytes as |memory_word|s}
+var @!fmt_file:word_file; {for input or output of format information}
+@!dump_buf:array[0..127] of memory_word; {IO buffer for |fmt_file|}
+@!dump_ndx:-1..127; {last word read from or written to |dump_buf|}
+@!init @!dumping:boolean;@+tini {|true| during |store_fmt_file|}
+@z
+%---------------------------------------
+@x [50] m.1306 l.23763 - optimization of dump/undump
+@d undump_wd(#)==begin get(fmt_file); #:=fmt_file^;@+end
+@d undump_int(#)==begin get(fmt_file); #:=fmt_file^.int;@+end
+@d undump_hh(#)==begin get(fmt_file); #:=fmt_file^.hh;@+end
+@d undump_qqqq(#)==begin get(fmt_file); #:=fmt_file^.qqqq;@+end
+@y
+@d undump_wd(#)==#:=dump_ptr^
+@d undump_int(#)==#:=dump_ptr^.int
+@d undump_hh(#)==#:=dump_ptr^.hh
+@d undump_qqqq(#)==#:=dump_ptr^.qqqq
+@z
+%---------------------------------------
+@x [50] m.1307 l.23779 - optimization of dump/undump
+dump_int(@$);@/
+@y
+dumping:=true; dump_ndx:=-1; dump_int(@$);@/
+@z
+%---------------------------------------
+@x [50] m.1308 l.23793 - optimization of dump/undump
+x:=fmt_file^.int;
+@y
+@!init dumping:=false;@+tini@;@+dump_ndx:=127; undump_int(x);
+@z
+%---------------------------------------
+@x [50] m.1309 l.23807 dump_four_ASCII - optimization of dump/undump
+  w.b0:=qi(so(str_pool[k])); w.b1:=qi(so(str_pool[k+1]));
+  w.b2:=qi(so(str_pool[k+2])); w.b3:=qi(so(str_pool[k+3]));
+  dump_qqqq(w)
+@y
+with dump_ptr^.qqqq do
+  begin b3:=qi(so(str_pool[k])); b2:=qi(so(str_pool[k+1]));
+  b1:=qi(so(str_pool[k+2])); b0:=qi(so(str_pool[k+3]));
+  end
+@z
+%---------------------------------------
+@x [50] m.1309 l.23812 - programmable xord/xchr translation, unprintable chars
+dump_int(pool_ptr);
+@y
+for k:=0 to 2 do dump_int(code_array[k]);
+for k:=0 to 63 do dump_wd(byte_array(xord)[k]);
+for k:=0 to 63 do dump_wd(byte_array(xchr)[k]);
+for k:=0 to 63 do dump_wd(byte_array(is_unprintable)[k]);
+dump_int(pool_ptr);
+@z
+%---------------------------------------
+@x [50] m.1310 l.23824 undump_four_ASCII - optimization of dump/undump
+  undump_qqqq(w);
+  str_pool[k]:=si(qo(w.b0)); str_pool[k+1]:=si(qo(w.b1));
+  str_pool[k+2]:=si(qo(w.b2)); str_pool[k+3]:=si(qo(w.b3))
+@y
+with dump_ptr^.qqqq do
+  begin str_pool[k]:=si(qo(b3)); str_pool[k+1]:=si(qo(b2));
+  str_pool[k+2]:=si(qo(b1)); str_pool[k+3]:=si(qo(b0));
+  end
+@z
+%---------------------------------------
+@x [50] m.1310 l.23829 - programmable xord/xchr translation, unprintable chars
+undump_size(0)(pool_size)('string pool size')(pool_ptr);
+@y
+for k:=0 to 2 do undump_int(code_array[k]);
+for k:=0 to 63 do undump_wd(byte_array(xord)[k]);
+for k:=0 to 63 do undump_wd(byte_array(xchr)[k]);
+for k:=0 to 63 do undump_wd(byte_array(is_unprintable)[k]);
+undump_size(0)(pool_size)('string pool size')(pool_ptr);
+@z
+%---------------------------------------
+@x [50] m.1312 l.23887 - mem_top=mem_max
+undump(null)(mem_top)(avail); mem_end:=mem_top;
+@y
+undump(null)(mem_top)(avail);
+@z
+%---------------------------------------
+@x [50] m.1324 l.24057 - allow >255 trie_ops
+@ @<Dump the hyphenation tables@>=
+@y
+@ @d dump_four_char==
+  w.b0:=large_trie_char(k); w.b1:=large_trie_char(k+1);
+  w.b2:=large_trie_char(k+2); w.b3:=large_trie_char(k+3);
+  dump_qqqq(w)
+
+@<Dump the hyphenation tables@>=
+@z
+%---------------------------------------
+@x [50] m.1324 l.24065 - allow >255 trie_ops
+dump_int(trie_max);
+@y
+dump_int(max_op_used); dump_int(trie_max);
+if not small_trie then
+  begin k:=0;
+  while k+3<trie_max do
+    begin dump_four_char; k:=k+4;
+    end;
+  k:=trie_max-3; dump_four_char;
+  end;
+@z
+%---------------------------------------
+@x [50] m.1325 l.24086 - allow >255 trie_ops
+@<Undump the hyphenation tables@>=
+@y
+@d undump_four_char==
+  undump_qqqq(w);
+  large_trie_char(k):=w.b0; large_trie_char(k+1):=w.b1;
+  large_trie_char(k+2):=w.b2; large_trie_char(k+3):=w.b3
+
+@<Undump the hyphenation tables@>=
+@z
+%---------------------------------------
+@x [50] m.1325 l.24093 - allow >255 trie_ops
+undump_size(0)(trie_size)('trie size')(j); @+init trie_max:=j;@+tini
+@y
+undump_size(min_quarterword)(max_trie_op)('max trie op')(max_op_used);
+small_trie:=(max_op_used<=max_quarterword);
+undump_size(0)(trie_size)('trie size')(j);
+@!init trie_max:=j;
+dispose(p_tr_op_hash); dispose(p_tr_op_lang); dispose(p_tr_op_val);@/
+dispose(p_trie_c); dispose(p_trie_taken);@/
+tini@/
+dispose(p_trie_char);
+if not small_trie then
+  begin Get_Mem(p_trie_char,(j+16) and @"FFF0); k:=0;
+  while k+3<j do
+    begin undump_four_char; k:=k+4;
+    end;
+  k:=j-3; undump_four_char;
+  end;
+@z
+%---------------------------------------
+@x [50] m.1327 l.24120 - optimization of dump/undump
+if (x<>69069)or eof(fmt_file) then goto bad_fmt
+@y
+if (x<>69069)or(IO_Result<>0) then goto bad_fmt
+@z
+%---------------------------------------
+@x [50] m.1328 l.24131 - file names
+pack_job_name(format_extension);
+@y
+if Length(format_ext)=length(format_extension) then
+  for k:=0 to Length(format_ext)-1 do
+    str_pool[str_start[format_extension]+k]:=xord[format_ext[k+1]];
+pack_job_name(format_extension);
+@z
+%---------------------------------------
+@x [50] m.1329 l.24140 - write last block of fmt_file
+w_close(fmt_file)
+@y
+if dump_ndx>=0 then dump_io; w_close(fmt_file)
+@z
+%---------------------------------------
+@x [51] m.1331 l.24195 - ready_already, get time
+@!ready_already:integer; {a sacrifice of purity for economy}
+@y
+@!orig_sp:Word; {stack pointer at begin of program}
+@!g_hh,@!g_mm,@!g_ss,@!g_cc:Word; {initial time}
+@!l_hh,@!l_mm,@!l_ss,@!l_cc:Word; {final time}
+@z
+%---------------------------------------
+@x [51] m.1332 l.24203 main - TP units, OS command interface, Dos file handles
+@p begin @!{|start_here|}
+@y
+@p procedure Do_Dos; {interface to |Do_Cmd| in the Dos-TP unit}
+begin swap_seg:=C_Seg; Do_Cmd;
+end;
+@#
+TP_main@; {back to main |program TEX|}
+label @<Labels in the outer block@>@/
+TP_dir(F+)@; procedure exec_swap(o:Word;f:Pointer); External; TP_dir(F-)@/
+TP_dir(L exec_swap)@/
+@#
+procedure dos_files; External;@/
+TP_dir(L dos_files)@/
+@#
+begin @!{|start_here|}
+swap_addr:=exec_swap;@/
+dos_files;@/
+@z
+%---------------------------------------
+@x [51] m.1332 l.24206 main - ready_already, system interfaces
+if ready_already=314159 then goto start_of_TEX;
+@y
+Inline($89/$2E/orig_sp  {|mov orig_sp,bp|}); Inc(orig_sp,2);
+Get_Time(g_hh,g_mm,g_ss,g_cc);
+File_Mode:=0; {required for `read-only' input files}
+Set_Int_Vec(@"1B,@@set_intr);
+Set_Int_Vec(@"23,@@set_intr); {will be reset by \TP's run time system}
+@z
+%---------------------------------------
+@x [51] m.1332 l.24214 main - large arrays
+initialize; {set global variables to their starting values}
+@y
+init_memory;
+initialize; {set global variables to their starting values}
+@z
+%---------------------------------------
+@x [51] m.1332 l.24219 main - ready_already
+ready_already:=314159;
+@y
+@z
+%---------------------------------------
+@x [51] m.1332 l.24226 main - ready_already
+final_end: ready_already:=0;
+@y
+final_end: Halt(4);
+@z
+%---------------------------------------
+@x [51] m.1333 l.24250 close_files_and_terminate - virtual memory
+  begin wlog_cr; a_close(log_file); selector:=selector-2;
+@y
+  begin wlog_cr;
+  @!stat if @!init true or@+tini@;(tracing_stats>0) then
+    virt_stat(log_file);@+tats@;
+  a_close(log_file); selector:=selector-2;
+@z
+%---------------------------------------
+@x [51] m.1333 l.24254 close_files_and_terminate - file handling
+    slow_print(log_name); print_char(".");
+    end;
+  end;
+@y
+    slow_print(log_name); print_char(".");
+    end;
+  end;
+print_ln;
+Get_Time(l_hh,l_mm,l_ss,l_cc);
+write_ln('Time used: ',
+  (((l_hh-g_hh+24) mod 24)*60+l_mm-g_mm)*60+l_ss-g_ss:1,' seconds');
+for k:=1 to max_in_open do x_close(input_file[k]); {close all input files}
+for k:=0 to 15 do if read_open[k]<>closed then x_close(read_file[k]);
+  {and all read files}
+Halt(history); {so we may obtain some sort of return code}
+@z
+%---------------------------------------
+@x [51] m.1334 l.24273 - subrange trouble
+  wlog_ln(' ',lo_mem_max-mem_min+mem_end-hi_mem_min+2:1,@|
+@y
+  wlog_ln(' ',integer(lo_mem_max-mem_min)+mem_end-hi_mem_min+2:1,@|
+@z
+%---------------------------------------
+@x [51] m.1337 l.24367 - programmable xord/xchr translation
+  while (loc<limit)and(buffer[loc]=" ") do incr(loc);
+  end;
+@y
+  while (loc<limit)and(buffer[loc]=" ") do incr(loc);
+  end;
+if Length(code_page)>0 then wterm_ln('code page=',code_page);
+@z
+%---------------------------------------
+@x [52] m.1338 l.24396 - compiler directives
+program below. (If |m=13|, there is an additional argument, |l|.)
+@y
+program below. (If |m=13|, there is an additional argument, |l|.)
+
+Range checking will be disabled for the procedure |debug_help| even if
+it is enabled for the rest of the program.
+@z
+%---------------------------------------
+@x [52] m.1338 l.24405 debug_help - compiler directives
+begin loop begin wake_up_terminal;
+@y
+TP_dir(Ifopt R+) TP_dir(Define Range) TP_dir(R-)
+TP_dir(else) TP_dir(Undef Range) TP_dir(endif)
+begin loop begin wake_up_terminal;
+@z
+%---------------------------------------
+@x [52] m.1338 l.24421 debug_help - compiler directives
+exit:end;
+@y
+exit:end;
+TP_ifdef Range TP_dir(R+) TP_endif
+@z
+%---------------------------------------
+@x [53] m.1350 l.24609 new_write_whatsit - OS command interface
+  else if cur_val>15 then cur_val:=16;
+@y
+  else if cur_val=cmd_write then
+    begin if cmd_status=1 then
+      if (in_open=0)or((in_open=1)and(line<6)) then cmd_status:=0;
+    if cmd_status>0 then
+      begin print_err("Too late for "); print_esc("write");
+      print_int(cur_val);
+      help3("This version of TeX uses \write99 to submit commands to the")@/
+      ("operating system; as a protection against malicious misuse the")@/
+      ("first such \write99 must occur in one of the first input lines.");
+      error; cur_val:=17; cmd_status:=3;
+      end;
+    end
+  else if cur_val>15 then cur_val:=16;
+@z
+%---------------------------------------
+@x [53] m.1355 l.24650 print_write_whatsit - OS command interface
+else if write_stream(p)=16 then print_char("*")
+@y
+else if write_stream(p)=16 then print_char("*")
+else if write_stream(p)=cmd_write then print("**")
+@z
+%---------------------------------------
+@x [53] m.1370 l.24773 write_out - OS command interface
+if write_open[j] then selector:=j
+@y
+if j=cmd_write then selector:=cmd_print
+else if write_open[j] then selector:=j
+@z
+%---------------------------------------
+@x [54] m.1379 l.24904 - additions
+This section should be replaced, if necessary, by any special
+modifications of the program
+that are necessary to make \TeX\ work at a particular installation.
+It is usually best to design your change file so that all changes to
+previous sections preserve the section numbering; then everybody's version
+will be consistent with the published program. More extensive changes,
+which introduce new sections, can be inserted here; then only the index
+itself will get a new section number.
+@^system dependencies@>
+@y
+The following sections, as recommended, contain the more extensive
+modifications of the program
+that are necessary to make \TeX\ work under \TP\ and \.{DOS}:
+interrupt handling, memory management, and free list reorganization.
+@^system dependencies@>
+
+@d do_none(#)==#@; do_none_cont {neither split files nor additional units}
+@d do_none_cont(#)==do_none_end
+@d do_none_end(#)==
+@#
+@d do_split(#)==do_split_cont {create split files}
+@d do_split_cont(#)==#@; do_split_end
+@d do_split_end(#)==
+@#
+@d do_unit(#)==do_unit_cont {create additional units}
+@d do_unit_cont(#)==do_unit_end
+@d do_unit_end(#)==#
+
+@ First we want to include compiler directives into each unit and into
+the main program.
+
+@<Include compiler directives for main program and units@>=
+TP_dir(R-,S-,I+,F-) {no range check and no stack check}
+TP_ifdef Test@; TP_dir(Define Stat)@; TP_dir(Define Init)@; TP_endif@/
+TP_dir(Define NoDebug)@/
+@!debug split_or_unit()()(TP_dir(R+,S+)) {but turn on range and stack
+  checking when debugging and creating additional units}
+TP_dir(Undef NoDebug)@;@+gubed
+
+@ Next we provide interrupt handling. We activate \TeX's own attention
+handler by hitting `\.\^Break' or `\.\^C'; the difference between them
+is that `\.\^Break' works at all times, whereas `\.\^C' works only at
+I/O time and only if nothing has been `typed ahead'.
+
+@<Include system and memory...@>=
+procedure set_intr; TP_int@; Interrupt; TP_imp@/
+begin interrupt:=1;
+end;
+
+@ The large arrays are acquired from the heap; we want to intercept heap
+overflow (run time error 203).
+
+@<Include system and memory...@>=
+TP_dir(F+) function Heap_Func(i:Word):Integer; TP_dir(F-) @;@/
+begin Heap_Func:=0;
+if i>0 then
+  if mem_done then Heap_Func:=1 {return |nil|}
+  else begin write_ln('Not enough memory for TeX'); Halt(4);
+  end;
+end;
+
+@ A convenient page of each kind is brought into real memory.
+
+@<Include system and memory...@>=
+procedure init_memory;
+var i: Integer; {loop index}
+@!p: Pointer;
+begin mem_done:=false; {abort on heap overflow}
+Heap_Error:=@@Heap_Func; {intercept heap overflow (run time error 203)}
+@<Get memory@>;
+@<Prepare page translation tables@>@;
+virt_init;
+@<Get one page of each kind@>@;
+mem_done:=true; {return |nil| on heap overflow}
+end;
+
+@ The virtual memory management requires that each new slot starts at a
+paragraph boundary; the simplest way to achieve this is to adjust the
+size of each dynamic variable to full paragraphs.
+
+@d new(#)==Get_Mem(#,(Size_Of(#^)+15) and @"FFF0)
+@d dispose(#)==
+  begin Free_Mem(#,(Size_Of(#^)+15) and @"FFF0); more_slots:=true;
+  end
+
+@<Get memory@>=
+new(p_str_pool); new(p_str_start);
+@#
+@!debug new(p_free); new(p_was_free); gubed@;
+new(p_eqtb); new(p_hash);
+@#
+new(p_trie_char);
+@!init
+new(p_tr_op_hash); new(p_tr_op_lang); new(p_tr_op_val);@/
+new(p_trie_c); new(p_trie_taken);@/
+tini@;
+
+@ The virtual memory management uses these arrays.
+
+@<Glob...@>=
+@!l_page: array[0..max_pg_type] of ^Pointer;
+  {array of address translation tables}
+@!h_page: array[0..max_pg_type] of Byte;
+  {highest page number for each type}
+@!a_page: array[0..max_pg_type] of Byte;
+  {number of currently allocated pages for each type}
+@!stat
+@!c_page: array[0..max_pg_type] of Word; {total number for each type}
+@!n_page: array[0..max_pg_type] of String[6]; {identifiers for types}
+@+tats@;
+
+@ Here we make these arrays accessible to the Dos-TP unit.
+
+@<Prepare page trans...@>=
+mx_pg_type:=max_pg_type;
+p_l_page:=@@l_page;
+p_h_page:=@@h_page;
+p_a_page:=@@a_page;
+@!stat
+p_c_page:=@@c_page;
+p_n_page:=@@n_page;
+@+tats@;
+
+@ This is the page translation table for the |mem| array.
+
+@d mem_pg_type=0 {page type for |mem|}
+
+@<Constants...@>=
+@!t_mem_max=mem_max div 256; {number of memory pages for |mem|}
+
+@ @<Types...@>=
+@!t_mem_index=0..t_mem_max;
+
+@ @<Glob...@>=
+@!i_mem: Word; {|pg_id| of most recently used |mem| page}
+@!s_mem: Word; {|sl_seg| of that page}
+@!t_mem: array[t_mem_index] of page_rec;
+
+@ @<Prepare page trans...@>=
+l_page[mem_pg_type]:=@@t_mem; h_page[mem_pg_type]:=t_mem_max;
+@!stat
+n_page[mem_pg_type]:='mem';
+tats@;
+
+@ @<Get one page of each kind@>=
+i_mem:=256*mem_pg_type+t_mem_max;
+p:=f_mem(mem_min); {allocate first |mem| page}
+
+@ Here finally is the |f_mem| function (to be included into main
+program and units as required) used to access elements of the |mem|
+array.
+
+@<Declare the function called |f_mem|@>=
+TP_dir(L mem_ptr)@/
+function f_mem(p: pointer): p_memory_word; External;
+
+@ This is the page translation table for the |font_info| array.
+
+@d font_pg_type=1 {page type for |font_info|}
+
+@<Constants...@>=
+@!t_font_max=font_mem_size div 256; {number of memory pages for |font_info|}
+
+@ @<Types...@>=
+@!t_font_index=0..t_font_max;
+
+@ @<Glob...@>=
+@!i_font: Word; {|pg_id| of most recently used |font_info| page}
+@!s_font: Word; {|sl_seg| of that page}
+@!t_font: array[t_font_index] of page_rec;
+
+@ @<Prepare page trans...@>=
+l_page[font_pg_type]:=@@t_font; h_page[font_pg_type]:=t_font_max;
+@!stat
+n_page[font_pg_type]:='font';
+tats@;
+
+@ @<Get one page of each kind@>=
+i_font:=256*font_pg_type+t_font_max;
+p:=f_font(0); {allocate first |font_info| page}
+
+@ Here finally is the |f_font| function (to be included into main
+program and units as required) used to access elements of the |font_info|
+array.
+
+@<Declare the function called |f_font|@>=
+TP_dir(L font_ptr)@/
+function f_font(p: font_index): p_memory_word; External;
+
+@ This is the page translation table for the |trie| array.
+
+@d hyph_pg_type=2 {page type for |trie|}
+
+@<Constants...@>=
+@!t_trie_max=trie_size div 256; {number of memory pages for |trie|}
+
+@ @<Types...@>=
+@!t_trie_index=0..t_trie_max;
+
+@ @<Glob...@>=
+@!i_hyph: Word; {|pg_id| of most recently used |trie| page}
+@!s_hyph: Word; {|sl_seg| of that page}
+@!t_hyph: array[t_trie_index] of page_rec;
+
+@ @<Prepare page trans...@>=
+l_page[hyph_pg_type]:=@@t_hyph; h_page[hyph_pg_type]:=t_trie_max;
+@!stat
+n_page[hyph_pg_type]:='hyph';
+tats@;
+
+@ @<Get one page of each kind@>=
+i_hyph:=256*hyph_pg_type+t_trie_max;
+p:=f_hyph(0); {allocate first |trie| page}
+
+@ Here finally is the |f_hyph| function (to be included into main
+program and units as required) used to access elements of the |trie|
+array.
+
+@<Declare the function called |f_hyph|@>=
+TP_dir(L hyph_ptr)@/
+function f_hyph(p: trie_pointer): p_two_halves; External;
+
+@ These are the page translation tables for the |trie1| and |trie2|
+array used by \.{INITEX} only.
+
+@d trie1_pg_type=3 {page type for |trie1|}
+@d trie2_pg_type=4 {page type for |trie2|}
+
+@<Glob...@>=
+@!init
+@!i_trie1: Word; {|pg_id| of most recently used |trie1| page}
+@!s_trie1: Word; {|sl_seg| of that page}
+@!t_trie1: array[t_trie_index] of page_rec;@/
+@!i_trie2: Word; {the same for |trie2|}
+@!s_trie2: Word;
+@!t_trie2: array[t_trie_index] of page_rec;
+tini
+
+@ @<Prepare page trans...@>=
+@!init
+l_page[trie1_pg_type]:=@@t_trie1; h_page[trie1_pg_type]:=t_trie_max;
+l_page[trie2_pg_type]:=@@t_trie2; h_page[trie2_pg_type]:=t_trie_max;
+@!stat
+n_page[trie1_pg_type]:='trie1';
+n_page[trie2_pg_type]:='trie2';
+tats@;
+tini
+
+@ @<Get one page of each kind@>=
+@!init
+i_trie1:=256*trie1_pg_type+t_trie_max;
+i_trie2:=256*trie2_pg_type+t_trie_max;
+p:=f_trie1(0); p:=f_trie2(0); {allocate first |trie1| and |trie2| page}
+tini
+
+@ Here finally are the |f_trie1| and |f_trie2| functions (to be included
+into main program and units as required) used to access elements of the
+|trie1| (i.e., |trie_l| and |trie_r|) and |trie2| (i.e., |trie_o| and
+|trie_hash|) arrays.
+
+@<Declare the functions called |f_trie1| and |f_trie2|@>=
+@!init
+TP_dir(L init_ptr)@/
+function f_trie1(p: trie_pointer): p_two_halves; External;
+function f_trie2(p: trie_pointer): p_two_halves; External;
+tini
+
+@ @<Constants...@>=
+@!max_pg_type=hyph_pg_type @!init +trie2_pg_type-hyph_pg_type@+tini;
+  {largest legal |pg_type| value}
+
+@ When we consider the various nodes allocated from the free lists
+stringed out sequentially then \TeX's access is kind of local most of the time.
+It is clear: One paragraph of text is under consideration in one period
+of time, one formula, one batch of finished lines. In a paging environment
+(and most of the machines are today), such locality is an advantage:
+Consider the ``Working Set'', the collection of memory pages
+accessed during a certain period of time. With good locality,
+the Working Set needs be small only, and page faults few.
+
+For \TeX\ and other programs with similar memory management, the free list
+tends to be scrambled and scattered during the first few pages already
+such as any locality to be non-existent at all.
+Thus the Working Set may grow about a third again as large.
+Solution is to reorganize the free list(s) at certain times
+such as to reflect physical neighbourhood again.
+
+This amounts to a Sort. A full sort, however, is out of question,
+it may take up to 16 sweeps through the list. It is not necessary even
+since there is no harm in a scramble inside a memory page.
+So we do one sweep with as many buckets as there are memory pages,
+then recombine.
+
+The proper place for this to be inserted is right after
+the grand |free_node_list| at the end of |ship_out|.
+
+@<Declare procedures needed in |hlist_out|, |vlist_out|@>=
+procedure reorganize_free_lists;
+var p,@!q,@!r,@!t: pointer; {indices into |mem|}
+@!i: t_mem_index; {index of a memory page}
+@!t_min, @!t_max: t_mem_index;
+  {the minimum and maximum page indices found so far}
+begin
+@!debug check_mem(false);@+gubed@;@/
+p:=get_node(@'10000000000); {re-merge them first thing right away}
+@<Distribute variable size free list@>@;
+@<Recombine variable size free list@>@;@/
+@<Distribute single word free list@>@;
+@<Recombine single word free list@>@;@/
+@!debug check_mem(true);@+gubed@; {Any output here would mean trouble}
+end;
+
+@ @<Glob...@>=
+@!mem_head, @!mem_tail: array[t_mem_index] of pointer;
+
+@ @<Prepare page trans...@>=
+for i:=0 to t_mem_max do mem_tail[i]:=null; {prepare the mem pages}
+
+@ The elements of the non-empty doubly linked cirular free list are
+distributed to several doubly linked lists, one for each memory page.
+
+@d distribute_free_list(#)==
+t_min:=t_mem_max; t_max:=0;
+while p<>null do
+  begin q:=p; i:=Hi(p);
+  repeat t:=q; q:=#(q);
+  until (Hi(q)<>i)or(q=null);
+  distribute_free_list_end
+@#
+@d distribute_free_list_end(#)==
+  r:=mem_tail[i];
+  if r=null then
+    begin mem_head[i]:=p;
+    if t_min>i then t_min:=i;
+    if t_max<i then t_max:=i;
+    end
+  else  begin #;@+end;
+  mem_tail[i]:=t; p:=q;
+  end
+@#
+@d relink_variable==llink(p):=r; rlink(r):=p {link node |p| to |r|}
+
+@<Distribute variable...@>=
+p:=rover; rlink(llink(p)):=null;
+distribute_free_list(rlink)(relink_variable);
+
+@ Now all these list are recombined into a circular free list.
+
+@d recombine_free_list(#)==
+begin r:=mem_tail[i];
+if r<>null then
+  begin #; mem_tail[i]:=null; p:=mem_head[i];
+  end;
+end
+
+@<Recombine variable...@>=
+p:=mem_head[t_max];
+for i:=t_min to t_max do {this turned out to be better than |downto|}
+  recombine_free_list(relink_variable);
+rover:=p;
+
+@ This must be considered part of the inner loop since every single character
+freed after printing gets through here.
+@^inner loop@>
+
+@d relink_single==link(r):=p {link node |p| to |r|}
+
+@<Distribute single...@>=
+p:=avail;
+distribute_free_list(link)(relink_single);
+
+@ @<Recombine single...@>=
+for i:=t_max downto t_min do {this turned out to be better then |to|}
+  recombine_free_list(relink_single);
+avail:=p;
+@z
+%---------------------------------------
+
