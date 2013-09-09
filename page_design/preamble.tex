@@ -1,0 +1,25 @@
+﻿
+%%% xeCJK
+\usepackage{xeCJK}
+\setCJKmainfont{宋体}
+\setCJKsansfont{宋体}
+\setCJKmonofont{宋体}
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip=0pt plus 1pt minus 0.1pt
+
+%%% geometry
+\usepackage[includehead,includefoot,hmargin=.5cm,vmargin=.5cm]{geometry}
+
+%%% fancyhdr
+\usepackage{fancyhdr}
+\pagestyle{fancy} % use fancyhdr
+\fancyhead{} % clear header
+\fancyhead[L]{Lhead}
+\fancyhead[C]{Chead}
+\fancyhead[R]{Rhead}
+\fancyfoot{} % clear footer
+\fancyfoot[L]{Lfoot}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{Rfoot}
+\renewcommand{\headrulewidth}{0.4pt} % header line
+\renewcommand{\footrulewidth}{0.4pt} % footer line
