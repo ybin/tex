@@ -1,0 +1,130 @@
+﻿\documentclass[a4paper]{article}
+\usepackage[table]{xcolor}
+\usepackage{xeCJK}
+\setCJKmainfont{宋体}
+\setCJKsansfont{宋体}
+\setCJKmonofont{宋体}
+\XeTeXlinebreaklocale "zh"
+\XeTeXlinebreakskip=0pt plus 1pt minus 0.1pt
+\usepackage[hmargin=21mm, vmargin=29.7mm]{geometry}
+\usepackage{layout}
+\usepackage[bookmarksnumbered]{hyperref}
+
+\setlength{\parindent}{0em} % 段落缩进
+%\hangafter=1                % 从第1行开始悬挂缩进
+%\setlength{\hangindent}{2em}% 悬挂缩进
+
+%\addtolength{\oddsidemargin}{-.875in}
+%\addtolength{\evensidemargin}{-.875in}
+%\addtolength{\textwidth}{1.75in}
+%\addtolength{\topmargin}{-.875in}
+%\addtolength{\textheight}{1.75in}
+
+\newenvironment{layoutparams}[1]{ % caption of layout params table
+  \begin{table*}[hptb]
+  \ttfamily\centering
+  \caption{#1}
+  \vspace{1ex}
+  \rowcolors{2}{green!20!red!20}{yellow!20}
+  \begin{tabular}{p{14.5em}p{28em}}
+    \rowcolor{cyan!60}
+    XML Attributes & Description \\ % table header
+    \hline
+}{
+  \end{tabular}
+  \end{table*}
+}
+
+
+\begin{document}
+
+  \section[表格]{表格}
+
+  \begin{layoutparams}{ViewGroup.LayoutParams}
+    android:layout\_height& Specifies the basic height of view. \\
+    android:layout\_width & Specifies the basic width of view.  \\
+  \end{layoutparams}
+
+  \begin{layoutparams}{ViewGroup.MarginLayoutParams}
+    android:layout\_marginBottom& Specifies extra space on the bottom side of this view.\\
+    android:layout\_marginEnd   & Specifies extra space on the end side of this view.\\
+    android:layout\_marginLeft  & Specifies extra space on the left side of this view.\\
+    android:layout\_marginRight & Specifies extra space on the right side of this view.\\
+    android:layout\_marginStart & Specifies extra space on the start side of this view.\\
+    android:layout\_marginTop   & Specifies extra space on the top side of this view.\\
+  \end{layoutparams}
+
+  \begin{layoutparams}{LinearLayout.LayoutParams}
+    android:layout\_gravity  & Standard gravity constant that a child supplies to its parent. \\
+    android:layout\_weight   & \\
+  \end{layoutparams}
+
+  \begin{layoutparams}{FrameLayout.LayoutParams}
+    android:layout\_gravity  & Standard gravity constant that a child supplies to its parent.\\
+  \end{layoutparams}
+
+  \begin{layoutparams}{RelativeLayout.LayoutParams}
+    above	&	Positions the bottom edge of this view above the given anchor view ID.\\
+    alignBaseline	&	Positions the baseline of this view on the baseline of the given anchor view ID.\\
+    alignBottom	&	Makes the bottom edge of this view match the bottom edge of the given anchor view ID.\\
+    alignEnd	&	Makes the end edge of this view match the end edge of the given anchor view ID.\\
+    alignLeft	&	Makes the left edge of this view match the left edge of the given anchor view ID.\\
+    alignParentBottom	&	If true, makes the bottom edge of this view match the bottom edge of the parent.\\
+    alignParentEnd	&	If true, makes the end edge of this view match the end edge of the parent.\\
+    alignParentLeft	&	If true, makes the left edge of this view match the left edge of the parent.\\
+    alignParentRight	&	If true, makes the right edge of this view match the right edge of the parent.\\
+    alignParentStart	&	If true, makes the start edge of this view match the start edge of the parent.\\
+    alignParentTop	&	If true, makes the top edge of this view match the top edge of the parent.\\
+    alignRight	&	Makes the right edge of this view match the right edge of the given anchor view ID.\\
+    alignStart	&	Makes the start edge of this view match the start edge of the given anchor view ID.\\
+    alignTop	&	Makes the top edge of this view match the top edge of the given anchor view ID.\\
+    alignWithParentIfMissing	&	If set to true, the parent will be used as the anchor when the anchor cannot be be found for layout\_toLeftOf, layout\_toRightOf, etc.\\
+    below	&	Positions the top edge of this view below the given anchor view ID.\\
+    centerHorizontal	&	If true, centers this child horizontally within its parent.\\
+    centerInParent	&	If true, centers this child horizontally and vertically within its parent.\\
+    centerVertical	&	If true, centers this child vertically within its parent.\\
+    toEndOf	&	Positions the start edge of this view to the end of the given anchor view ID.\\
+    toLeftOf	&	Positions the right edge of this view to the left of the given anchor view ID.\\
+    toRightOf	&	Positions the left edge of this view to the right of the given anchor view ID.\\
+    toStartOf	&	Positions the end edge of this view to the start of the given anchor view ID.\\
+  \end{layoutparams}
+
+  \begin{layoutparams}{android:layout\_gravity}
+    top	&	 Push object to the top of its container, not changing its size. \\
+    bottom	&	 Push object to the bottom of its container, not changing its size. \\
+    left	&	 Push object to the left of its container, not changing its size. \\
+    right	&	 Push object to the right of its container, not changing its size. \\
+    center\_vertical	&	 Place object in the vertical center of its container, not changing its size. \\
+    fill\_vertical	&	 Grow the vertical size of the object if needed so it completely fills its container. \\
+    center\_horizontal	&	 Place object in the horizontal center of its container, not changing its size. \\
+    fill\_horizontal	&	 Grow the horizontal size of the object if needed so it completely fills its container. \\
+    center	&	 Place the object in the center of its container in both the vertical and horizontal axis, not changing its size. \\
+    fill	&	 Grow the horizontal and vertical size of the object if needed so it completely fills its container. \\
+    clip\_vertical	&	 Additional option that can be set to have the top and/or bottom edges of the child clipped to its container's bounds. The clip will be based on the vertical gravity: a top gravity will clip the bottom edge, a bottom gravity will clip the top edge, and neither will clip both edges. \\
+    clip\_horizontal	&	 Additional option that can be set to have the left and/or right edges of the child clipped to its container's bounds. The clip will be based on the horizontal gravity: a left gravity will clip the right edge, a right gravity will clip the left edge, and neither will clip both edges. \\
+    start	&	 Push object to the beginning of its container, not changing its size. \\
+    end	&	 Push object to the end of its container, not changing its size. \\
+  \end{layoutparams}
+
+  \section[常见问题汇总]{常见问题汇总}
+  \subsection[动态修改尺寸]{如何在代码中修改View/ViewGroup的尺寸呢？}
+  \begin{enumerate}
+    \item 实例化一个parent view类型的LayoutParams对象
+    \item 设置该对象中的width、height等参数
+    \item 将该对象设置到需要改动的View/ViewGroup对象中
+  \end{enumerate}
+  注意，这个LayoutParams类一定是其parent view的LayoutParams类，因为View的尺寸信息是供其
+  parent view读取的。，因为View的尺寸信息是供其
+
+
+  或者也可以这样：
+  \begin{verbatim}
+    view.getLayoutParams().width = XXX;
+    view.getLayoutParams().height = YYY;
+    view.requestLayout();
+  \end{verbatim}
+  注意，有时getLayoutParams()返回为null，比如还没有setContentView()的时候就是这样。
+
+%  \layout
+
+\end{document}

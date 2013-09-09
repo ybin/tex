@@ -3,44 +3,56 @@
 0
 0
 1
-using_git.tex
-31
+:\Git\github\tex\android_layout\layout_params.tex
+35
 1
 0
 
-:\Git\github\tex\beamer_temple\test_prj\main.tex
+:\Git\github\tex\android_layout\layout_params.tex
 TeX
-286273523 0 -1 1035 -1 82 66 87 1392 442 1 89 68 -1 -1 0 0 -1 -1 -1 -1 1 0 82 -1   0
-tikz_template.tex
-TeX
-269496307 0 -1 177 -1 475 132 174 1436 527 1 105 289 -1 -1 0 0 0 -1 -1 0 1 0 475 -1   0
-using_git.tex
-TeX
-420491251 0 -1 13833 -1 13547 110 145 1414 498 1 169 340 -1 -1 0 0 22 -1 -1 22 1 0 13547 -1   0
+286273523 0 -1 641 -1 641 22 29 1348 384 1 345 340 -1 -1 0 0 32 -1 -1 32 1 0 641 -1   0
 beamer_template.tex
 TeX
-269496307 0 -1 1078 -1 785 88 116 1392 469 1 241 289 -1 -1 0 0 0 -1 -1 0 1 0 785 -1   0
+269496307 1 -1 880 -1 745 88 116 1392 469 1 73 323 -1 -1 0 0 0 -1 -1 0 1 0 745 -1   0
+tikz_template.tex
+TeX
+269496307 0 -1 177 -1 475 132 174 1436 527 1 105 -2969 -1 -1 0 0 0 -1 -1 0 1 0 475 -1   0
+using_git.tex
+TeX
+420491251 0 -1 247 -1 247 110 145 1414 498 1 201 187 -1 -1 0 0 22 -1 -1 22 1 0 247 -1   0
+:\Git\github\tex\tikz2svg\page_layout.tex
+TeX
+269496315 0 -1 16 -1 102 22 29 1348 384 0 25 102 -1 -1 0 0 32 -1 -1 32 1 0 102 -1   0
+:\Git\github\tex\tikz2svg\tikz2svg.tex
+TeX
+269496307 0 -1 1024 -1 425 0 0 1326 355 0 137 153 -1 -1 0 0 137 -1 -1 137 1 0 425 -1   0
+:\Git\github\tex\beamer_temple\preamble.tex
+TeX
+286273523 1 -1 2180 -1 2115 66 87 1326 566 0 25 408 -1 -1 0 0 0 -1 -1 0 1 0 2115 -1   0
+:\Git\github\tex\beamer_temple\tikz_example.tex
+TeX:UTF-8
+286273523 0 -1 26 -1 546 132 174 1436 527 1 185 -197 -1 -1 0 0 22 -1 -1 22 1 0 546 -1   0
+:\Git\github\tex\beamer_temple\building_location.tex
+TeX
+269496307 1 -1 32 -1 26 132 174 1392 653 1 73 34 -1 -1 0 0 22 -1 -1 22 1 0 26 -1   0
+D:\Program Files\CTEX\MiKTeX\tex\latex\standalone\standalone.cls
+TeX:STY:UNIX
+269594610 0 0 1 11 3 22 29 1348 384 0 41 187 -1 -1 0 0 74 0 0 74 1 0 3 11   0
+:\Git\github\tex\tikz2svg\tikz2svg.log
+DATA
+307233010 0 0 1 0 1 44 58 1304 537 1 73 0 -1 -1 0 0 -1 -1 -1 -1 1 0 1 0   0
 D:\Program Files\CTEX\WinEdt\Local\ConfigEx\MainMenu.ini
 DATA:INI:EDT
 269485050 0 400 76 388 73 44 58 1113 411 1 649 221 -1 -1 0 0 83 0 0 83 1 0 73 388   0
 :\Git\github\tex\beamer_temple\matrix.tex
 TeX
 269496315 1 -1 377 -1 385 44 58 1348 411 0 233 238 -1 -1 0 0 22 -1 -1 22 1 0 385 -1   0
-:\Git\github\tex\beamer_temple\building_location.tex
-TeX
-269496307 0 -1 683 -1 1458 132 174 1392 653 1 185 459 -1 -1 0 0 22 -1 -1 22 1 0 1458 -1   0
-:\Git\github\tex\beamer_temple\preamble.tex
-TeX
-286273523 0 -1 3788 -1 939 66 87 1326 566 0 25 306 -1 -1 0 0 0 -1 -1 0 1 0 939 -1   0
 :\Git\github\tex\beamer_temple\my_beamer_template.tex
 TeX
 269496307 1 -1 49 -1 43 44 58 1304 537 0 25 34 -1 -1 0 0 22 -1 -1 22 1 0 43 -1   0
 :\Git\github\tex\beamer_temple\curved_arrow_example.tex
 TeX
 269496307 0 -1 5805 -1 5981 0 0 1304 353 1 425 493 -1 -1 0 0 37 -1 -1 37 1 0 5981 -1   0
-:\Git\github\tex\beamer_temple\tikz_example.tex
-TeX:UTF-8
-286273523 0 -1 26 -1 546 132 174 1436 527 1 185 340 -1 -1 0 0 22 -1 -1 22 1 0 546 -1   0
 D:\sunyanbin10130990\tex\chines.tex
 TeX
 269496307 1 -1 114 -1 46 88 116 1392 469 1 73 51 -1 -1 0 0 23 -1 -1 23 1 0 46 -1   0
@@ -102,8 +114,4 @@ D:\sunyanbin10130990\tex\tex\helloworld.c
 DATA
 273678578 0 9 1 9 1 66 87 1091 567 1 73 153 -1 -1 0 0 -1 -1 -1 -1 1 0 1 9   0
 
-*using_git.tex
->
-*beamer_template
-*tikz_template
-<
+*:\Git\github\tex\android_layout\layout_params.tex

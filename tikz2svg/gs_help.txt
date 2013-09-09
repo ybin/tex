@@ -1,1 +1,10 @@
 gswin32c -sDEVICE=png16m -r800x800 -o out.png tikz2svg.pdf
+
+# -r 表示resolution,
+# -r800x800表示分辨率为x轴800dpi，y轴800dpi，可简写为-r800
+
+在latex中的设置：
+\documentclass[convert={ghostscript,gsdevice=png16m,outext=.png,density=800}]{standalone}
+
+# density=800即表示 -r800
+# 文件尺寸会根据图片尺寸而定
