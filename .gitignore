@@ -11,3 +11,5 @@
 *.vrb
 *.dvi
 *.ps
+
+*.pyg

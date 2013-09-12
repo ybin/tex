@@ -7,6 +7,11 @@
 \XeTeXlinebreaklocale "zh"
 \XeTeXlinebreakskip=0pt plus 1pt minus 0.1pt
 
+\usepackage{xcolor}
+
+%%% get total page number
+%\usepackage{lastpage}
+
 %%% geometry
 \usepackage[includehead,includefoot,hmargin=.5cm,vmargin=.5cm]{geometry}
 
@@ -19,7 +24,17 @@
 \fancyhead[R]{Rhead}
 \fancyfoot{} % clear footer
 \fancyfoot[L]{Lfoot}
-\fancyfoot[C]{\thepage}
+\fancyfoot[C]{\thepage/\pageref*{LastPage}}
 \fancyfoot[R]{Rfoot}
 \renewcommand{\headrulewidth}{0.4pt} % header line
 \renewcommand{\footrulewidth}{0.4pt} % footer line
+
+\usepackage{hyperref}
+
+%%% perfect source code display
+\usepackage[section]{minted}
+%\usemintedstyle{colorful}
+
+%%%
+\providecommand\commanddonothing{}
+\setlength{\parindent}{0pt}

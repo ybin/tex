@@ -3,32 +3,50 @@
 0
 0
 1
-:\Git\github\tex\android_layout\layout_params.tex
-35
-1
+:\Git\github\tex\bitmap_memory_leak\bitmap_memory_leak.tex
+40
+0
 0
 
-:\Git\github\tex\android_layout\layout_params.tex
+:\Git\github\tex\bitmap_memory_leak\bitmap_memory_leak.tex
 TeX
-286273523 0 -1 641 -1 641 22 29 1348 384 1 345 340 -1 -1 0 0 32 -1 -1 32 1 0 641 -1   0
+403714035 0 -1 342 -1 335 44 58 1370 413 0 81 238 -1 -1 0 0 -1 -1 -1 -1 1 0 335 -1   0
+:\Git\github\tex\bitmap_memory_leak\preamble.tex
+TeX
+269496307 0 15 36 -1 296 0 0 1326 355 0 225 204 -1 -1 0 0 -1 -1 -1 -1 1 0 296 -1   0
+:\Git\github\tex\bitmap_memory_leak\bitmap_memory_leak.log
+DATA
+307233010 0 0 1 0 1 44 58 1370 413 1 73 0 -1 -1 0 0 -1 -1 -1 -1 1 0 1 0   0
 beamer_template.tex
 TeX
-269496307 1 -1 880 -1 745 88 116 1392 469 1 73 323 -1 -1 0 0 0 -1 -1 0 1 0 745 -1   0
+269496307 1 -1 958 -1 884 88 116 1392 469 1 73 238 -1 -1 0 0 0 -1 -1 0 1 0 884 -1   0
+:\Git\github\tex\page_design\preamble.tex
+TeX
+269496307 0 -1 835 -1 827 110 145 1370 624 1 161 476 -1 -1 0 0 2 -1 -1 2 1 0 827 -1   0
+:\Git\github\tex\page_design\page_design.tex
+TeX
+286273523 1 -1 895 -1 814 88 116 1348 595 1 73 544 -1 -1 0 0 32 -1 -1 32 1 0 814 -1   0
+using_git.tex
+TeX
+420491251 1 -1 212 -1 163 110 145 1414 498 1 73 136 -1 -1 0 0 22 -1 -1 22 1 0 163 -1   0
+:\Git\github\tex\android_layout\layout_params.tex
+TeX
+286273523 1 -1 302 -1 283 22 29 1348 384 1 161 -1574 -1 -1 0 0 32 -1 -1 32 1 0 283 -1   0
+:\Git\github\tex\beamer_temple\preamble.tex
+TeX
+286273523 1 -1 2180 -1 2115 66 87 1326 566 0 25 -768 -1 -1 0 0 0 -1 -1 0 1 0 2115 -1   0
+:\Git\github\tex\beamer_temple\my_beamer_template.tex
+TeX
+269496307 1 -1 49 -1 43 44 58 1304 537 0 25 34 -1 -1 0 0 22 -1 -1 22 1 0 43 -1   0
 tikz_template.tex
 TeX
 269496307 0 -1 177 -1 475 132 174 1436 527 1 105 -2969 -1 -1 0 0 0 -1 -1 0 1 0 475 -1   0
-using_git.tex
-TeX
-420491251 0 -1 247 -1 247 110 145 1414 498 1 201 187 -1 -1 0 0 22 -1 -1 22 1 0 247 -1   0
 :\Git\github\tex\tikz2svg\page_layout.tex
 TeX
 269496315 0 -1 16 -1 102 22 29 1348 384 0 25 102 -1 -1 0 0 32 -1 -1 32 1 0 102 -1   0
 :\Git\github\tex\tikz2svg\tikz2svg.tex
 TeX
 269496307 0 -1 1024 -1 425 0 0 1326 355 0 137 153 -1 -1 0 0 137 -1 -1 137 1 0 425 -1   0
-:\Git\github\tex\beamer_temple\preamble.tex
-TeX
-286273523 1 -1 2180 -1 2115 66 87 1326 566 0 25 408 -1 -1 0 0 0 -1 -1 0 1 0 2115 -1   0
 :\Git\github\tex\beamer_temple\tikz_example.tex
 TeX:UTF-8
 286273523 0 -1 26 -1 546 132 174 1436 527 1 185 -197 -1 -1 0 0 22 -1 -1 22 1 0 546 -1   0
@@ -47,9 +65,6 @@ DATA:INI:EDT
 :\Git\github\tex\beamer_temple\matrix.tex
 TeX
 269496315 1 -1 377 -1 385 44 58 1348 411 0 233 238 -1 -1 0 0 22 -1 -1 22 1 0 385 -1   0
-:\Git\github\tex\beamer_temple\my_beamer_template.tex
-TeX
-269496307 1 -1 49 -1 43 44 58 1304 537 0 25 34 -1 -1 0 0 22 -1 -1 22 1 0 43 -1   0
 :\Git\github\tex\beamer_temple\curved_arrow_example.tex
 TeX
 269496307 0 -1 5805 -1 5981 0 0 1304 353 1 425 493 -1 -1 0 0 37 -1 -1 37 1 0 5981 -1   0
@@ -114,4 +129,7 @@ D:\sunyanbin10130990\tex\tex\helloworld.c
 DATA
 273678578 0 9 1 9 1 66 87 1091 567 1 73 153 -1 -1 0 0 -1 -1 -1 -1 1 0 1 9   0
 
-*:\Git\github\tex\android_layout\layout_params.tex
+*:\Git\github\tex\bitmap_memory_leak\bitmap_memory_leak.tex
+>
+*preamble
+<

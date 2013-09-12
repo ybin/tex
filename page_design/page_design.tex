@@ -3,11 +3,35 @@
 \include{preamble}
 
 \begin{document}
-  a
-  \newpage
-  b
-  \newpage
-  c
-  \newpage
-  d
+  Source code using minted.
+  
+%  \inputminted[linenos,
+%    numbersep=6pt,fontfamily=tt,
+%    xleftmargin=.1\textwidth,xrightmargin=.1\textwidth,framerule=1pt,
+%    frame=leftline]{java}{src.java}
+
+  \makeatletter
+  \def\dpcgraphics{\@ifnextchar[{\@dpcgraphics}{\@dpcgraphics[]}}
+  \def\@dpcgraphics[#1]#2{\setkeys{dpc}{#1}INPUT: #2 END}
+  
+  \define@key{dpc}{scale}{scale ({\tt\string#1\relax})\\}
+  \define@key{dpc}{clip}[true]{clip ({\tt\string#1\relax})\\}
+  \define@key{dpc}{height}{height ({\tt\string#1\relax})\\}
+  \define@key{dpc}{width}{width ({\tt\string#1\relax})\\}
+  \makeatother
+  
+  \def\scalemacro{}
+  \dpcgraphics[
+    height =4in, ,
+    width = 3in,
+    scale = \scalemacro,
+    clip,
+  ]{aaa}
+  
+
+      
+  % the last page for total page number.
+  \commanddonothing
+  \label{LastPage}
+
 \end{document}
