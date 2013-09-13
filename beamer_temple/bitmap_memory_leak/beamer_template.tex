@@ -31,7 +31,7 @@
 \usepackage{listings} % for listing source code
 % listings settings
 \lstset{
-  language=C,
+  language=Java,
   numbers=left,
   numberstyle=\scriptsize,
   frame=none,
@@ -49,6 +49,13 @@
   tabsize=4,
   backgroundcolor=\color{gray!20}
 }
+
+\usepackage{minted}
+\newminted{java}{linenos,
+    numbersep=6pt,fontfamily=tt,
+    xleftmargin=.1\textwidth,xrightmargin=.1\textwidth,framerule=1pt,
+    frame=leftline}
+
 
 %********** colors and drawing pictures **********
 %\usepackage{xcolor} % beamer 自动加载xcolor
