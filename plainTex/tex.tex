@@ -1,0 +1,18 @@
+
+\count100=9
+\loop
+  \count101=65 % ASCII `A'
+  \advance\count100 by-1
+  {
+    \loop
+    \char\count101 \the\count100
+    \advance\count101 by1
+    \ifnum\count101<73
+    \space
+    \repeat
+  }
+\ifnum\count100>0
+\repeat
+
+
+\eject\bye
