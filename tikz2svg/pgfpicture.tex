@@ -1,0 +1,21 @@
+﻿\documentclass{article}
+\usepackage{graphics}
+\usepackage{tikz}
+\pgfrealjobname{pgfpicture}
+
+\begin{document}
+In the following figure, we see a circle:
+\beginpgfgraphicnamed{pgfpicture-f1}
+  \begin{tikzpicture}
+    \fill (0,0) circle (10pt);
+  \end{tikzpicture}
+\endpgfgraphicnamed
+
+By comparison, in this figure we see a rectangle:
+\beginpgfgraphicnamed{pgfpicture-f2}
+  \begin{tikzpicture}
+    \fill (0,0) rectangle (10pt,10pt);
+  \end{tikzpicture}
+\endpgfgraphicnamed
+
+\end{document}

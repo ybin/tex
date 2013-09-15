@@ -6,6 +6,7 @@
 *.pdf
 *.snm
 *.synctex.gz
+*.synctex.gz(busy)
 *.toc
 *.bak
 *.vrb
