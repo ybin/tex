@@ -1,9 +1,13 @@
 
+\tracingcommands=1
 \count100=9
 \loop
   \count101=65 % ASCII `A'
   \advance\count100 by-1
-  {
+  \hbox{% \loop的参数中不允许有\par等换行命令
+        % 这里我们利用Tex的"模式"进行排版：
+        % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+        % 从而避免了换行命令。
     \loop
     \char\count101 \the\count100
     \advance\count101 by1
@@ -13,6 +17,5 @@
   }
 \ifnum\count100>0
 \repeat
-
 
 \eject\bye
