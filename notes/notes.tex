@@ -1,1 +1,129 @@
-﻿
+﻿\documentclass{article}
+
+\input{../../android_notes/styles/preamble}
+
+\sybtitle{\TeX{} family Notes}
+\sybauthor{孙延宾}
+\sybdate{\today}
+
+
+\begin{document}
+  \tt % I love Typewriter font.
+
+%%%%%%%% the title page and toc %%%%%%%%%%
+  \pagestyle{header}
+  \sybmaketitle
+  \tableofcontents
+  \newpage
+
+%%%%%%% the main content %%%%%%%%%
+  \pagestyle{main}
+  \setcounter{page}{1}
+
+  \section[newif macro]{\bs newif macro}
+  \bs newif 宏语法：
+  \cmd{\bs newif\bs if\lt csname\gt}
+  %\\[.5em]
+  %\hspace*{4ex}\bs newif\bs if\lt csname\gt \\[.5em]
+  该定义一次性定义了三个宏：
+  \begin{description}
+    \item[\bs if\lt csname\gt:] 条件判断语句
+    \item[\bs\lt csname\gt true:] 调用这个宏会使得\bs if\lt csname\gt 中的条件判断为"true"
+    \item[\bs\lt csname\gt false] 调用这个宏会使得\bs if\lt csname\gt 中的条件判断为"false"
+  \end{description}
+  下面是一个示例：
+
+  \begin{latexcode}
+\newif\ifboy
+\newif\ifgirl
+\ifboytrue
+\ifboy{I love you, son!}\fi
+\ifgirl{I love you, daughter!}\fi
+  \end{latexcode}
+
+  运行结果：
+  \newif\ifboy
+  \newif\ifgirl
+  \boytrue
+  \ifboy{I love you, son!}\fi
+  \ifgirl{I love you, daughter!}\fi
+
+  \section[loop macro]{loop macro}
+  \bs loop宏的语法：
+  \cmd{\bs loop\lt control sequences\gt \lt conditional sequence\gt \lt control sequences\gt \bs repeat}
+  首先执行\bs loop后面的控制序列，然后，如果条件判断为true，就接着执行后面的控制序列，并循环之；
+  如果条件判断为false，就退出循环。
+
+  下面是一个嵌套循环的示例：
+
+  \begin{latexcode}
+\vbox{
+  \count100=9
+  \loop
+    \count101=65 % ASCII `A'
+    \advance\count100 by-1
+    \hbox{% \loop的参数中不允许有\par等换行命令
+          % 这里我们利用Tex的"模式"进行排版：
+          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+          % 从而避免了换行命令。
+      \loop
+      \char\count101 \the\count100
+      \advance\count101 by1
+      \ifnum\count101<73
+      \space
+      \repeat
+    }
+  \ifnum\count100>0
+  \repeat
+}
+  \end{latexcode}
+  
+  替换计数寄存器之后，代码更易读：
+  
+  \begin{latexcode}
+\vbox{
+  \newcount\num % \loop的参数中不能使用\newcount宏
+  \newcount\chr % 不能使用\par宏
+  \num=9
+  \loop
+    \chr=65 % ASCII `A'
+    \advance\num by-1
+    \hbox{% \loop的参数中不允许有\par等换行命令
+          % 这里我们利用Tex的"模式"进行排版：
+          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+          % 从而避免了换行命令。
+      \loop
+      \char\chr \the\num
+      \advance\chr by1
+      \ifnum\chr<73
+      \space
+      \repeat
+    }
+  \ifnum\num>0
+  \repeat
+}
+  \end{latexcode}
+
+  运行结果：\par\medskip
+  \vbox{
+    \count100=9
+    \loop
+      \count101=65 % ASCII `A'
+      \advance\count100 by-1
+      \hbox{% \loop的参数中不允许有\par等换行命令
+            % 这里我们利用Tex的"模式"进行排版：
+            % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+            % 从而避免了换行命令。
+        \loop
+        \char\count101 \the\count100
+        \advance\count101 by1
+        \ifnum\count101<73
+        \space
+        \repeat
+      }
+    \ifnum\count100>0
+    \repeat
+  }
+
+  %\expandafter\show\csname LaTeX \endcsname
+\end{document}

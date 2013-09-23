@@ -1,21 +1,35 @@
 
+\parindent=0pt
 \tracingcommands=1
-\count100=9
-\loop
-  \count101=65 % ASCII `A'
-  \advance\count100 by-1
-  \hbox{% \loop的参数中不允许有\par等换行命令
-        % 这里我们利用Tex的"模式"进行排版：
-        % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
-        % 从而避免了换行命令。
-    \loop
-    \char\count101 \the\count100
-    \advance\count101 by1
-    \ifnum\count101<73
-    \space
-    \repeat
-  }
-\ifnum\count100>0
-\repeat
+
+
+\vbox{
+  \newcount\num
+  \newcount\chr
+  \num=9
+  \loop
+    \chr=65 % ASCII `A'
+    \advance\num by-1
+    \hbox{% \loop的参数中不允许有\par等换行命令
+          % 这里我们利用Tex的"模式"进行排版：
+          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+          % 从而避免了换行命令。
+      \loop
+      \char\chr \the\num
+      \advance\chr by1
+      \ifnum\chr<73
+      \space
+      \repeat
+    }
+  \ifnum\num>0
+  \repeat
+}
+
+\newif\ifboy
+\newif\ifgirl
+\boytrue
+\ifboy{I love you, son!}\fi
+\ifgirl{I love you, daughter!}\fi
+\vfill
 
 \eject\bye
