@@ -1,88 +1,100 @@
-
+%
 \parindent=0pt
 \tracingcommands=1
-
-%%% use \hbox
-\vbox{
-  \newcount\num
-  \newcount\chr
-  \num=9
-  \loop
-    \chr=65 % ASCII `A'
-    \advance\num by-1
-    \hbox{% \loop的参数中不允许有\par等换行命令
-          % 这里我们利用Tex的"模式"进行排版：
-          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
-          % 从而避免了换行命令。
-      \loop
-      \char\chr \the\num
-      \advance\chr by1
-      \ifnum\chr<73
-      \space
-      \repeat
-    }
-  \ifnum\num>0
-  \repeat
-}
-\bigskip
-%%% use \line
-\vbox{
-  \newcount\num
-  \newcount\chr
-  \num=9
-  \loop
-    \chr=65 % ASCII `A'
-    \advance\num by-1
-    \line{% \loop的参数中不允许有\par等换行命令
-          % 这里我们利用Tex的"模式"进行排版：
-          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
-          % 从而避免了换行命令。
-      \loop
-      \char\chr \the\num
-      \advance\chr by1
-      \ifnum\chr<73
-      \space
-      \repeat
-      \hfil % note this \hfil
-    }
-  \ifnum\num>0
-  \repeat
-}
-\bigskip
-%%% \use \break
-\vbox{
-  \newcount\num
-  \newcount\chr
-  \num=9
-  \loop
-    \chr=65 % ASCII `A'
-    \advance\num by-1
-    {% \loop的参数中不允许有\par等换行命令
-          % 这里我们利用Tex的"模式"进行排版：
-          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
-          % 从而避免了换行命令。
-      \loop
-      \char\chr \the\num
-      \advance\chr by1
-      \ifnum\chr<73
-      \space
-      \repeat
-    }
-  \ifnum\num>0
-  %\hfil % note this \hfil
-  \filbreak
-  \repeat
-}
-
-word word\filbreak word word
-
-\vskip 2in
-\newif\ifboy
-\newif\ifgirl
-\boytrue
-\ifboy{I love you, son!}\fi
-\ifgirl{I love you, daughter!}\fi
-
-
-\vfill
+%
+%%%% use \hbox
+%\vbox{
+%  \newcount\num
+%  \newcount\chr
+%  \num=9
+%  \loop
+%    \chr=65 % ASCII `A'
+%    \advance\num by-1
+%    \hbox{% \loop的参数中不允许有\par等换行命令
+%          % 这里我们利用Tex的"模式"进行排版：
+%          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+%          % 从而避免了换行命令。
+%      \loop
+%      \char\chr \the\num
+%      \advance\chr by1
+%      \ifnum\chr<73
+%      \space
+%      \repeat
+%    }
+%  \ifnum\num>0
+%  \repeat
+%}
+%\bigskip
+%%%% use \line
+%\vbox{
+%  \newcount\num
+%  \newcount\chr
+%  \num=9
+%  \loop
+%    \chr=65 % ASCII `A'
+%    \advance\num by-1
+%    \line{% \loop的参数中不允许有\par等换行命令
+%          % 这里我们利用Tex的"模式"进行排版：
+%          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+%          % 从而避免了换行命令。
+%      \loop
+%      \char\chr \the\num
+%      \advance\chr by1
+%      \ifnum\chr<73
+%      \space
+%      \repeat
+%      \hfil % note this \hfil
+%    }
+%  \ifnum\num>0
+%  \repeat
+%}
+%\bigskip
+%%%% \use \break
+%\vbox{
+%  \newcount\num
+%  \newcount\chr
+%  \num=9
+%  \loop
+%    \chr=65 % ASCII `A'
+%    \advance\num by-1
+%    {% \loop的参数中不允许有\par等换行命令
+%          % 这里我们利用Tex的"模式"进行排版：
+%          % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+%          % 从而避免了换行命令。
+%      \loop
+%      \char\chr \the\num
+%      \advance\chr by1
+%      \ifnum\chr<73
+%      \space
+%      \repeat
+%    }
+%  \ifnum\num>0
+%  %\hfil % note this \hfil
+%  \filbreak
+%  \repeat
+%}
+%
+%word word\filbreak word word
+%
+%\def\kongge#1{%
+%  \hbox{\vrule height.8ex}%
+%  \vbox{\hrule width#1}%
+%  \hbox{\vrule height.8ex}%
+%}
+%A\kongge{5pt}B
+%
+\def\aaa{{ab}}
+\def\bbb{{ab}}
+\def\ccc{\aaa}
+\if\aaa\ccc AAA\else BBB \fi
+%
+%\vskip 2in
+%\newif\ifboy
+%\newif\ifgirl
+%\boytrue
+%\ifboy{I love you, son!}\fi
+%\ifgirl{I love you, daughter!}\fi
+%
+%
+%\vfill
 \eject\bye
