@@ -104,26 +104,53 @@
 }
   \end{latexcode}
 
-  运行结果：\par\medskip
-  \vbox{
-    \count100=9
-    \loop
-      \count101=65 % ASCII `A'
-      \advance\count100 by-1
-      \hbox{% \loop的参数中不允许有\par等换行命令
-            % 这里我们利用Tex的"模式"进行排版：
-            % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
-            % 从而避免了换行命令。
-        \loop
-        \char\count101 \the\count100
-        \advance\count101 by1
-        \ifnum\count101<73
-        \space
-        \repeat
-      }
-    \ifnum\count100>0
-    \repeat
+  运行结果：
+  \runcode{
+    \vbox{
+      \count100=9
+      \loop
+        \count101=65 % ASCII `A'
+        \advance\count100 by-1
+        \hbox{% \loop的参数中不允许有\par等换行命令
+              % 这里我们利用Tex的"模式"进行排版：
+              % TeX默认进入vertical mode，然后使用\hbox进入stricted horizontal mode
+              % 从而避免了换行命令。
+          \loop
+          \char\count101 \the\count100
+          \advance\count101 by1
+          \ifnum\count101<73
+          \space
+          \repeat
+        }
+      \ifnum\count100>0
+      \repeat
+    }
   }
-
+  
+  \section[文本的分散对齐]{文本的分散对齐}
+  在\TeX{}中，一行文本是要充满行宽的，在hbox中，文本要充满box的宽度，否则
+  \TeX{}的断段成行算法也就可以省略了。所以分散对齐其实是没有必要的，\TeX{}
+  一直都是这么做的，但是如果一行中只有两个单词，为何没有在行端各放置一个呢？
+  这是因为一段的最后一行时，\TeX{}会自动将该行的\bs hbox长度设置为文本的自然长度。
+  这里我们绕过\TeX{}的断行机制，使用\bs hbox来做实验。\par
+  \begin{latexcode}
+\hbox{word1 word2 word3}\par
+\hbox to \hsize{word1 word2 word3}\par
+\hbox spread 1in{word1 word2 word3}
+  \end{latexcode}
+  
+  结果如下：
+  \runcode{
+    \hbox{word1 word2 word3}\par
+    \hbox to \hsize{word1 word2 word3}\par
+    \hbox spread 1in{word1 word2 word3}
+  }
+  \bs hbox的to参数设置box的宽度；spread参数将box的宽度在文本自然宽度的基础上增加一段。
+  
+  另外，\bs break宏告诉\TeX{}“在此处断行”，之前的行宽将为\bs hsize，之后的文本视其
+  是否为段尾行而定，所以\bs break宏有可能造成之前的行填充不满而出现“分散对齐”的现象。
+  此时可以使用\bs filbreak，它的功能相对于\bs hfil\bs break，于是之前的行就会左对齐了。
+  
+  \cstr{\tolerance}, \cstr{\penalty}, \cstr{\hfuzz}, \cstr{\hbadness}的区别！
   %\expandafter\show\csname LaTeX \endcsname
 \end{document}
